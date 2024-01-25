@@ -2,6 +2,7 @@ package com.wxxy.service;
 
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wxxy.vo.JoinedTeacherStatusVo;
 
 import java.util.List;
 
@@ -18,6 +19,6 @@ public interface TeacherService extends IService<Teacher> {
 
     int selectedTeacherAccount(Long userId);
 
-
+    List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId);
 
 }
