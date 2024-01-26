@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.DigestUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -24,18 +25,17 @@ import java.util.List;
 class PaperSelectionApplicationTests {
 
 
-    @Autowired
-    private UserMapper userMapper;
 
     @Autowired
     private TeacherService teacherService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Test
     void contextLoads() {
+        String SALT = "paperSelection";
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + "123456").getBytes());
 
+        System.out.println(encryptPassword);
 
     }
 }

@@ -1,4 +1,5 @@
 package com.wxxy.service.impl;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -13,6 +14,7 @@ import com.wxxy.service.UserTeamService;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -54,10 +56,10 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         }
         //查询对应老师的队伍人数限制是否达到最大
         for (int teacherId : teacherIds) {
-            //先查询老师的总人数限制
+            //1. 先查询老师的总人数限制
             Teacher teacher = teacherMapper.selectById(teacherId);
             int virtualCount = teacher.getMaxNum();
-            //再查询老师队伍的实际人数
+            //2. 再查询老师队伍的实际人数
             QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("teacherId", teacherId);
             List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryWrapper);
@@ -130,6 +132,14 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             joinedTeacherStatus.add(joinedTeacherStatusVo);
         }
         return joinedTeacherStatus;
+    }
+
+    @Override
+    public boolean uploadAvatar(Long teacherId, MultipartFile avatar) throws IOException {
+
+        byte[] avatarBytes = avatar.getBytes();
+//        teacherMapper.insert()
+        return false;
     }
 
 

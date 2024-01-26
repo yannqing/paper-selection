@@ -1,9 +1,7 @@
 package com.wxxy.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
@@ -29,7 +27,7 @@ public class Teacher implements Serializable {
     /**
      * 账号
      */
-    private Integer userAccount;
+    private String userAccount;
 
     /**
      * 密码
@@ -74,6 +72,7 @@ public class Teacher implements Serializable {
     /**
      * 是否删除
      */
+    @TableLogic
     private Integer isDelete;
 
     @TableField(exist = false)

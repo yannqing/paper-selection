@@ -2,10 +2,14 @@ package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
+import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
 import com.wxxy.mapper.UserMapper;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 /**
 * @author 67121
@@ -17,12 +21,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
 
-    @Override
-    public User getUserByUsername(String username) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username",username);
-        return this.getOne(queryWrapper);
-    }
+
+
 }
 
 

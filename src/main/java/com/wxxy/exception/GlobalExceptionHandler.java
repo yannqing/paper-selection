@@ -5,13 +5,12 @@ import com.wxxy.vo.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 /**
  * 全局异常处理器
@@ -58,11 +57,11 @@ public class GlobalExceptionHandler {
     /**
      * redis连接异常
      */
-    @ExceptionHandler(RedisConnectionFailureException.class)
-    public BaseResponse handleRedisConnectionFailureException(RedisConnectionFailureException e, HttpServletRequest request, HttpServletResponse response){
-        log.error("redis连接异常："+e.getMessage());
-        return ResultUtils.failure("服务器繁忙，请稍后重试！");
-    }
+//    @ExceptionHandler(RedisConnectionFailureException.class)
+//    public BaseResponse handleRedisConnectionFailureException(RedisConnectionFailureException e, HttpServletRequest request, HttpServletResponse response){
+//        log.error("redis连接异常："+e.getMessage());
+//        return ResultUtils.failure("服务器繁忙，请稍后重试！");
+//    }
 
     /**
      * 系统异常

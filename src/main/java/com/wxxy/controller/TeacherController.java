@@ -1,19 +1,20 @@
 package com.wxxy.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxxy.common.Code;
 import com.wxxy.domain.Teacher;
+import com.wxxy.domain.User;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.JoinTeacherVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -70,7 +71,12 @@ public class TeacherController {
 
 
     @PostMapping("/uploadAvatar")
-    public BaseResponse<Boolean> uploadAvatar(String userId, String avatar) {
+    public BaseResponse<Boolean> uploadAvatar(@RequestParam("avatar") MultipartFile avatar, HttpServletRequest request) throws JsonProcessingException {
+//        String token = request.getHeader("token");
+//        String userInfo = JwtUtils.getUserInfoFromToken(token);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        User user = objectMapper.readValue(userInfo, User.class);
+
         return null;
     }
 }

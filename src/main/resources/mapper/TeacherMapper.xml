@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.wxxy.domain.Teacher">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
-            <result property="userAccount" column="userAccount" jdbcType="INTEGER"/>
+            <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
             <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
             <result property="avatarUrl" column="avatarUrl" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
