@@ -3,6 +3,7 @@ package com.wxxy.service;
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxxy.vo.JoinedTeacherStatusVo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -23,6 +24,6 @@ public interface TeacherService extends IService<Teacher> {
 
     List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId);
 
-    boolean uploadAvatar(Long userId, MultipartFile avatar) throws IOException;
+    boolean uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException;
 
 }

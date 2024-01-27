@@ -14,7 +14,16 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -72,11 +81,21 @@ public class TeacherController {
 
     @PostMapping("/uploadAvatar")
     public BaseResponse<Boolean> uploadAvatar(@RequestParam("avatar") MultipartFile avatar, HttpServletRequest request) throws JsonProcessingException {
-//        String token = request.getHeader("token");
-//        String userInfo = JwtUtils.getUserInfoFromToken(token);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        User user = objectMapper.readValue(userInfo, User.class);
+        if (avatar == null) {
+            throw new IllegalArgumentException("Avatar cannot be null");
+        }
 
         return null;
     }
+
+//    @GetMapping("/download/{filename}")
+//    public BaseResponse<Resource> downloadFile(@PathVariable String filename) throws IOException {
+//        Path filePath = Paths.get("src/main/resources/", filename);
+//        Resource resource = (Resource) new ClassPathResource(filePath.toString());
+//
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
+//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//                .body(resource);
+//    }
 }

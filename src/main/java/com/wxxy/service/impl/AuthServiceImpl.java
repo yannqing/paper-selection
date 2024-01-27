@@ -28,7 +28,6 @@ public class AuthServiceImpl implements AuthService {
     public <T> Object login(String username, String password, HttpServletRequest request) {
 
         //1. 先检测是否是学生登录
-
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         QueryWrapper<User> queryUserWrapper = new QueryWrapper<>();
         queryUserWrapper.eq("userAccount",username);
@@ -40,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
             request.getSession().setAttribute(USER_LOGIN_STATE, user);
             return user;
         }
-        //检测是否是老师登录，如果也不是老师登录，返回null
+        //2. 检测是否是老师登录，如果也不是老师登录，返回 null
         QueryWrapper<Teacher> queryTeacherWrapper = new QueryWrapper<>();
         queryTeacherWrapper.eq("userAccount",username);
         queryTeacherWrapper.eq("userPassword",encryptPassword);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.UserTeam;
@@ -13,6 +14,7 @@ import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -135,10 +137,14 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public boolean uploadAvatar(Long teacherId, MultipartFile avatar) throws IOException {
+    public boolean uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException {
 
         byte[] avatarBytes = avatar.getBytes();
-//        teacherMapper.insert()
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        Teacher teacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        updateWrapper.eq("id",teacher.getId());
+        updateWrapper.set("avatarUrl", avatarBytes);
+        teacherMapper.update(null, updateWrapper);
         return false;
     }
 
