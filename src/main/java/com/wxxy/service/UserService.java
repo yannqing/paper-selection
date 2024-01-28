@@ -17,6 +17,12 @@ public interface UserService extends IService<User> {
     List<User> getSelectedStudent(HttpServletRequest request);
 
 
-    public boolean agreeJoin(Long userId, HttpServletRequest request);
+    boolean agreeJoin(Long userId, HttpServletRequest request);
+
+    List<User> joinedStudent(HttpServletRequest request);
+
+    boolean removeFromTeam(Long userId, HttpServletRequest request);
+
+    boolean changeMaxSize(int maxSize, HttpServletRequest request);
 
 }

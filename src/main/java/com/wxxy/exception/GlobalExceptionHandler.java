@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      * 权限校验异常
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public BaseResponse handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
+    public BaseResponse<Object> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},权限校验失败 {}", requestURI, e.getMessage());
         return ResultUtils.failure("没有权限，请联系管理员授权");
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
      * 请求方式不支持
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public BaseResponse handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,
+    public BaseResponse<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,
                                                       HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},不支持 {} 请求", requestURI, e.getMethod());
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
      * 参数错误1
      */
     @ExceptionHandler(IllegalStateException.class)
-    public BaseResponse handleIllegalStateException(IllegalStateException e,
+    public BaseResponse<Object> handleIllegalStateException(IllegalStateException e,
                                                             HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("非法参数=>{}",e.getMessage());
@@ -55,10 +55,18 @@ public class GlobalExceptionHandler {
      * 参数错误2
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public BaseResponse handleIllegalArgumentException(IllegalArgumentException e,
+    public BaseResponse<Object> handleIllegalArgumentException(IllegalArgumentException e,
                                                     HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("非法参数=>{}",e.getMessage());
+        return ResultUtils.failure(e.getMessage());
+    }
+
+    @ExceptionHandler(ClassCastException.class)
+    public BaseResponse<Object> handleClassCastException(ClassCastException e,
+                                                       HttpServletRequest request) {
+
+        log.error("没有权限=>{}",e.getMessage());
         return ResultUtils.failure(e.getMessage());
     }
 
@@ -66,13 +74,11 @@ public class GlobalExceptionHandler {
      * 拦截未知的运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public void handleRuntimeException(RuntimeException e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public BaseResponse<Object> handleRuntimeException(RuntimeException e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},异常: {}", requestURI, e);
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(500);
-        response.getWriter().write(ResultUtils.failure(e.getMessage()).toString());
+        return ResultUtils.failure(e.getMessage());
     }
 
     /**
@@ -88,7 +94,7 @@ public class GlobalExceptionHandler {
      * 系统异常
      */
     @ExceptionHandler(Exception.class)
-    public BaseResponse handleException(Exception e, HttpServletRequest request) {
+    public BaseResponse<Object> handleException(Exception e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},发生系统异常.", requestURI, e);
         return ResultUtils.failure(e.getMessage());

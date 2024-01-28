@@ -3,6 +3,7 @@ package com.wxxy.service;
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxxy.vo.JoinedTeacherStatusVo;
+import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,7 @@ import java.util.List;
 */
 public interface TeacherService extends IService<Teacher> {
 
-    List<Teacher> getAllTeachers();
+    List<StudentGetTeachersVo> getAllTeachers();
 
     boolean joinTeacher(int[] teachers, Long userId);
 

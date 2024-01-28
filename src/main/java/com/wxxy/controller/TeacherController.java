@@ -1,29 +1,19 @@
 package com.wxxy.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxxy.common.Code;
 import com.wxxy.domain.Teacher;
-import com.wxxy.domain.User;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.JoinTeacherVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
+import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -38,8 +28,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getAll")
-    public BaseResponse<List<Teacher>> getAllTeacher() {
-        List<Teacher> allTeachers = teacherService.getAllTeachers();
+    public BaseResponse<List<StudentGetTeachersVo>> getAllTeacher() {
+        List<StudentGetTeachersVo> allTeachers = teacherService.getAllTeachers();
         return ResultUtils.success(Code.SUCCESS, allTeachers, "查询所有老师成功");
     }
 

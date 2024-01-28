@@ -14,6 +14,7 @@ import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.vo.JoinedTeacherStatusVo;
+import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,27 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     private UserTeamService userTeamService;
 
     @Override
-    public List<Teacher> getAllTeachers() {
-        return teacherMapper.selectList(null);
+    public List<StudentGetTeachersVo> getAllTeachers() {
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        List<StudentGetTeachersVo> studentGetTeachersVos = new ArrayList<>();
+        for (Teacher teacher : teachers) {
+            StudentGetTeachersVo studentGetTeachersVo = new StudentGetTeachersVo();
+            studentGetTeachersVo.setTeacherName(teacher.getName());
+            studentGetTeachersVo.setTeacherDescription(teacher.getDescription());
+            studentGetTeachersVo.setEmail(teacher.getEmail());
+            studentGetTeachersVo.setPhone(teacher.getPhone());
+            studentGetTeachersVo.setAvatarUrl(teacher.getAvatarUrl());
+            studentGetTeachersVo.setMaxNum(teacher.getMaxNum());
+            //加入数量，剩余数量
+            QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+            userTeamQueryWrapper.eq("teacherId", teacher.getId());
+            userTeamQueryWrapper.eq("isJoin", 1);
+            List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(userTeamQueryWrapper);
+            studentGetTeachersVo.setJoinedNum(userTeams.size());
+            studentGetTeachersVo.setRemainingNum(teacher.getMaxNum() - userTeams.size());
+            studentGetTeachersVos.add(studentGetTeachersVo);
+        }
+        return studentGetTeachersVos;
     }
 
 
