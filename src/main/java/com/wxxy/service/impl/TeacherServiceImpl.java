@@ -194,9 +194,10 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teacherId", teacherId);
         queryWrapper.eq("userId", loginUser.getId());
+        queryWrapper.eq("isJoin", 0);
         //判断用户是否加入此队伍
         if (userTeamService.getOne(queryWrapper) == null) {
-            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未加入此队伍teacherId: "+teacherId+"，退出失败");
+            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未申请加入此队伍teacherId: "+teacherId+"，退出失败");
         }
         int deleteResult = userTeamService.getBaseMapper().delete(queryWrapper);
 
