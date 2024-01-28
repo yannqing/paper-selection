@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.DigestUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,10 +33,21 @@ class PaperSelectionApplicationTests {
 
     @Test
     void contextLoads() {
-        String SALT = "paperSelection";
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + "123456").getBytes());
-
-        System.out.println(encryptPassword);
-
+        List<String> selected = new ArrayList<String>();
+        selected.add("sdfa");
+        selected.add("123");
+        selected.add("sdfa");
+        selected.add("sdfa");
+        selected.add("sdfa");
+        selected.add("sdfa");
+        selected.add("sdfa");
+        for (int i = 0; i < selected.size(); i++) {
+            if (selected.get(i).equals("123")) {
+                selected.remove(i);
+            }
+        }
+        for (String s : selected) {
+            System.out.println(s);
+        }
     }
 }
