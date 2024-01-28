@@ -88,14 +88,25 @@ public class TeacherController {
         return null;
     }
 
-//    @GetMapping("/download/{filename}")
-//    public BaseResponse<Resource> downloadFile(@PathVariable String filename) throws IOException {
-//        Path filePath = Paths.get("src/main/resources/", filename);
-//        Resource resource = (Resource) new ClassPathResource(filePath.toString());
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .body(resource);
-//    }
+    /**
+     * 退出队伍
+     * @param teacherId 要退出的队伍id
+     * @param request 获取session
+     * @return 返回退出结果
+     */
+    @PostMapping("/exitTeam")
+    public BaseResponse<Boolean> exitTeam(Long teacherId, HttpServletRequest request) {
+        //校验teacherId是否合法
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师id不能为空");
+        }
+        if (teacherService.getById(teacherId) == null) {
+            throw new IllegalArgumentException("此老师不存在");
+        }
+        boolean result = teacherService.exitTeam(teacherId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "退出队伍成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "退出队伍失败");
+    }
 }

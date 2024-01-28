@@ -26,4 +26,6 @@ public interface TeacherService extends IService<Teacher> {
 
     boolean uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException;
 
+    boolean exitTeam(Long teacherId, HttpServletRequest request);
+
 }

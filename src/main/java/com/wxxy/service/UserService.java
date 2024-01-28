@@ -2,6 +2,10 @@ package com.wxxy.service;
 
 import com.wxxy.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wxxy.vo.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
 * @author 67121
@@ -10,6 +14,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserService extends IService<User> {
 
+    List<User> getSelectedStudent(HttpServletRequest request);
 
+
+    public boolean agreeJoin(Long userId, HttpServletRequest request);
 
 }

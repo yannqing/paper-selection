@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxxy.domain.Teacher;
+import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
 import com.wxxy.service.TeacherService;
 import com.wxxy.mapper.TeacherMapper;
@@ -27,6 +28,7 @@ import java.util.List;
 */
 @Service
 public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
+
     implements TeacherService{
 
     @Resource
@@ -146,6 +148,38 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         updateWrapper.set("avatarUrl", avatarBytes);
         teacherMapper.update(null, updateWrapper);
         return false;
+    }
+
+    /**
+     * 退出队伍
+     * @param teacherId 要退出的队伍id
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean exitTeam(Long teacherId, HttpServletRequest request) {
+        //1. 检查teacherId是否合法
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师Id不能为空");
+        }
+        if (this.getById(teacherId) == null) {
+            throw new IllegalArgumentException("老师不存在");
+        }
+
+        //获取到此用户的信息
+        User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+
+        //退出队伍
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teacherId", teacherId);
+        queryWrapper.eq("userId", loginUser.getId());
+        //判断用户是否加入此队伍
+        if (userTeamService.getOne(queryWrapper) == null) {
+            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未加入此队伍teacherId: "+teacherId+"，退出失败");
+        }
+        int deleteResult = userTeamService.getBaseMapper().delete(queryWrapper);
+
+        return deleteResult == 1;
     }
 
 

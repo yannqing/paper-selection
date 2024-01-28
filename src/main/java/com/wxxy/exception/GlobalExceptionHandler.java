@@ -42,6 +42,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 参数错误1
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public BaseResponse handleIllegalStateException(IllegalStateException e,
+                                                            HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("非法参数=>{}",e.getMessage());
+        return ResultUtils.failure(e.getMessage());
+    }
+    /**
+     * 参数错误2
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public BaseResponse handleIllegalArgumentException(IllegalArgumentException e,
+                                                    HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("非法参数=>{}",e.getMessage());
+        return ResultUtils.failure(e.getMessage());
+    }
+
+    /**
      * 拦截未知的运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
