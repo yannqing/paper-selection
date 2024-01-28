@@ -121,15 +121,19 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<User> getUsersUnselecting() {
-        List<UserTeam> userTeams = userTeamMapper.selectList(null);
-        Set<Long> joinedUserIds = new HashSet<Long>();
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("isJoin", 1);
+        List<UserTeam> userTeams = userTeamMapper.selectList(userTeamQueryWrapper);
+        Set<Long> joinedUserIds = new HashSet<>();
         for (UserTeam team : userTeams) {
             joinedUserIds.add(team.getUserId());
         }
         List<User> users = userMapper.selectList(null);
-        for (int i = 0; i < users.size(); i++) {
+        for (int i = 0; i < users.size(); ) {
             if (joinedUserIds.contains(users.get(i).getId())) {
                 users.remove(i);
+            }else {
+                i++;
             }
         }
 

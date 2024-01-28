@@ -54,7 +54,6 @@ public class AdminController {
         }
         return ResultUtils.failure(Code.FAILURE, null, "新增教师失败");
     }
-    // 删除
 
     /**
      * 根据学生id删除学生
@@ -90,7 +89,10 @@ public class AdminController {
         return ResultUtils.failure(Code.FAILURE, null, "删除教师失败");
     }
 
-    // 查询 TODO 查看未加入队伍的学生
+    /**
+     * 查询未加入队伍的学生
+     * @return
+     */
     @GetMapping("/getUsersUnselecting")
     public BaseResponse<List<User>> getUsersUnselecting(){
         List<User> usersUnselecting = adminService.getUsersUnselecting();
