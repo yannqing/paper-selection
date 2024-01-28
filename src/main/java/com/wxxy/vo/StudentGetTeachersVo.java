@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class StudentGetTeachersVo {
+    private Long teacherId;
     private String teacherName;
     private String avatarUrl;
     private String teacherDescription;

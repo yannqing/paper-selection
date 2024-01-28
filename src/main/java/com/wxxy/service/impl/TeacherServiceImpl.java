@@ -47,6 +47,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         List<StudentGetTeachersVo> studentGetTeachersVos = new ArrayList<>();
         for (Teacher teacher : teachers) {
             StudentGetTeachersVo studentGetTeachersVo = new StudentGetTeachersVo();
+            studentGetTeachersVo.setTeacherId(teacher.getId());
             studentGetTeachersVo.setTeacherName(teacher.getName());
             studentGetTeachersVo.setTeacherDescription(teacher.getDescription());
             studentGetTeachersVo.setEmail(teacher.getEmail());
