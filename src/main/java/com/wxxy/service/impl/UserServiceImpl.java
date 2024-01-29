@@ -47,6 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //查询已选择老师的所有学生Id
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teacherId", teacher.getId());
+        queryWrapper.eq("isJoin", 0);
         List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryWrapper);
         if (userTeams.size() == 0) {
             return null;
