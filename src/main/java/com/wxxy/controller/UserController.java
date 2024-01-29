@@ -56,6 +56,24 @@ public class UserController {
     }
 
     /**
+     * 拒绝学生的申请
+     * @param userId
+     * @param request
+     * @return
+     */
+    @PostMapping("/disagreeJoin")
+    public BaseResponse<Object> disagreeJoin(Long userId, HttpServletRequest request){
+        if (userId == null) {
+            throw new IllegalArgumentException("学生id为空");
+        }
+        boolean result = userService.disagreeJoin(userId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "已拒绝学生加入");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "拒绝学生加入失败");
+    }
+
+    /**
      * 查看我的队伍
      * @param request 获取老师id
      * @return

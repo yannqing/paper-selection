@@ -19,6 +19,8 @@ public interface UserService extends IService<User> {
 
     boolean agreeJoin(Long userId, HttpServletRequest request);
 
+    boolean disagreeJoin(Long userId, HttpServletRequest request);
+
     List<User> joinedStudent(HttpServletRequest request);
 
     boolean removeFromTeam(Long userId, HttpServletRequest request);

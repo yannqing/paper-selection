@@ -79,13 +79,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (this.getById(userId) == null) {
             throw new IllegalArgumentException("用户不存在");
         }
-        //查询队伍数量是否已达最大
-        QueryWrapper<UserTeam> queryUserTeamWrapper = new QueryWrapper<>();
-        queryUserTeamWrapper.eq("teacherId", teacher.getId());
-        List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryUserTeamWrapper);
-        if (userTeams.size() >= teacher.getMaxNum()) {
-            throw new IllegalArgumentException("您的队伍已经达最大数量，无法同意加入");
-        }
         //查询用户是否已加入，是否已申请
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
@@ -97,6 +90,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userteam.getIsJoin() == 1) {
             throw new IllegalArgumentException("学生已加入，请勿重复加入");
         }
+        //查询队伍数量是否已达最大
+        QueryWrapper<UserTeam> queryUserTeamWrapper = new QueryWrapper<>();
+        queryUserTeamWrapper.eq("teacherId", teacher.getId());
+        List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryUserTeamWrapper);
+        if (userTeams.size() >= teacher.getMaxNum()) {
+            throw new IllegalArgumentException("您的队伍已经达最大数量，无法同意加入");
+        }
+
         //用户加入队伍
         UpdateWrapper<UserTeam> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("userId", userId);
@@ -105,6 +106,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userTeamService.update(null, updateWrapper);
 
     }
+
+    /**
+     * 拒绝学生加入
+     * @param userId
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean disagreeJoin(Long userId, HttpServletRequest request) {
+        //查询是否登录
+        Teacher teacher = checkLoginStatus(request);
+        //查询用户id是否合法
+        if (userId == null) {
+            throw new IllegalArgumentException("用户id为空");
+        }
+        if (this.getById(userId) == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        //查询用户是否已加入，是否已申请
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", userId);
+        queryWrapper.eq("teacherId", teacher.getId());
+        UserTeam userteam = userTeamService.getOne(queryWrapper);
+        if (userteam == null) {
+            throw new IllegalArgumentException("学生还未申请，无法拒绝");
+        }
+        if (userteam.getIsJoin() == 1) {
+            throw new IllegalArgumentException("学生已加入，无法取消申请");
+        }
+        //取消申请
+        int result = userTeamService.getBaseMapper().delete(queryWrapper);
+        return result == 1;
+    }
+
 
     /**
      * 查看我的队伍
