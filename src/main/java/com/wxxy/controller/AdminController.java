@@ -7,6 +7,7 @@ import com.wxxy.service.AdminService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.annotations.ResultType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -119,12 +120,26 @@ public class AdminController {
     // 修改
 
     @PutMapping("/updateUser")
-    public BaseResponse<Object> updateUser(){
-        return null;
+    public BaseResponse<Object> updateUser(@RequestBody User user){
+        if (user == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        boolean result = adminService.updateUser(user);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "更新数据成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "更新数据失败");
     }
     @PutMapping("/updateTeacher")
-    public BaseResponse<Object> updateTeacher() {
-        return null;
+    public BaseResponse<Object> updateTeacher(@RequestBody Teacher teacher) {
+        if (teacher == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        boolean result = adminService.updateTeacher(teacher);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "更新数据成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "更新数据失败");
     }
 
 

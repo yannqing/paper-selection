@@ -19,4 +19,8 @@ public interface AdminService {
     List<Teacher> getAllTeachers();
 
     List<User> getUsersUnselecting();
+
+    boolean updateUser(User user);
+
+    boolean updateTeacher(Teacher teacher);
 }

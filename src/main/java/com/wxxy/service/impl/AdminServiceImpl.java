@@ -1,6 +1,7 @@
 package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -138,5 +139,45 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return users;
+    }
+
+    @Override
+    public boolean updateUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", user.getId());
+        updateWrapper.set("username", user.getUsername());
+        updateWrapper.set("academy", user.getAcademy());
+        updateWrapper.set("degree", user.getDegree());
+        updateWrapper.set("userAccount", user.getUserAccount());
+        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + user.getUserPassword()).getBytes()));
+        updateWrapper.set("gender", user.getGender());
+        updateWrapper.set("profile", user.getProfile());
+        updateWrapper.set("phone", user.getPhone());
+        updateWrapper.set("email", user.getEmail());
+        updateWrapper.set("userStatus", user.getUserStatus());
+        int result = userMapper.update(null, updateWrapper);
+        return result == 1;
+    }
+
+    @Override
+    public boolean updateTeacher(Teacher teacher) {
+        if (teacher == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", teacher.getId());
+        updateWrapper.set("name", teacher.getName());
+        updateWrapper.set("userAccount", teacher.getUserAccount());
+        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + teacher.getUserPassword()).getBytes()));
+        updateWrapper.set("avatarUrl", teacher.getAvatarUrl());
+        updateWrapper.set("description", teacher.getDescription());
+        updateWrapper.set("phone", teacher.getPhone());
+        updateWrapper.set("email", teacher.getEmail());
+        updateWrapper.set("maxNum", teacher.getMaxNum());
+        int result = teacherMapper.update(null, updateWrapper);
+        return result == 1;
     }
 }
