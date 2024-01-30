@@ -35,12 +35,13 @@ public class TeacherController {
 
     /**
      * 用户加入老师队伍
-     * @param joinTeacherVo
+     * @param teacherIds
+     * @param userId
      * @return
      */
     @PostMapping("/join")
-    public BaseResponse<Teacher> joinTeacher(@RequestBody JoinTeacherVo joinTeacherVo) {
-        boolean result = teacherService.joinTeacher(joinTeacherVo.getTeacherIds(), joinTeacherVo.getUserId());
+    public BaseResponse<Teacher> joinTeacher(int[] teacherIds, Long userId) {
+        boolean result = teacherService.joinTeacher(teacherIds, userId);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "申请加入队伍成功，在审核");
         }

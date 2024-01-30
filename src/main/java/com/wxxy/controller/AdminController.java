@@ -30,7 +30,7 @@ public class AdminController {
      * @return
      */
     @PostMapping("/addUser")
-    public BaseResponse<Object> addUser(@RequestBody User user){
+    public BaseResponse<Object> addUser(User user){
         if (user == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -47,7 +47,7 @@ public class AdminController {
      * @return
      */
     @PostMapping("/addTeacher")
-    public BaseResponse<Object> addTeacher(@RequestBody Teacher teacher){
+    public BaseResponse<Object> addTeacher(Teacher teacher){
         if (teacher == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -127,7 +127,7 @@ public class AdminController {
      * @return
      */
     @PutMapping("/updateUser")
-    public BaseResponse<Object> updateUser(@RequestBody User user){
+    public BaseResponse<Object> updateUser(User user){
         if (user == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -144,7 +144,7 @@ public class AdminController {
      * @return
      */
     @PutMapping("/updateTeacher")
-    public BaseResponse<Object> updateTeacher(@RequestBody Teacher teacher) {
+    public BaseResponse<Object> updateTeacher(Teacher teacher) {
         if (teacher == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
