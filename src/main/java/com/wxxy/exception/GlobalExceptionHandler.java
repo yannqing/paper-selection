@@ -89,6 +89,15 @@ public class GlobalExceptionHandler {
 //        log.error("redis连接异常："+e.getMessage());
 //        return ResultUtils.failure("服务器繁忙，请稍后重试！");
 //    }
+    /**
+     * 文件异常
+     */
+    @ExceptionHandler(IOException.class)
+    public BaseResponse<Object> handleIOException(IOException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址 {},发生文件处理异常.", requestURI, e);
+        return ResultUtils.failure(e.getMessage());
+    }
 
     /**
      * 系统异常

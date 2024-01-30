@@ -9,7 +9,9 @@ import com.wxxy.vo.BaseResponse;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.annotations.ResultType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -119,6 +121,11 @@ public class AdminController {
     }
     // 修改
 
+    /**
+     * 修改学生信息
+     * @param user
+     * @return
+     */
     @PutMapping("/updateUser")
     public BaseResponse<Object> updateUser(@RequestBody User user){
         if (user == null) {
@@ -130,6 +137,12 @@ public class AdminController {
         }
         return ResultUtils.failure(Code.FAILURE, null, "更新数据失败");
     }
+
+    /**
+     * 修改老师信息
+     * @param teacher
+     * @return
+     */
     @PutMapping("/updateTeacher")
     public BaseResponse<Object> updateTeacher(@RequestBody Teacher teacher) {
         if (teacher == null) {
@@ -142,5 +155,34 @@ public class AdminController {
         return ResultUtils.failure(Code.FAILURE, null, "更新数据失败");
     }
 
+    /**
+     * 上传excel文档，新增学生数据
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    @PostMapping("/uploadExcelStudent")
+    public BaseResponse<Object> uploadExcelStudent(@RequestParam("file") MultipartFile file) throws IOException {
+        boolean result = adminService.uploadExcelStudent(file);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "新增excel数据成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "新增excel数据失败");
+    }
+
+    /**
+     * 上传excel文档，新增教师数据
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    @PostMapping("/uploadExcelTeacher")
+    public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file) throws IOException {
+        boolean result = adminService.uploadExcelTeacher(file);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "新增excel数据成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "新增excel数据失败");
+    }
 
 }
