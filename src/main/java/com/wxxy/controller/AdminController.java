@@ -22,8 +22,6 @@ public class AdminController {
     @Resource
     private AdminService adminService;
 
-    // 新增 TODO excel导入
-
     /**
      * 新增学生
      * @param user 学生的基本信息

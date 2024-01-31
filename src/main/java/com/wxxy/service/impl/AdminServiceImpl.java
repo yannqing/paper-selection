@@ -56,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("学号已存在，无法新增");
         }
         //设置默认密码为123456
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + "123456").getBytes());
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + user.getUserPassword()).getBytes());
         user.setUserPassword(encryptPassword);
         int result = userMapper.insert(user);
         return result == 1;
@@ -79,7 +79,7 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("此账号已存在，无法新增");
         }
         //设置默认值
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + "123456").getBytes());
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + teacher.getUserPassword()).getBytes());
         teacher.setUserPassword(encryptPassword);
         int result = teacherMapper.insert(teacher);
         return result == 1;
