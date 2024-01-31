@@ -204,6 +204,46 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return deleteResult == 1;
     }
 
+    /**
+     * 取消申请加入
+     * @param teacherId
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean cancelApplication(Long teacherId, HttpServletRequest request) {
+        //查询是否登录
+        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (user == null) {
+            throw new IllegalStateException("用户已退出，请重新登录");
+        }
+        //查询传入的参数是否为空
+        if (teacherId == null) {
+            throw new IllegalArgumentException("队伍id为空，无法确定取消哪个队伍的申请");
+        }
+        //查询传入的teacherId是否存在
+        QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
+        teacherQueryWrapper.eq("id", teacherId);
+        Teacher teacher = teacherMapper.selectOne(teacherQueryWrapper);
+        if (teacher == null) {
+            throw new IllegalArgumentException("此老师队伍不存在，请确认后再取消");
+        }
+        //查询学生对老师的申请
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("userId", user.getId());
+        userTeamQueryWrapper.eq("teacherId", teacherId);
+        UserTeam apply = userTeamService.getBaseMapper().selectOne(userTeamQueryWrapper);
+        if (apply == null) {
+            throw new IllegalStateException("您并未向此老师提出申请加入队伍，无法取消");
+        }
+        //如果老师已经同意申请，那么无法进行取消
+        if (apply.getIsJoin() == 1) {
+            throw new IllegalStateException("老师已同意申请，无法取消");
+        }
+        int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
+        return result == 1;
+    }
+
 
 }
 

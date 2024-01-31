@@ -6,7 +6,6 @@ import com.wxxy.domain.Teacher;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
-import com.wxxy.vo.JoinTeacherVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
@@ -99,5 +98,23 @@ public class TeacherController {
             return ResultUtils.success(Code.SUCCESS, null, "退出队伍成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "退出队伍失败");
+    }
+
+    /**
+     * 取消申请
+     * @param teacherId 要取消申请的老师队伍id
+     * @param request 获取session
+     * @return
+     */
+    @PostMapping("/cancelApplication")
+    public BaseResponse<Object> cancelApplication(Long teacherId, HttpServletRequest request) {
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师队伍id为空，无法取消");
+        }
+        boolean result = teacherService.cancelApplication(teacherId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "取消申请成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "取消申请失败");
     }
 }

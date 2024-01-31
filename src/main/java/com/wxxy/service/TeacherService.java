@@ -29,4 +29,6 @@ public interface TeacherService extends IService<Teacher> {
 
     boolean exitTeam(Long teacherId, HttpServletRequest request);
 
+    boolean cancelApplication(Long teacherId, HttpServletRequest request);
+
 }
