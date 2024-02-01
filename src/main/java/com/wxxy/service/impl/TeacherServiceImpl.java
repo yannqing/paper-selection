@@ -45,6 +45,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Resource
     private UserTeamService userTeamService;
 
+    /**
+     * 查询全部老师信息
+     * @param currentPage 当前页码
+     * @param pageSize 一页的数据条数
+     * @param request 获取session
+     * @return
+     */
     @Override
     public GetAllTeachersVo getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         //查看登录状态
@@ -102,8 +109,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return new GetAllTeachersVo(studentGetTeachersVos, total);
     }
 
-
-    //1. 重复申请/加入
+    /**
+     * 用户加入老师队伍
+     * @param teacherIds 加入的老师id数组，最大2个
+     * @param userId 登录的用户id，前面无session时写的，后面可以优化掉
+     * @return
+     */
     @Override
     public boolean joinTeacher(int[] teacherIds, Long userId) {
         //选择的老师数量不能超过2
@@ -280,6 +291,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return result == 1;
     }
 
+    /**
+     * 查看队伍容量
+     * @param request 获取session
+     * @return
+     */
     @Override
     public CountOfTeamVo getCountOfTeam(HttpServletRequest request) {
         //1. 查询登录状态

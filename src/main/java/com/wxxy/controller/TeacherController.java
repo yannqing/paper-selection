@@ -22,6 +22,9 @@ public class TeacherController {
 
     /**
      * 查询全部老师信息
+     * @param currentPage 当前页码
+     * @param pageSize 一页的数据条数
+     * @param request 获取session
      * @return
      */
     @GetMapping("/getAll")
@@ -32,8 +35,8 @@ public class TeacherController {
 
     /**
      * 用户加入老师队伍
-     * @param teacherIds
-     * @param userId
+     * @param teacherIds 加入的老师id数组，最大2个
+     * @param userId 登录的用户id，前面无session时写的，后面可以优化掉
      * @return
      */
     @PostMapping("/join")
