@@ -5,10 +5,7 @@ import com.wxxy.common.Code;
 import com.wxxy.domain.Teacher;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
-import com.wxxy.vo.BaseResponse;
-import com.wxxy.vo.CountOfTeamVo;
-import com.wxxy.vo.JoinedTeacherStatusVo;
-import com.wxxy.vo.StudentGetTeachersVo;
+import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +25,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getAll")
-    public BaseResponse<List<StudentGetTeachersVo>> getAllTeacher(HttpServletRequest request) {
-        List<StudentGetTeachersVo> allTeachers = teacherService.getAllTeachers(request);
+    public BaseResponse<GetAllTeachersVo> getAllTeacher(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        GetAllTeachersVo allTeachers = teacherService.getAllTeachers(currentPage,pageSize,request);
         return ResultUtils.success(Code.SUCCESS, allTeachers, "查询所有老师成功");
     }
 

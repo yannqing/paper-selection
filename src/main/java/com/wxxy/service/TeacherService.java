@@ -3,6 +3,7 @@ package com.wxxy.service;
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxxy.vo.CountOfTeamVo;
+import com.wxxy.vo.GetAllTeachersVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import java.util.List;
 */
 public interface TeacherService extends IService<Teacher> {
 
-    List<StudentGetTeachersVo> getAllTeachers(HttpServletRequest request);
+    GetAllTeachersVo getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request);
 
     boolean joinTeacher(int[] teachers, Long userId);
 

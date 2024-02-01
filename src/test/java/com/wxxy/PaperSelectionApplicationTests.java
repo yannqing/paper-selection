@@ -2,10 +2,12 @@ package com.wxxy;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
+import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.TeacherService;
@@ -30,8 +32,8 @@ class PaperSelectionApplicationTests {
 
 
 
-    @Autowired
-    private TeacherService teacherService;
+    @Resource
+    private TeacherMapper teacherMapper;
 
     @Resource
     private UserTeamMapper userTeamMapper;
@@ -39,7 +41,22 @@ class PaperSelectionApplicationTests {
 
     @Test
     void contextLoads() {
-        Long count = userTeamMapper.selectCount(new QueryWrapper<UserTeam>().eq("teacherId", 1));
-        System.out.println(count);
+//        Page<Teacher> page = new Page<>();
+//        page.setSize(3);
+//        page.setCurrent(2);
+//        List<Teacher> teachers = teacherMapper.testPage(page);
+//        System.out.println(teachers.size());
+//        for (Teacher teacher : teachers) {
+//            System.out.println(teacher);
+//        }
+
+
+        Page<Teacher> page = new Page<>();
+        page.setCurrent(2);
+        page.setSize(4);
+        Page<Teacher> teacher = teacherMapper.selectPage(page, null);
+//        List<Teacher> teachers = teacherMapper.testPage(page);
+        List<Teacher> teachers = teacher.getRecords();
+        System.out.println(teachers);
     }
 }

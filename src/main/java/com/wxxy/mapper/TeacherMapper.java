@@ -1,7 +1,7 @@
 package com.wxxy.mapper;
 
-import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wxxy.domain.Teacher;
 
 /**
 * @author 67121

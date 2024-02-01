@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
@@ -15,6 +16,7 @@ import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.vo.CountOfTeamVo;
+import com.wxxy.vo.GetAllTeachersVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
@@ -44,13 +46,25 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     private UserTeamService userTeamService;
 
     @Override
-    public List<StudentGetTeachersVo> getAllTeachers(HttpServletRequest request) {
+    public GetAllTeachersVo getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         //查看登录状态
         User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (loginUser == null) {
             throw new IllegalStateException("您已退出，请重新登录");
         }
-        List<Teacher> teachers = teacherMapper.selectList(null);
+        //分页查询数据
+        Page<Teacher> pageConfig ;
+            //如果传入的分页参数是空，则查询第一页，10条数据
+        if (currentPage == null || pageSize == null) {
+            pageConfig = new Page<>();
+        } else {
+            pageConfig = new Page<>(currentPage, pageSize);
+        }
+        Page<Teacher> teacherPage = teacherMapper.selectPage(pageConfig, null);
+        //获取数据和总数
+        List<Teacher> teachers = teacherPage.getRecords();
+        long total = teacherPage.getTotal();
+        //对获取的数据进行二次处理，得到前端需要的数据
         List<StudentGetTeachersVo> studentGetTeachersVos = new ArrayList<>();
         for (Teacher teacher : teachers) {
             StudentGetTeachersVo studentGetTeachersVo = new StudentGetTeachersVo();
@@ -84,7 +98,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
             studentGetTeachersVos.add(studentGetTeachersVo);
         }
-        return studentGetTeachersVos;
+        //返回结果
+        return new GetAllTeachersVo(studentGetTeachersVos, total);
     }
 
 
