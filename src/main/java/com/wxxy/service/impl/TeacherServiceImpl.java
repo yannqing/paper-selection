@@ -15,12 +15,10 @@ import com.wxxy.service.TeacherService;
 import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
-import com.wxxy.vo.CountOfTeamVo;
-import com.wxxy.vo.GetAllTeachersVo;
-import com.wxxy.vo.JoinedTeacherStatusVo;
-import com.wxxy.vo.StudentGetTeachersVo;
+import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -321,6 +319,33 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         result.setJoinedNum(joinedCount);
 
         return result;
+    }
+
+    /**
+     * 获取个人信息（老师）
+     * @param request 获取session
+     * @return
+     */
+    @Override
+    public TeacherVo getMyselfInfo(HttpServletRequest request) {
+        //查看是否登录
+        Teacher loginTeacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (loginTeacher == null) {
+            throw new IllegalStateException("您已退出，请重新登录");
+        }
+        //获取个人信息
+        Teacher teacherMsg = teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", loginTeacher.getId()));
+        //脱敏
+        TeacherVo teacherVo = new TeacherVo();
+        teacherVo.setId(teacherMsg.getId());
+        teacherVo.setName(teacherMsg.getName());
+        teacherVo.setUserAccount(teacherMsg.getUserAccount());
+        teacherVo.setAvatarUrl(teacherMsg.getAvatarUrl());
+        teacherVo.setDescription(teacherMsg.getDescription());
+        teacherVo.setPhone(teacherMsg.getPhone());
+        teacherVo.setEmail(teacherMsg.getEmail());
+        teacherVo.setMaxNum(teacherMsg.getMaxNum());
+        return teacherVo;
     }
 
 

@@ -12,6 +12,7 @@ import com.wxxy.service.UserService;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -230,6 +231,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return result == 1;
     }
 
+    /**
+     * 获取个人信息（学生）
+     * @param request 获取session
+     * @return
+     */
+    @Override
+    public UserVo getMyselfInfo(HttpServletRequest request) {
+        //查看是否登录
+        User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (loginUser == null) {
+            throw new IllegalStateException("您已退出，请重新登录");
+        }
+        //获取个人信息
+        User userMsg = this.getBaseMapper().selectOne(new QueryWrapper<User>().eq("id", loginUser.getId()));
+        //脱敏
+        UserVo userVo = new UserVo();
+        userVo.setId(userMsg.getId());
+        userVo.setUsername(userMsg.getUsername());
+        userVo.setAcademy(userMsg.getAcademy());
+        userVo.setDegree(userMsg.getDegree());
+        userVo.setUserAccount(userMsg.getUserAccount());
+        userVo.setGender(userMsg.getGender());
+        userVo.setProfile(userMsg.getProfile());
+        userVo.setPhone(userMsg.getPhone());
+        userVo.setEmail(userMsg.getEmail());
+
+        return userVo;
+    }
 
 
     public Teacher checkLoginStatus(HttpServletRequest request) {

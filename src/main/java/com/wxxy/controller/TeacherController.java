@@ -129,4 +129,15 @@ public class TeacherController {
         CountOfTeamVo countOfTeam = teacherService.getCountOfTeam(request);
         return ResultUtils.success(Code.SUCCESS, countOfTeam, "查看队伍容量成功");
     }
+
+    /**
+     * 获取个人信息（老师）
+     * @param request 获取session
+     * @return
+     */
+    @GetMapping("/getMyselfInfo")
+    public BaseResponse<TeacherVo> getMyselfInfo(HttpServletRequest request) {
+        TeacherVo myselfInfo = teacherService.getMyselfInfo(request);
+        return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
+    }
 }

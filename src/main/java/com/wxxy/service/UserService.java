@@ -3,6 +3,7 @@ package com.wxxy.service;
 import com.wxxy.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.UserVo;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -26,5 +27,7 @@ public interface UserService extends IService<User> {
     boolean removeFromTeam(Long userId, HttpServletRequest request);
 
     boolean changeMaxSize(int maxSize, HttpServletRequest request);
+
+    UserVo getMyselfInfo(HttpServletRequest request);
 
 }

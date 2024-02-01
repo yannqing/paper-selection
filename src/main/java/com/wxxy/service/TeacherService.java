@@ -2,10 +2,7 @@ package com.wxxy.service;
 
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wxxy.vo.CountOfTeamVo;
-import com.wxxy.vo.GetAllTeachersVo;
-import com.wxxy.vo.JoinedTeacherStatusVo;
-import com.wxxy.vo.StudentGetTeachersVo;
+import com.wxxy.vo.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,5 +31,7 @@ public interface TeacherService extends IService<Teacher> {
     boolean cancelApplication(Long teacherId, HttpServletRequest request);
 
     CountOfTeamVo getCountOfTeam(HttpServletRequest request);
+
+    TeacherVo getMyselfInfo(HttpServletRequest request);
 
 }

@@ -7,6 +7,7 @@ import com.wxxy.service.UserService;
 import com.wxxy.service.impl.AuthServiceImpl;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -121,5 +122,16 @@ public class UserController {
             return ResultUtils.success(Code.SUCCESS, null, "修改队伍容量成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "修改队伍容量失败");
+    }
+
+    /**
+     * 获取个人信息（学生）
+     * @param request 获取session
+     * @return
+     */
+    @GetMapping("/getMyselfInfo")
+    public BaseResponse<UserVo> getMyselfInfo(HttpServletRequest request) {
+        UserVo myselfInfo = userService.getMyselfInfo(request);
+        return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
 }
