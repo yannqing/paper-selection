@@ -306,7 +306,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         //2. 新建返回变量
         CountOfTeamVo result = new CountOfTeamVo();
         //3. 获取队伍最大人数，并赋值
-        result.setMaxNum(teacher.getMaxNum());
+        result.setMaxNum(teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", teacher.getId())).getMaxNum());
         //4. 获取已申请的人数
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
         userTeamQueryWrapper.eq("teacherId", teacher.getId());
