@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
+import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.TeacherService;
 import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
+import com.wxxy.vo.CountOfTeamVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
@@ -242,6 +244,33 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         }
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
         return result == 1;
+    }
+
+    @Override
+    public CountOfTeamVo getCountOfTeam(HttpServletRequest request) {
+        //1. 查询登录状态
+        Teacher teacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (teacher == null) {
+            throw new IllegalStateException("您已退出，请重新登录");
+        }
+        //2. 新建返回变量
+        CountOfTeamVo result = new CountOfTeamVo();
+        //3. 获取队伍最大人数，并赋值
+        result.setMaxNum(teacher.getMaxNum());
+        //4. 获取已申请的人数
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("teacherId", teacher.getId());
+        userTeamQueryWrapper.eq("isJoin", 0);
+        Long selectedCount = userTeamService.getBaseMapper().selectCount(userTeamQueryWrapper);
+        result.setSelectedNum(selectedCount);
+        //5. 获取已加入的人数
+        QueryWrapper<UserTeam> userTeamQueryWrapper1 = new QueryWrapper<>();
+        userTeamQueryWrapper1.eq("teacherId", teacher.getId());
+        userTeamQueryWrapper1.eq("isJoin", 1);
+        Long joinedCount = userTeamService.getBaseMapper().selectCount(userTeamQueryWrapper1);
+        result.setJoinedNum(joinedCount);
+
+        return result;
     }
 
 

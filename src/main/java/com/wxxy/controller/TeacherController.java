@@ -6,6 +6,7 @@ import com.wxxy.domain.Teacher;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.CountOfTeamVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
@@ -116,5 +117,16 @@ public class TeacherController {
             return ResultUtils.success(Code.SUCCESS, null, "取消申请成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "取消申请失败");
+    }
+
+    /**
+     * 查看队伍容量
+     * @param request 获取session
+     * @return
+     */
+    @GetMapping("/getCountOfTeam")
+    public BaseResponse<CountOfTeamVo> getCountOfTeam(HttpServletRequest request) {
+        CountOfTeamVo countOfTeam = teacherService.getCountOfTeam(request);
+        return ResultUtils.success(Code.SUCCESS, countOfTeam, "查看队伍容量成功");
     }
 }

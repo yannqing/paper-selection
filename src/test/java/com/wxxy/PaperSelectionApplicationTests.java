@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
+import com.wxxy.domain.UserTeam;
 import com.wxxy.mapper.UserMapper;
+import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.TeacherService;
+import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -30,24 +33,13 @@ class PaperSelectionApplicationTests {
     @Autowired
     private TeacherService teacherService;
 
+    @Resource
+    private UserTeamMapper userTeamMapper;
+
 
     @Test
     void contextLoads() {
-        List<String> selected = new ArrayList<String>();
-        selected.add("sdfa");
-        selected.add("123");
-        selected.add("sdfa");
-        selected.add("sdfa");
-        selected.add("sdfa");
-        selected.add("sdfa");
-        selected.add("sdfa");
-        for (int i = 0; i < selected.size(); i++) {
-            if (selected.get(i).equals("123")) {
-                selected.remove(i);
-            }
-        }
-        for (String s : selected) {
-            System.out.println(s);
-        }
+        Long count = userTeamMapper.selectCount(new QueryWrapper<UserTeam>().eq("teacherId", 1));
+        System.out.println(count);
     }
 }

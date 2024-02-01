@@ -2,6 +2,7 @@ package com.wxxy.service;
 
 import com.wxxy.domain.Teacher;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wxxy.vo.CountOfTeamVo;
 import com.wxxy.vo.JoinedTeacherStatusVo;
 import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,5 +31,7 @@ public interface TeacherService extends IService<Teacher> {
     boolean exitTeam(Long teacherId, HttpServletRequest request);
 
     boolean cancelApplication(Long teacherId, HttpServletRequest request);
+
+    CountOfTeamVo getCountOfTeam(HttpServletRequest request);
 
 }
