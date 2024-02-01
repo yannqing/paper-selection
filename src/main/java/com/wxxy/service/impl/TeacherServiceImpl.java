@@ -44,7 +44,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     private UserTeamService userTeamService;
 
     @Override
-    public List<StudentGetTeachersVo> getAllTeachers() {
+    public List<StudentGetTeachersVo> getAllTeachers(HttpServletRequest request) {
+        //查看登录状态
+        User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (loginUser == null) {
+            throw new IllegalStateException("您已退出，请重新登录");
+        }
         List<Teacher> teachers = teacherMapper.selectList(null);
         List<StudentGetTeachersVo> studentGetTeachersVos = new ArrayList<>();
         for (Teacher teacher : teachers) {
@@ -63,6 +68,20 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(userTeamQueryWrapper);
             studentGetTeachersVo.setJoinedNum(userTeams.size());
             studentGetTeachersVo.setRemainingNum(teacher.getMaxNum() - userTeams.size());
+            //设置各个老师对自己的状态
+            QueryWrapper<UserTeam> userTeamQueryWrapper1 = new QueryWrapper<>();
+            userTeamQueryWrapper1.eq("teacherId", teacher.getId());
+            userTeamQueryWrapper1.eq("userId", loginUser.getId());
+            UserTeam myRelativeTeam = userTeamService.getBaseMapper().selectOne(userTeamQueryWrapper1);
+            if (myRelativeTeam == null) {
+                studentGetTeachersVo.setStatus(0);
+            }
+            else if (myRelativeTeam.getIsJoin() == 0) {
+                studentGetTeachersVo.setStatus(1);
+            } else {
+                studentGetTeachersVo.setStatus(2);
+            }
+
             studentGetTeachersVos.add(studentGetTeachersVo);
         }
         return studentGetTeachersVos;

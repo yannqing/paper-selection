@@ -18,7 +18,7 @@ import java.util.List;
 */
 public interface TeacherService extends IService<Teacher> {
 
-    List<StudentGetTeachersVo> getAllTeachers();
+    List<StudentGetTeachersVo> getAllTeachers(HttpServletRequest request);
 
     boolean joinTeacher(int[] teachers, Long userId);
 

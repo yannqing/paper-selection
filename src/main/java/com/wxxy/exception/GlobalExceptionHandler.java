@@ -65,16 +65,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ClassCastException.class)
     public BaseResponse<Object> handleClassCastException(ClassCastException e,
                                                        HttpServletRequest request) {
-
-        log.error("没有权限=>{}",e.getMessage());
-        return ResultUtils.failure(e.getMessage());
+        String requestURI = request.getRequestURI();
+        log.error("请求地址 {},权限异常: {}", requestURI, e.getMessage());
+        return ResultUtils.failure("您没有权限访问此接口，请联系管理员");
     }
 
     /**
      * 拦截未知的运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public BaseResponse<Object> handleRuntimeException(RuntimeException e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public BaseResponse<Object> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},异常: {}", requestURI, e);
 
