@@ -2,6 +2,7 @@ package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -10,7 +11,9 @@ import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.AdminService;
 import com.wxxy.service.UserService;
+import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -114,13 +117,44 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userMapper.selectList(null);
+    public GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (user == null) {
+            throw new IllegalArgumentException("您已退出，请重新登录");
+        }
+        //分页查询数据
+        Page<User> pageConfig ;
+        //如果传入的分页参数是空，则查询第一页，10条数据
+        if (currentPage == null || pageSize == null) {
+            pageConfig = new Page<>();
+        } else {
+            pageConfig = new Page<>(currentPage, pageSize);
+        }
+        Page<User> userPage = userMapper.selectPage(pageConfig, null);
+        List<User> userList = userPage.getRecords();
+        long total = userPage.getTotal();
+
+        return new GetAllByPageVo<>(userList, total);
     }
 
     @Override
-    public List<Teacher> getAllTeachers() {
-        return teacherMapper.selectList(null);
+    public GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (user == null) {
+            throw new IllegalArgumentException("您已退出，请重新登录");
+        }
+        //分页查询数据
+        Page<Teacher> pageConfig ;
+        //如果传入的分页参数是空，则查询第一页，10条数据
+        if (currentPage == null || pageSize == null) {
+            pageConfig = new Page<>();
+        } else {
+            pageConfig = new Page<>(currentPage, pageSize);
+        }
+        Page<Teacher> teacherPage = teacherMapper.selectPage(pageConfig, null);
+        List<Teacher> userList = teacherPage.getRecords();
+        long total = teacherPage.getTotal();
+        return new GetAllByPageVo<>(userList, total);
     }
 
     @Override

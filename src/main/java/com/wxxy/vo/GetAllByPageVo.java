@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetAllTeachersVo {
-    private List<StudentGetTeachersVo> teachers;
+public class GetAllByPageVo <T> {
+    private List<T> data;
     private long total;
 }

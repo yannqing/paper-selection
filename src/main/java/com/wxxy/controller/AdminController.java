@@ -6,7 +6,9 @@ import com.wxxy.domain.User;
 import com.wxxy.service.AdminService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.annotations.ResultType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,8 +107,8 @@ public class AdminController {
      * @return
      */
     @GetMapping("/getAllUsers")
-    public BaseResponse<List<User>> getAllUsers() {
-        return ResultUtils.success(Code.SUCCESS, adminService.getAllUsers(), "查询所有学生成功");
+    public BaseResponse<GetAllByPageVo<User>> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        return ResultUtils.success(Code.SUCCESS, adminService.getAllUsers(currentPage, pageSize, request), "查询所有学生成功");
     }
 
     /**
@@ -114,8 +116,8 @@ public class AdminController {
      * @return
      */
     @GetMapping("/getAllTeachers")
-    public BaseResponse<List<Teacher>> getAllTeachers() {
-        return ResultUtils.success(Code.SUCCESS, adminService.getAllTeachers(), "查询所有教师成功");
+    public BaseResponse<GetAllByPageVo<Teacher>> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        return ResultUtils.success(Code.SUCCESS, adminService.getAllTeachers(currentPage, pageSize, request), "查询所有教师成功");
     }
     // 修改
 

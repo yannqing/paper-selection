@@ -2,6 +2,8 @@ package com.wxxy.service;
 
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
+import com.wxxy.vo.GetAllByPageVo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,9 +18,9 @@ public interface AdminService {
 
     boolean deleteTeacher(Long teacherId);
 
-    List<User> getAllUsers();
+    GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request);
 
-    List<Teacher> getAllTeachers();
+    GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request);
 
     List<User> getUsersUnselecting();
 

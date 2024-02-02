@@ -28,8 +28,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getAll")
-    public BaseResponse<GetAllTeachersVo> getAllTeacher(Integer currentPage, Integer pageSize, HttpServletRequest request) {
-        GetAllTeachersVo allTeachers = teacherService.getAllTeachers(currentPage,pageSize,request);
+    public BaseResponse<GetAllByPageVo<StudentGetTeachersVo>> getAllTeacher(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        GetAllByPageVo<StudentGetTeachersVo> allTeachers = teacherService.getAllTeachers(currentPage,pageSize,request);
         return ResultUtils.success(Code.SUCCESS, allTeachers, "查询所有老师成功");
     }
 

@@ -51,7 +51,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public GetAllTeachersVo getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+    public GetAllByPageVo<StudentGetTeachersVo> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         //查看登录状态
         User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (loginUser == null) {
@@ -104,7 +104,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             studentGetTeachersVos.add(studentGetTeachersVo);
         }
         //返回结果
-        return new GetAllTeachersVo(studentGetTeachersVos, total);
+        return new GetAllByPageVo<>(studentGetTeachersVos, total);
     }
 
     /**
