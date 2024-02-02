@@ -22,9 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.DigestUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @NoArgsConstructor
 @Data
@@ -53,14 +51,18 @@ class PaperSelectionApplicationTests {
 //        for (Teacher teacher : teachers) {
 //            System.out.println(teacher);
 //        }
-        String query = null;
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("userAccount", query);
-        List<User> users = userMapper.selectList(queryWrapper);
-        for (User u :
-                users) {
-            System.out.println(u.getUserAccount());
+        Set<String> set = new HashSet<>();
+        set.add("1");
+        set.add("2");
+        set.add("3");
+        set.add("4");
+        set.add("5");
+        set.add("6");
+        System.out.println(set);
+        for (String x : set) {
+            System.out.println(x+" i");
         }
+
 
     }
 }

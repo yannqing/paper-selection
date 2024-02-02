@@ -97,8 +97,8 @@ public class AdminController {
      * @return
      */
     @GetMapping("/getUsersUnselecting")
-    public BaseResponse<List<User>> getUsersUnselecting(){
-        List<User> usersUnselecting = adminService.getUsersUnselecting();
+    public BaseResponse<GetAllByPageVo<User>> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request){
+        GetAllByPageVo<User> usersUnselecting = adminService.getUsersUnselecting(currentPage, pageSize, searchAccount, request);
         return ResultUtils.success(Code.SUCCESS, usersUnselecting, "查看未加入队伍的学生成功");
     }
 

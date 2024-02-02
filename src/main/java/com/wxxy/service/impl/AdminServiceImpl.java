@@ -176,24 +176,47 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<User> getUsersUnselecting() {
+    public GetAllByPageVo<User> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
+        //1. 检查是否登录
+        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        if (user == null) {
+            throw new IllegalStateException("您已退出，请重新登录");
+        }
+        //2. 查询user-team表，找出所有加入队伍学生的id
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
         userTeamQueryWrapper.eq("isJoin", 1);
         List<UserTeam> userTeams = userTeamMapper.selectList(userTeamQueryWrapper);
+        //3. 将查询的结果存入set集合joinedUserIds
         Set<Long> joinedUserIds = new HashSet<>();
         for (UserTeam team : userTeams) {
             joinedUserIds.add(team.getUserId());
         }
-        List<User> users = userMapper.selectList(null);
-        for (int i = 0; i < users.size(); ) {
-            if (joinedUserIds.contains(users.get(i).getId())) {
-                users.remove(i);
-            }else {
-                i++;
-            }
+        //4. 分页，搜索查询
+        //5. 判断是否传入分页的参数，不传入则默认查询第一页，10条
+        Page<User> userSearchPage;
+        if (currentPage == null || pageSize == null) {
+            userSearchPage = new Page<>();
+        }else {
+            userSearchPage = new Page<>(currentPage, pageSize);
         }
-
-        return users;
+        //6. 查询的结果存入userResultPage
+        Page<User> userResultPage;
+        //7. 查询的条件：不能等于已经加入的学生id
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        for (Long id : joinedUserIds) {
+            userQueryWrapper.ne("id", id);
+        }
+        //8. 如果有查询条件，则加上模糊查询
+        if (searchAccount != null) {
+            userQueryWrapper.like("userAccount", searchAccount);
+        }
+        //9. 查询结果
+        userResultPage = userMapper.selectPage(userSearchPage, userQueryWrapper);
+        //10. 获取数据
+        List<User> users = userResultPage.getRecords();
+        long total = userResultPage.getTotal();
+        //11. 封装，返回
+        return new GetAllByPageVo<>(users, total);
     }
 
     @Override

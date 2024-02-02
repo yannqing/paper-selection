@@ -22,7 +22,7 @@ public interface AdminService {
 
     GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
-    List<User> getUsersUnselecting();
+    GetAllByPageVo<User> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
     boolean updateUser(User user);
 
