@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
     public static final String USER_LOGIN_STATE = "userLoginState";
 
     @Override
-    public <T> Object login(String username, String password, HttpServletRequest request) {
+    public Object login(String username, String password, HttpServletRequest request) {
 
         //1. 先检测是否是学生登录
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());

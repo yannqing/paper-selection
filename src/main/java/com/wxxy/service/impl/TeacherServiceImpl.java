@@ -327,7 +327,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public TeacherVo getMyselfInfo(HttpServletRequest request) {
+    public Teacher getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
         Teacher loginTeacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (loginTeacher == null) {
@@ -336,16 +336,17 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         //获取个人信息
         Teacher teacherMsg = teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", loginTeacher.getId()));
         //脱敏
-        TeacherVo teacherVo = new TeacherVo();
-        teacherVo.setId(teacherMsg.getId());
-        teacherVo.setName(teacherMsg.getName());
-        teacherVo.setUserAccount(teacherMsg.getUserAccount());
-        teacherVo.setAvatarUrl(teacherMsg.getAvatarUrl());
-        teacherVo.setDescription(teacherMsg.getDescription());
-        teacherVo.setPhone(teacherMsg.getPhone());
-        teacherVo.setEmail(teacherMsg.getEmail());
-        teacherVo.setMaxNum(teacherMsg.getMaxNum());
-        return teacherVo;
+//        TeacherVo teacherVo = new TeacherVo();
+//        teacherVo.setId(teacherMsg.getId());
+//        teacherVo.setName(teacherMsg.getName());
+//        teacherVo.setUserAccount(teacherMsg.getUserAccount());
+//        teacherVo.setAvatarUrl(teacherMsg.getAvatarUrl());
+//        teacherVo.setDescription(teacherMsg.getDescription());
+//        teacherVo.setPhone(teacherMsg.getPhone());
+//        teacherVo.setEmail(teacherMsg.getEmail());
+//        teacherVo.setMaxNum(teacherMsg.getMaxNum());
+        teacherMsg.setUserPassword(null);
+        return teacherMsg;
     }
 
 

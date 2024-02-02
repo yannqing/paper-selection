@@ -136,8 +136,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getMyselfInfo")
-    public BaseResponse<TeacherVo> getMyselfInfo(HttpServletRequest request) {
-        TeacherVo myselfInfo = teacherService.getMyselfInfo(request);
+    public BaseResponse<Teacher> getMyselfInfo(HttpServletRequest request) {
+        Teacher myselfInfo = teacherService.getMyselfInfo(request);
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
 }

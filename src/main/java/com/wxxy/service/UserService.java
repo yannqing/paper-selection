@@ -28,6 +28,6 @@ public interface UserService extends IService<User> {
 
     boolean changeMaxSize(int maxSize, HttpServletRequest request);
 
-    UserVo getMyselfInfo(HttpServletRequest request);
+    User getMyselfInfo(HttpServletRequest request);
 
 }

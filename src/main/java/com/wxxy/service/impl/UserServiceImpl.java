@@ -237,7 +237,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    public UserVo getMyselfInfo(HttpServletRequest request) {
+    public User getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
         User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (loginUser == null) {
@@ -246,18 +246,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //获取个人信息
         User userMsg = this.getBaseMapper().selectOne(new QueryWrapper<User>().eq("id", loginUser.getId()));
         //脱敏
-        UserVo userVo = new UserVo();
-        userVo.setId(userMsg.getId());
-        userVo.setUsername(userMsg.getUsername());
-        userVo.setAcademy(userMsg.getAcademy());
-        userVo.setDegree(userMsg.getDegree());
-        userVo.setUserAccount(userMsg.getUserAccount());
-        userVo.setGender(userMsg.getGender());
-        userVo.setProfile(userMsg.getProfile());
-        userVo.setPhone(userMsg.getPhone());
-        userVo.setEmail(userMsg.getEmail());
+//        UserVo userVo = new UserVo();
+//        userVo.setId(userMsg.getId());
+//        userVo.setUsername(userMsg.getUsername());
+//        userVo.setAcademy(userMsg.getAcademy());
+//        userVo.setDegree(userMsg.getDegree());
+//        userVo.setUserAccount(userMsg.getUserAccount());
+//        userVo.setGender(userMsg.getGender());
+//        userVo.setProfile(userMsg.getProfile());
+//        userVo.setPhone(userMsg.getPhone());
+//        userVo.setEmail(userMsg.getEmail());
 
-        return userVo;
+        userMsg.setUserPassword(null);
+
+        return userMsg;
     }
 
 

@@ -130,8 +130,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/getMyselfInfo")
-    public BaseResponse<UserVo> getMyselfInfo(HttpServletRequest request) {
-        UserVo myselfInfo = userService.getMyselfInfo(request);
+    public BaseResponse<User> getMyselfInfo(HttpServletRequest request) {
+        User myselfInfo = userService.getMyselfInfo(request);
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
 }
