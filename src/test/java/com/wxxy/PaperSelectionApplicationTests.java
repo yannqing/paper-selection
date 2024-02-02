@@ -11,6 +11,7 @@ import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.TeacherService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,9 @@ class PaperSelectionApplicationTests {
     private TeacherMapper teacherMapper;
 
     @Resource
+    private UserMapper userMapper;
+
+    @Resource
     private UserTeamMapper userTeamMapper;
 
 
@@ -49,14 +53,14 @@ class PaperSelectionApplicationTests {
 //        for (Teacher teacher : teachers) {
 //            System.out.println(teacher);
 //        }
+        String query = null;
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("userAccount", query);
+        List<User> users = userMapper.selectList(queryWrapper);
+        for (User u :
+                users) {
+            System.out.println(u.getUserAccount());
+        }
 
-
-        Page<Teacher> page = new Page<>();
-        page.setCurrent(2);
-        page.setSize(4);
-        Page<Teacher> teacher = teacherMapper.selectPage(page, null);
-//        List<Teacher> teachers = teacherMapper.testPage(page);
-        List<Teacher> teachers = teacher.getRecords();
-        System.out.println(teachers);
     }
 }

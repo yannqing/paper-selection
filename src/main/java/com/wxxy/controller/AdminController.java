@@ -107,8 +107,8 @@ public class AdminController {
      * @return
      */
     @GetMapping("/getAllUsers")
-    public BaseResponse<GetAllByPageVo<User>> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
-        return ResultUtils.success(Code.SUCCESS, adminService.getAllUsers(currentPage, pageSize, request), "查询所有学生成功");
+    public BaseResponse<GetAllByPageVo<User>> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
+        return ResultUtils.success(Code.SUCCESS, adminService.getAllUsers(currentPage, pageSize, searchAccount, request), "查询所有学生成功");
     }
 
     /**
@@ -116,8 +116,8 @@ public class AdminController {
      * @return
      */
     @GetMapping("/getAllTeachers")
-    public BaseResponse<GetAllByPageVo<Teacher>> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
-        return ResultUtils.success(Code.SUCCESS, adminService.getAllTeachers(currentPage, pageSize, request), "查询所有教师成功");
+    public BaseResponse<GetAllByPageVo<Teacher>> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
+        return ResultUtils.success(Code.SUCCESS, adminService.getAllTeachers(currentPage, pageSize, searchAccount, request), "查询所有教师成功");
     }
     // 修改
 

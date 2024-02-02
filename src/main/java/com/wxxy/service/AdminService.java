@@ -18,9 +18,9 @@ public interface AdminService {
 
     boolean deleteTeacher(Long teacherId);
 
-    GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request);
+    GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
-    GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request);
+    GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
     List<User> getUsersUnselecting();
 

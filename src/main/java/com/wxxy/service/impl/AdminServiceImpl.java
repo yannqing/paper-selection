@@ -117,7 +117,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+    public GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (user == null) {
             throw new IllegalArgumentException("您已退出，请重新登录");
@@ -130,7 +130,16 @@ public class AdminServiceImpl implements AdminService {
         } else {
             pageConfig = new Page<>(currentPage, pageSize);
         }
-        Page<User> userPage = userMapper.selectPage(pageConfig, null);
+        Page<User> userPage;
+
+        if (searchAccount == null) {
+            userPage = userMapper.selectPage(pageConfig, null);
+        } else {
+            QueryWrapper<User> query = new QueryWrapper<>();
+            query.like("userAccount", searchAccount);
+            userPage = userMapper.selectPage(pageConfig, query);
+        }
+
         List<User> userList = userPage.getRecords();
         long total = userPage.getTotal();
 
@@ -138,7 +147,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+    public GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
         if (user == null) {
             throw new IllegalArgumentException("您已退出，请重新登录");
@@ -151,7 +160,16 @@ public class AdminServiceImpl implements AdminService {
         } else {
             pageConfig = new Page<>(currentPage, pageSize);
         }
-        Page<Teacher> teacherPage = teacherMapper.selectPage(pageConfig, null);
+        Page<Teacher> teacherPage;
+
+
+        if (searchAccount == null) {
+            teacherPage = teacherMapper.selectPage(pageConfig, null);
+        } else {
+            QueryWrapper<Teacher> query = new QueryWrapper<>();
+            query.like("userAccount", searchAccount);
+            teacherPage = teacherMapper.selectPage(pageConfig, query);
+        }
         List<Teacher> userList = teacherPage.getRecords();
         long total = teacherPage.getTotal();
         return new GetAllByPageVo<>(userList, total);
