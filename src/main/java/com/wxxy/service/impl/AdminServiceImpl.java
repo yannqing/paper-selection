@@ -162,7 +162,6 @@ public class AdminServiceImpl implements AdminService {
         }
         Page<Teacher> teacherPage;
 
-
         if (searchAccount == null) {
             teacherPage = teacherMapper.selectPage(pageConfig, null);
         } else {
@@ -311,9 +310,12 @@ public class AdminServiceImpl implements AdminService {
             }
             workbook.close();
 //            System.out.println(data);
+            //查重
             for (User user : users) {
                 System.out.println(user);
-                userMapper.insert(user);
+                if (!userMapper.exists(new QueryWrapper<User>().eq("userAccount", user.getUserAccount()))){
+                    userMapper.insert(user);
+                }
             }
             return true;
     }
@@ -367,9 +369,12 @@ public class AdminServiceImpl implements AdminService {
         }
         workbook.close();
 //            System.out.println(data);
+        //查重
         for (Teacher teacher : teachers) {
             System.out.println(teacher);
-            teacherMapper.insert(teacher);
+            if (!teacherMapper.exists(new QueryWrapper<Teacher>().eq("userAccount", teacher.getUserAccount()))){
+                teacherMapper.insert(teacher);
+            }
         }
         return true;
 

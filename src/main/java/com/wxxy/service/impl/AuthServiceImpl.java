@@ -44,6 +44,9 @@ public class AuthServiceImpl implements AuthService {
         queryTeacherWrapper.eq("userAccount",username);
         queryTeacherWrapper.eq("userPassword",encryptPassword);
         Teacher teacher = teacherService.getOne(queryTeacherWrapper);
+        if (teacher == null) {
+            throw new IllegalStateException("用户名或密码错误，请重试");
+        }
         teacher.setUserPassword(null);
         //记录用户登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, teacher);
