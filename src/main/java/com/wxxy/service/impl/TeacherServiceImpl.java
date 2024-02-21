@@ -132,6 +132,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             //2. 再查询老师队伍的实际人数
             QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("teacherId", teacherId);
+            queryWrapper.eq("isJoin", 1);
             List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryWrapper);
             int actualCount = userTeams.size();
             if (actualCount >= virtualCount) {
@@ -149,7 +150,6 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             }
         }
         return true;
-        //加入老师队伍
     }
 
     /**
