@@ -1,10 +1,13 @@
 package com.wxxy.domain;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 老师(队伍)
@@ -72,11 +75,25 @@ public class Teacher implements Serializable {
     /**
      * 是否删除
      */
-    @TableLogic
     private Integer isDelete;
 
+    /**
+     * 当前队伍人数
+     */
+    private Integer currentNum;
+
+    /**
+     * 申请数量限制
+     */
+    private Integer maxApply;
+
+    /**
+     * 申请数量
+     */
+    private Integer applyNum;
+
     @TableField(exist = false)
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
 
     @Override
     public boolean equals(Object that) {
@@ -101,7 +118,10 @@ public class Teacher implements Serializable {
             && (this.getMaxNum() == null ? other.getMaxNum() == null : this.getMaxNum().equals(other.getMaxNum()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()));
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+            && (this.getCurrentNum() == null ? other.getCurrentNum() == null : this.getCurrentNum().equals(other.getCurrentNum()))
+            && (this.getMaxApply() == null ? other.getMaxApply() == null : this.getMaxApply().equals(other.getMaxApply()))
+            && (this.getApplyNum() == null ? other.getApplyNum() == null : this.getApplyNum().equals(other.getApplyNum()));
     }
 
     @Override
@@ -120,6 +140,9 @@ public class Teacher implements Serializable {
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
+        result = prime * result + ((getCurrentNum() == null) ? 0 : getCurrentNum().hashCode());
+        result = prime * result + ((getMaxApply() == null) ? 0 : getMaxApply().hashCode());
+        result = prime * result + ((getApplyNum() == null) ? 0 : getApplyNum().hashCode());
         return result;
     }
 
@@ -141,6 +164,9 @@ public class Teacher implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);
+        sb.append(", currentNum=").append(currentNum);
+        sb.append(", maxApply=").append(maxApply);
+        sb.append(", applyNum=").append(applyNum);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

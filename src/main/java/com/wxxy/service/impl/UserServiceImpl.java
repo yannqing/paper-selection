@@ -92,18 +92,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new IllegalArgumentException("学生已加入，请勿重复加入");
         }
         //查询队伍数量是否已达最大
-        QueryWrapper<UserTeam> queryUserTeamWrapper = new QueryWrapper<>();
-        queryUserTeamWrapper.eq("teacherId", teacher.getId());
-        List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryUserTeamWrapper);
-        if (userTeams.size() >= teacher.getMaxNum()) {
+        Integer currentNum = teacher.getCurrentNum();
+        Integer applyNum = teacher.getApplyNum();
+        if (currentNum >= teacher.getMaxNum()) {
             throw new IllegalArgumentException("您的队伍已经达最大数量，无法同意加入");
         }
+
 
         //用户加入队伍
         UpdateWrapper<UserTeam> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("userId", userId);
         updateWrapper.eq("teacherId", teacher.getId());
         updateWrapper.set("isJoin", 1);
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacher.getId())
+                .set("currentNum", currentNum + 1)      //当前队伍数量+1
+                .set("applyNum", applyNum - 1));        //当前申请数量-1
         return userTeamService.update(null, updateWrapper);
 
     }
@@ -187,6 +191,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         //查询是否登录
         Teacher teacher = checkLoginStatus(request);
+        Integer currentNum = teacher.getCurrentNum();
         //查询此用户是否加入队伍
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
         userTeamQueryWrapper.eq("userId", userId);
@@ -198,6 +203,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         //移出队伍
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
+
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacher.getId())
+                .set("currentNum", currentNum - 1));
+
         return result == 1;
     }
 
@@ -229,6 +239,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         updateWrapper.set("maxNum", maxSize);
         int result = teacherMapper.update(updateWrapper);
         return result == 1;
+    }
+
+    /**
+     * 更改申请容量
+     * @param applySize 最新申请限制数量
+     * @param request 验证登录
+     * @return
+     */
+    @Override
+    public boolean changeApplySize(int applySize, HttpServletRequest request) {
+        //查询参数是否合法
+        if (applySize <= 0) {
+            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
+        }
+        //查询是否登录
+        Teacher teacher = checkLoginStatus(request);
+        if (teacher == null) {
+            throw new IllegalArgumentException("您已退出，请重新登录");
+        }
+        //修改申请容量
+        teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("maxApply", applySize));
+
+        return true;
     }
 
     /**

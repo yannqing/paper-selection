@@ -125,6 +125,22 @@ public class UserController {
     }
 
     /**
+     * 更改申请容量
+     * @param applySize 最新申请限制数量
+     * @param request 验证登录
+     * @return
+     */
+    @PostMapping("/changeApplySize")
+    public BaseResponse<Object> changeApplySize(int applySize, HttpServletRequest request) {
+        //查询参数是否合法
+        if (applySize <= 0) {
+            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
+        }
+        boolean result = userService.changeApplySize(applySize, request);
+        return ResultUtils.success(Code.SUCCESS, result, "修改队伍的申请限制成功！");
+    }
+
+    /**
      * 获取个人信息（学生）
      * @param request 获取session
      * @return

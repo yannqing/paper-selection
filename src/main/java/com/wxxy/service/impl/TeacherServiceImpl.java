@@ -124,19 +124,20 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         if(2 - teacherAccount - teacherIds.length < 0) {
             throw new IllegalArgumentException("选择的老师数量超过可选择的范围！");
         }
-        //查询对应老师的队伍人数限制是否达到最大
+        //查询对应老师的队伍人数限制和申请限制是否达到最大
         for (int teacherId : teacherIds) {
-            //1. 先查询老师的总人数限制
+            //1. 先查询老师的总人数限制 和申请人数限制
             Teacher teacher = teacherMapper.selectById(teacherId);
-            int virtualCount = teacher.getMaxNum();
-            //2. 再查询老师队伍的实际人数
-            QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("teacherId", teacherId);
-            queryWrapper.eq("isJoin", 1);
-            List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(queryWrapper);
-            int actualCount = userTeams.size();
-            if (actualCount >= virtualCount) {
+            Integer maxNum = teacher.getMaxNum();
+            Integer maxApply = teacher.getMaxApply();
+            //2. 再查询老师队伍的实际人数，和实际申请人数
+            Integer currentNum = teacher.getCurrentNum();
+            Integer applyNum = teacher.getApplyNum();
+            if (currentNum >= maxNum) {
                 throw new IllegalStateException("老师队伍已满，无法申请");
+            }
+            else if (applyNum >= maxApply) {
+                throw new IllegalArgumentException("该老师队伍的申请已达最大限制，无法申请");
             }
             else if(userTeamService.getOne(new QueryWrapper<UserTeam>().eq("teacherId",teacherId).eq("userId",userId))!=null){
                 throw new IllegalStateException("已经申请加入此老师的队伍，请勿重复加入:"+teacherId);
@@ -147,6 +148,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
                 userTeam.setUserId(userId);
                 userTeam.setTeacherId((long) teacherId);
                 userTeamService.getBaseMapper().insert(userTeam);
+                teacherMapper.update(new UpdateWrapper<Teacher>()
+                        .eq("id", teacher.getId())
+                        .set("applyNum", applyNum + 1));
             }
         }
         return true;
@@ -166,7 +170,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         //查询此用户申请的队伍数量
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
-
+        queryWrapper.eq("isJoin", 0);
         List<UserTeam> selectedAccount = userTeamService.getBaseMapper().selectList(queryWrapper);
 
         return selectedAccount.size();
@@ -228,9 +232,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         if (teacherId == null) {
             throw new IllegalArgumentException("老师Id不能为空");
         }
-        if (this.getById(teacherId) == null) {
+        Teacher teacher = teacherMapper.selectById(teacherId);
+        if (teacher == null) {
             throw new IllegalArgumentException("老师不存在");
         }
+        Integer currentNum = teacher.getCurrentNum();
 
         //获取到此用户的信息
         User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
@@ -239,12 +245,16 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teacherId", teacherId);
         queryWrapper.eq("userId", loginUser.getId());
-        queryWrapper.eq("isJoin", 0);
+        queryWrapper.eq("isJoin", 1);
         //判断用户是否加入此队伍
         if (userTeamService.getOne(queryWrapper) == null) {
-            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未申请加入此队伍teacherId: "+teacherId+"，退出失败");
+            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未成功加入此队伍teacherId: "+teacherId+"，退出失败");
         }
         int deleteResult = userTeamService.getBaseMapper().delete(queryWrapper);
+
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("currentNum", currentNum - 1));
 
         return deleteResult == 1;
     }

@@ -55,7 +55,7 @@ public class TeacherController {
     @GetMapping("/getAccount")
     public BaseResponse<Integer> getAccount(Long userId) {
         int count = teacherService.selectedTeacherAccount(userId);
-        return ResultUtils.success(Code.SUCCESS, count, "查询此用户加入的老师队伍数量");
+        return ResultUtils.success(Code.SUCCESS, count, "查询此用户申请的老师队伍数量");
     }
 
     /**
