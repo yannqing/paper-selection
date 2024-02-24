@@ -15,6 +15,7 @@ import com.wxxy.service.TeacherService;
 import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
+import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
 /**
 * @author 67121
@@ -53,10 +56,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public GetAllByPageVo<StudentGetTeachersVo> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         //查看登录状态
-        User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (loginUser == null) {
-            throw new IllegalStateException("您已退出，请重新登录");
-        }
+        User loginUser = CheckLoginUtils.checkUserLoginStatus(request);
         //分页查询数据
         Page<Teacher> pageConfig ;
             //如果传入的分页参数是空，则查询第一页，10条数据
@@ -134,13 +134,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             Integer currentNum = teacher.getCurrentNum();
             Integer applyNum = teacher.getApplyNum();
             if (currentNum >= maxNum) {
-                throw new IllegalStateException("老师队伍已满，无法申请");
+                throw new IllegalArgumentException("老师队伍已满，无法申请");
             }
             else if (applyNum >= maxApply) {
                 throw new IllegalArgumentException("该老师队伍的申请已达最大限制，无法申请");
             }
             else if(userTeamService.getOne(new QueryWrapper<UserTeam>().eq("teacherId",teacherId).eq("userId",userId))!=null){
-                throw new IllegalStateException("已经申请加入此老师的队伍，请勿重复加入:"+teacherId);
+                throw new IllegalArgumentException("已经申请加入此老师的队伍，请勿重复加入:"+teacherId);
             }
             else {
                 //加入老师队伍
@@ -165,7 +165,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     public int selectedTeacherAccount(Long userId) {
         //查询用户Id是否合法
         if (userService.getById(userId) == null) {
-            throw new IllegalStateException("此用户id不存在");
+            throw new IllegalArgumentException("此用户id不存在");
         }
         //查询此用户申请的队伍数量
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
@@ -185,7 +185,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     public List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId) {
         //查询用户Id是否合法
         if (userService.getById(userId) == null) {
-            throw new IllegalStateException("此用户id不存在");
+            throw new IllegalArgumentException("此用户id不存在");
         }
 
         List<JoinedTeacherStatusVo> joinedTeacherStatus = new ArrayList<>();
@@ -213,7 +213,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
         byte[] avatarBytes = avatar.getBytes();
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
-        Teacher teacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        Teacher teacher = CheckLoginUtils.checkTeacherLoginStatus(request);
         updateWrapper.eq("id",teacher.getId());
         updateWrapper.set("avatarUrl", avatarBytes);
         teacherMapper.update(null, updateWrapper);
@@ -239,7 +239,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         Integer currentNum = teacher.getCurrentNum();
 
         //获取到此用户的信息
-        User loginUser = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
+        User loginUser = CheckLoginUtils.checkUserLoginStatus(request);
 
         //退出队伍
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
@@ -248,7 +248,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         queryWrapper.eq("isJoin", 1);
         //判断用户是否加入此队伍
         if (userTeamService.getOne(queryWrapper) == null) {
-            throw new IllegalStateException("用户: "+loginUser.getUsername()+" 并未成功加入此队伍teacherId: "+teacherId+"，退出失败");
+            throw new IllegalArgumentException("用户: "+loginUser.getUsername()+" 并未成功加入此队伍teacherId: "+teacherId+"，退出失败");
         }
         int deleteResult = userTeamService.getBaseMapper().delete(queryWrapper);
 
@@ -268,10 +268,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public boolean cancelApplication(Long teacherId, HttpServletRequest request) {
         //查询是否登录
-        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (user == null) {
-            throw new IllegalStateException("用户已退出，请重新登录");
-        }
+        User user = CheckLoginUtils.checkUserLoginStatus(request);
         //查询传入的参数是否为空
         if (teacherId == null) {
             throw new IllegalArgumentException("队伍id为空，无法确定取消哪个队伍的申请");
@@ -289,11 +286,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         userTeamQueryWrapper.eq("teacherId", teacherId);
         UserTeam apply = userTeamService.getBaseMapper().selectOne(userTeamQueryWrapper);
         if (apply == null) {
-            throw new IllegalStateException("您并未向此老师提出申请加入队伍，无法取消");
+            throw new IllegalArgumentException("您并未向此老师提出申请加入队伍，无法取消");
         }
         //如果老师已经同意申请，那么无法进行取消
         if (apply.getIsJoin() == 1) {
-            throw new IllegalStateException("老师已同意申请，无法取消");
+            throw new IllegalArgumentException("老师已同意申请，无法取消");
         }
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
         return result == 1;
@@ -307,10 +304,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public CountOfTeamVo getCountOfTeam(HttpServletRequest request) {
         //1. 查询登录状态
-        Teacher teacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (teacher == null) {
-            throw new IllegalStateException("您已退出，请重新登录");
-        }
+        Teacher teacher = CheckLoginUtils.checkTeacherLoginStatus(request);
         //2. 新建返回变量
         CountOfTeamVo result = new CountOfTeamVo();
         //3. 获取队伍最大人数，并赋值
@@ -339,10 +333,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public Teacher getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
-        Teacher loginTeacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (loginTeacher == null) {
-            throw new IllegalStateException("您已退出，请重新登录");
-        }
+        Teacher loginTeacher = CheckLoginUtils.checkTeacherLoginStatus(request);
         //获取个人信息
         Teacher teacherMsg = teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", loginTeacher.getId()));
         //脱敏

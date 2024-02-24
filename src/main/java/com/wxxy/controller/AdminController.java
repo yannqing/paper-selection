@@ -30,11 +30,11 @@ public class AdminController {
      * @return
      */
     @PostMapping("/addUser")
-    public BaseResponse<Object> addUser(User user){
+    public BaseResponse<Object> addUser(User user, HttpServletRequest request){
         if (user == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
-        boolean result = adminService.addUser(user);
+        boolean result = adminService.addUser(user, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null , "新增学生成功");
         }
@@ -47,11 +47,11 @@ public class AdminController {
      * @return
      */
     @PostMapping("/addTeacher")
-    public BaseResponse<Object> addTeacher(Teacher teacher){
+    public BaseResponse<Object> addTeacher(Teacher teacher, HttpServletRequest request){
         if (teacher == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
-        boolean result = adminService.addTeacher(teacher);
+        boolean result = adminService.addTeacher(teacher, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "新增教师成功");
         }
@@ -64,11 +64,11 @@ public class AdminController {
      * @return
      */
     @DeleteMapping("/deleteUser")
-    public BaseResponse<Object> deleteUser(Long userId) {
+    public BaseResponse<Object> deleteUser(Long userId, HttpServletRequest request) {
         if (userId == null) {
             throw new IllegalArgumentException("学生id为空，无法删除");
         }
-        boolean result = adminService.deleteUser(userId);
+        boolean result = adminService.deleteUser(userId, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "删除用户成功");
         }
@@ -81,11 +81,11 @@ public class AdminController {
      * @return
      */
     @DeleteMapping("/deleteTeacher")
-    public BaseResponse<Object> deleteTeacher(Long teacherId) {
+    public BaseResponse<Object> deleteTeacher(Long teacherId, HttpServletRequest request) {
         if (teacherId == null) {
             throw new IllegalArgumentException("教师id为空，无法删除");
         }
-        boolean result = adminService.deleteTeacher(teacherId);
+        boolean result = adminService.deleteTeacher(teacherId, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "删除教师成功");
         }
@@ -127,11 +127,11 @@ public class AdminController {
      * @return
      */
     @PutMapping("/updateUser")
-    public BaseResponse<Object> updateUser(User user){
+    public BaseResponse<Object> updateUser(User user, HttpServletRequest request) {
         if (user == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
-        boolean result = adminService.updateUser(user);
+        boolean result = adminService.updateUser(user, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "更新数据成功");
         }
@@ -144,11 +144,11 @@ public class AdminController {
      * @return
      */
     @PutMapping("/updateTeacher")
-    public BaseResponse<Object> updateTeacher(Teacher teacher) {
+    public BaseResponse<Object> updateTeacher(Teacher teacher, HttpServletRequest request) {
         if (teacher == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
-        boolean result = adminService.updateTeacher(teacher);
+        boolean result = adminService.updateTeacher(teacher, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "更新数据成功");
         }
@@ -162,8 +162,8 @@ public class AdminController {
      * @throws IOException
      */
     @PostMapping("/uploadExcelStudent")
-    public BaseResponse<Object> uploadExcelStudent(@RequestParam("file") MultipartFile file) throws IOException {
-        boolean result = adminService.uploadExcelStudent(file);
+    public BaseResponse<Object> uploadExcelStudent(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+        boolean result = adminService.uploadExcelStudent(file, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "新增excel数据成功");
         }
@@ -177,8 +177,8 @@ public class AdminController {
      * @throws IOException
      */
     @PostMapping("/uploadExcelTeacher")
-    public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file) throws IOException {
-        boolean result = adminService.uploadExcelTeacher(file);
+    public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+        boolean result = adminService.uploadExcelTeacher(file, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "新增excel数据成功");
         }

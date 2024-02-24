@@ -5,6 +5,7 @@ import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.service.UserService;
 import com.wxxy.service.impl.AuthServiceImpl;
+import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.UserVo;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/student")
@@ -30,10 +33,7 @@ public class UserController {
      */
     @GetMapping("/getMySelectedStudent")
     public BaseResponse<List<User>> getSelectedStudent(HttpServletRequest request){
-        Teacher teacher = (Teacher) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (teacher == null) {
-            throw new RuntimeException("您已退出，请重新登录");
-        }
+        CheckLoginUtils.checkTeacherLoginStatus(request);
         List<User> selectedStudent = userService.getSelectedStudent(request);
         return ResultUtils.success(Code.SUCCESS, selectedStudent, "查询已选择的学生成功");
     }
@@ -81,7 +81,7 @@ public class UserController {
      */
     @GetMapping("/getMyJoinedStudent")
     public BaseResponse<List<User>> joinedStudent(HttpServletRequest request) {
-        if (request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE) == null) {
+        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
             throw new IllegalArgumentException("此老师已退出，请重新登录");
         }
         List<User> joinedStudent = userService.joinedStudent(request);

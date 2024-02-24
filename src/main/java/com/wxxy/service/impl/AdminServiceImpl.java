@@ -10,7 +10,7 @@ import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.AdminService;
-import com.wxxy.service.UserService;
+import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 
-import static com.wxxy.service.impl.AuthServiceImpl.SALT;
+import static com.wxxy.common.UserLoginState.SALT;
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
+
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -37,7 +39,8 @@ public class AdminServiceImpl implements AdminService {
     private UserTeamMapper userTeamMapper;
 
     @Override
-    public boolean addUser(User user) {
+    public boolean addUser(User user, HttpServletRequest request) {
+        checkRole(request);
         //参数校验
         if (user.getUsername() == null) {
             throw new IllegalArgumentException("学生名字不能为空");
@@ -66,7 +69,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean addTeacher(Teacher teacher) {
+    public boolean addTeacher(Teacher teacher, HttpServletRequest request) {
+        checkRole(request);
         //参数校验
         if (teacher.getName() == null) {
             throw new IllegalArgumentException("教师名称不能为空");
@@ -89,7 +93,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean deleteUser(Long userId) {
+    public boolean deleteUser(Long userId, HttpServletRequest request) {
+        checkRole(request);
         //参数校验
         if (userId == null) {
             throw new IllegalArgumentException("参数不能为空");
@@ -103,7 +108,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean deleteTeacher(Long teacherId) {
+    public boolean deleteTeacher(Long teacherId, HttpServletRequest request) {
+        checkRole(request);
         //参数校验
         if (teacherId == null) {
             throw new IllegalArgumentException("参数不能为空");
@@ -118,10 +124,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (user == null) {
-            throw new IllegalArgumentException("您已退出，请重新登录");
-        }
+        checkRole(request);
         //分页查询数据
         Page<User> pageConfig ;
         //如果传入的分页参数是空，则查询第一页，10条数据
@@ -148,10 +151,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public GetAllByPageVo<Teacher> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (user == null) {
-            throw new IllegalArgumentException("您已退出，请重新登录");
-        }
+        checkRole(request);
         //分页查询数据
         Page<Teacher> pageConfig ;
         //如果传入的分页参数是空，则查询第一页，10条数据
@@ -176,11 +176,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public GetAllByPageVo<User> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
+
         //1. 检查是否登录
-        User user = (User) request.getSession().getAttribute(AuthServiceImpl.USER_LOGIN_STATE);
-        if (user == null) {
-            throw new IllegalStateException("您已退出，请重新登录");
-        }
+        checkRole(request);
         //2. 查询user-team表，找出所有加入队伍学生的id
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
         userTeamQueryWrapper.eq("isJoin", 1);
@@ -219,7 +217,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean updateUser(User user, HttpServletRequest request) {
+        checkRole(request);
         if (user == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -240,7 +239,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean updateTeacher(Teacher teacher) {
+    public boolean updateTeacher(Teacher teacher, HttpServletRequest request) {
+        checkRole(request);
         if (teacher == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -259,7 +259,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean uploadExcelStudent(MultipartFile studentExcel) throws IOException {
+    public boolean uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException {
+        checkRole(request);
         if (studentExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
         }
@@ -321,7 +322,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean uploadExcelTeacher(MultipartFile teacherExcel) throws IOException {
+    public boolean uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException {
+        checkRole(request);
         if (teacherExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
         }
@@ -379,4 +381,11 @@ public class AdminServiceImpl implements AdminService {
         return true;
 
     }
-}
+
+    public void checkRole(HttpServletRequest request) {
+        User user = CheckLoginUtils.checkUserLoginStatus(request);
+        if (user.getUserRole() == 0) {
+            throw new IllegalArgumentException("您没有权限，请重试");
+        }
+    }
+ }

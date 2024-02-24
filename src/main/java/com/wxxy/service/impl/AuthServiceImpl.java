@@ -12,6 +12,8 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import static com.wxxy.common.UserLoginState.SALT;
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -21,8 +23,7 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private UserService userService;
 
-    public static final String SALT = "paperSelection";
-    public static final String USER_LOGIN_STATE = "userLoginState";
+
 
     @Override
     public Object login(String username, String password, HttpServletRequest request) {

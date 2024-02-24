@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.List;
 
 public interface AdminService {
-    boolean addUser(User user);
+    boolean addUser(User user, HttpServletRequest request);
 
-    boolean addTeacher(Teacher teacher);
+    boolean addTeacher(Teacher teacher, HttpServletRequest request);
 
-    boolean deleteUser(Long userId);
+    boolean deleteUser(Long userId, HttpServletRequest request);
 
-    boolean deleteTeacher(Long teacherId);
+    boolean deleteTeacher(Long teacherId, HttpServletRequest request);
 
     GetAllByPageVo<User> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
@@ -24,11 +24,11 @@ public interface AdminService {
 
     GetAllByPageVo<User> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request);
 
-    boolean updateUser(User user);
+    boolean updateUser(User user, HttpServletRequest request);
 
-    boolean updateTeacher(Teacher teacher);
+    boolean updateTeacher(Teacher teacher, HttpServletRequest request);
 
-    boolean uploadExcelStudent(MultipartFile studentExcel) throws IOException;
+    boolean uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException;
 
-    boolean uploadExcelTeacher(MultipartFile teacherExcel) throws IOException;
+    boolean uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException;
 }

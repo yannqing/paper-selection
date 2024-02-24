@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.wxxy.service.impl.AuthServiceImpl.SALT;
+import static com.wxxy.common.UserLoginState.SALT;
+
 
 @Service
 public class FileServiceImpl implements FileService {

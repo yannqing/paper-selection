@@ -1,5 +1,6 @@
 package com.wxxy.exception;
 
+import com.wxxy.common.Code;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,17 +43,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 参数错误1
+     * 身份过期
      */
     @ExceptionHandler(IllegalStateException.class)
     public BaseResponse<Object> handleIllegalStateException(IllegalStateException e,
                                                             HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        log.error("非法参数=>{}",e.getMessage());
-        return ResultUtils.failure(e.getMessage());
+        log.error("用户过期，请重新登录",e.getMessage());
+        return ResultUtils.failure(Code.AUTH_ERROR, null, e.getMessage());
     }
     /**
-     * 参数错误2
+     * 参数错误
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public BaseResponse<Object> handleIllegalArgumentException(IllegalArgumentException e,
