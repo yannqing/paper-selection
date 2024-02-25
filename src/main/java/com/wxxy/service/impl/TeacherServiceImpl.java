@@ -80,13 +80,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             studentGetTeachersVo.setPhone(teacher.getPhone());
             studentGetTeachersVo.setAvatarUrl(teacher.getAvatarUrl());
             studentGetTeachersVo.setMaxNum(teacher.getMaxNum());
-            //加入数量，剩余数量
-            QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
-            userTeamQueryWrapper.eq("teacherId", teacher.getId());
-            userTeamQueryWrapper.eq("isJoin", 1);
-            List<UserTeam> userTeams = userTeamService.getBaseMapper().selectList(userTeamQueryWrapper);
-            studentGetTeachersVo.setJoinedNum(userTeams.size());
-            studentGetTeachersVo.setRemainingNum(teacher.getMaxNum() - userTeams.size());
+            studentGetTeachersVo.setApplyNum(teacher.getApplyNum());
+            studentGetTeachersVo.setMaxApply(teacher.getMaxApply());
+            studentGetTeachersVo.setCurrentNum(teacher.getCurrentNum());
             //设置各个老师对自己的状态
             QueryWrapper<UserTeam> userTeamQueryWrapper1 = new QueryWrapper<>();
             userTeamQueryWrapper1.eq("teacherId", teacher.getId());

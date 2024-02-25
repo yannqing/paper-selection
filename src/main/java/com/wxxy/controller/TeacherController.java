@@ -130,6 +130,12 @@ public class TeacherController {
         return ResultUtils.success(Code.SUCCESS, countOfTeam, "查看队伍容量成功");
     }
 
+    @GetMapping("/getMaxApply")
+    public BaseResponse<Integer> getMaxApply(HttpServletRequest request) {
+        return null;
+    }
+
+
     /**
      * 获取个人信息（老师）
      * @param request 获取session

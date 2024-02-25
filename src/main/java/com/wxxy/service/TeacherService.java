@@ -32,6 +32,8 @@ public interface TeacherService extends IService<Teacher> {
 
     CountOfTeamVo getCountOfTeam(HttpServletRequest request);
 
+//    Integer getMaxApply(HttpServletRequest request);
+
     Teacher getMyselfInfo(HttpServletRequest request);
 
 }
