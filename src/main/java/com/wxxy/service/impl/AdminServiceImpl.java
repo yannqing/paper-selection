@@ -25,6 +25,7 @@ import java.util.*;
 
 import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
+import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 
 
 @Service
@@ -381,6 +382,34 @@ public class AdminServiceImpl implements AdminService {
         return true;
 
     }
+
+    /**
+     * 查看老师的队伍
+     * @param request
+     * @return
+     */
+    @Override
+    public List<User> joinedStudent(HttpServletRequest request, Integer teacherId) {
+        //鉴权
+        checkRole(request);
+        //查询我的队伍
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teacherId", teacherId);
+        queryWrapper.eq("isJoin", 1);
+        List<UserTeam> myTeams = userTeamMapper.selectList(queryWrapper);
+        List<User> joinedUsers = new ArrayList<>();
+        for (UserTeam userTeam : myTeams) {
+            QueryWrapper<User> queryUserWrapper = new QueryWrapper<>();
+            queryUserWrapper.eq("id", userTeam.getUserId());
+            User joinedUser = userMapper.selectOne(queryUserWrapper);
+            //脱敏
+            joinedUser.setUserPassword(null);
+            joinedUsers.add(joinedUser);
+        }
+
+        return joinedUsers;
+    }
+
 
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);

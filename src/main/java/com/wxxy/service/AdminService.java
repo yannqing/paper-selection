@@ -31,4 +31,6 @@ public interface AdminService {
     boolean uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException;
 
     boolean uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException;
+
+    public List<User> joinedStudent(HttpServletRequest request, Integer teacherId);
 }

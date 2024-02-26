@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
+
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -185,4 +187,17 @@ public class AdminController {
         return ResultUtils.failure(Code.FAILURE, null, "新增excel数据失败");
     }
 
+    /**
+     * 查看老师的队伍
+     * @param request
+     * @return
+     */
+    @GetMapping("/getTeam")
+    public BaseResponse<List<User>> joinedStudent(HttpServletRequest request, Integer teacherId) {
+        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
+            throw new IllegalStateException("您已退出，请重新登录！");
+        }
+        List<User> joinedStudent = adminService.joinedStudent(request, teacherId);
+        return ResultUtils.success(Code.SUCCESS, joinedStudent, "查看老师队伍成功");
+    }
 }
