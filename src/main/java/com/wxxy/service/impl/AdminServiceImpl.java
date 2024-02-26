@@ -229,7 +229,7 @@ public class AdminServiceImpl implements AdminService {
         updateWrapper.set("academy", user.getAcademy());
         updateWrapper.set("degree", user.getDegree());
         updateWrapper.set("userAccount", user.getUserAccount());
-        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + user.getUserPassword()).getBytes()));
+//        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + user.getUserPassword()).getBytes()));
         updateWrapper.set("gender", user.getGender());
         updateWrapper.set("profile", user.getProfile());
         updateWrapper.set("phone", user.getPhone());
@@ -249,7 +249,7 @@ public class AdminServiceImpl implements AdminService {
         updateWrapper.eq("id", teacher.getId());
         updateWrapper.set("name", teacher.getName());
         updateWrapper.set("userAccount", teacher.getUserAccount());
-        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + teacher.getUserPassword()).getBytes()));
+//        updateWrapper.set("userPassword", DigestUtils.md5DigestAsHex((SALT + teacher.getUserPassword()).getBytes()));
         updateWrapper.set("avatarUrl", teacher.getAvatarUrl());
         updateWrapper.set("description", teacher.getDescription());
         updateWrapper.set("phone", teacher.getPhone());
