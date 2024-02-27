@@ -11,12 +11,14 @@ import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
+@Slf4j
 @RestController
 @RequestMapping("/student")
 public class UserController {
@@ -158,5 +160,22 @@ public class UserController {
             return ResultUtils.success(Code.SUCCESS, null, "修改学生密码成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "修改学生密码失败");
+    }
+
+    /**
+     * 修改个人信息（学生）
+     * @param updateUser
+     * @param request
+     * @return
+     */
+    @PostMapping("/updateMyselfInfo")
+    public BaseResponse<Object> updateMyselfInfo(User updateUser, HttpServletRequest request){
+        boolean result = userService.updateMyselfInfo(updateUser, request);
+        if (result) {
+            log.info("修改学生个人信息成功");
+            return ResultUtils.success(Code.SUCCESS, null, "修改学生个人信息成功！");
+        }
+        log.info("修改学生个人信息失败");
+        return ResultUtils.failure(Code.FAILURE, null, "修改学生个人信息失败");
     }
 }

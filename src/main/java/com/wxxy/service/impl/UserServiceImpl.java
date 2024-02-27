@@ -3,6 +3,7 @@ package com.wxxy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -249,6 +250,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", teacher.getId());
         updateWrapper.set("maxNum", maxSize);
+        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
         int result = teacherMapper.update(updateWrapper);
         return result == 1;
     }
@@ -268,7 +270,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //查询是否登录
         Teacher teacher = checkTeacherLoginStatus(request);
         //修改申请容量
-        teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("maxApply", applySize));
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacher.getId())
+                .set("maxApply", applySize)
+                .set("updateTime", DateFormat.getCurrentTime()));
 
         return true;
     }
@@ -317,11 +322,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new IllegalArgumentException("原密码错误，请重试！");
         }
         //修改密码
-        int result = userMapper.update(new UpdateWrapper<User>().eq("id", user.getId()).set("userPassword", newEncryptPassword));
+        int result = userMapper.update(new UpdateWrapper<User>()
+                .eq("id", user.getId())
+                .set("userPassword", newEncryptPassword)
+                .set("updateTime", DateFormat.getCurrentTime()));
 
         //移出登录态
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         log.info("学生修改密码成功，请重新登录！");
+
+        return result == 1;
+    }
+
+    /**
+     * 修改个人信息（学生）
+     * @param updateUser
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean updateMyselfInfo(User updateUser, HttpServletRequest request) {
+        //校验登录态
+        User loginUser = checkUserLoginStatus(request);
+        //更新个人信息
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", loginUser.getId());
+        updateWrapper.set("username", updateUser.getUsername());
+        updateWrapper.set("userAccount", updateUser.getUserAccount());
+        updateWrapper.set("description", updateUser.getProfile());
+        updateWrapper.set("phone", updateUser.getPhone());
+        updateWrapper.set("email", updateUser.getEmail());
+        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
+        int result = userMapper.update(null, updateWrapper);
 
         return result == 1;
     }

@@ -8,11 +8,13 @@ import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/teacher")
 public class TeacherController {
@@ -147,6 +149,14 @@ public class TeacherController {
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
 
+    /**
+     * 修改个人密码（老师）
+     * @param oldPassword
+     * @param newPassword
+     * @param againPassword
+     * @param request
+     * @return
+     */
     @PostMapping("/changeMyPassword")
     public BaseResponse<Object> changeMyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
@@ -157,5 +167,22 @@ public class TeacherController {
             return ResultUtils.success(Code.SUCCESS, null, "修改老师密码成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "修改老师密码失败");
+    }
+
+    /**
+     * 修改个人信息（老师）
+     * @param updateTeacher
+     * @param request
+     * @return
+     */
+    @PostMapping("/updateMyselfInfo")
+    public BaseResponse<Object> updateMyselfInfo(Teacher updateTeacher, HttpServletRequest request){
+        boolean result = teacherService.updateMyselfInfo(updateTeacher, request);
+        if (result) {
+            log.info("修改老师个人信息成功");
+            return ResultUtils.success(Code.SUCCESS, null, "修改老师个人信息成功！");
+        }
+        log.info("修改老师个人信息失败");
+        return ResultUtils.failure(Code.FAILURE, null, "修改老师个人信息失败");
     }
 }

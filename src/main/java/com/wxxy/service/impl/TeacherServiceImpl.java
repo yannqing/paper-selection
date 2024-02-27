@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -369,11 +370,39 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             throw new IllegalArgumentException("原密码错误，请重试！");
         }
         //修改密码
-        int result = teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("userPassword", newEncryptPassword));
+        int result = teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacher.getId())
+                .set("userPassword", newEncryptPassword)
+                .set("updateTime", DateFormat.getCurrentTime()));
 
         //移出登录态
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         log.info("老师修改密码成功，请重新登录！");
+
+        return result == 1;
+    }
+
+    /**
+     * 更新个人信息（老师）
+     * @param updateTeacher
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean updateMyselfInfo(Teacher updateTeacher, HttpServletRequest request) {
+        //校验登录态
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        //更新个人信息
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", loginTeacher.getId());
+        updateWrapper.set("name", updateTeacher.getName());
+        updateWrapper.set("userAccount", updateTeacher.getUserAccount());
+        updateWrapper.set("avatarUrl", updateTeacher.getAvatarUrl());
+        updateWrapper.set("description", updateTeacher.getDescription());
+        updateWrapper.set("phone", updateTeacher.getPhone());
+        updateWrapper.set("email", updateTeacher.getEmail());
+        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
+        int result = teacherMapper.update(null, updateWrapper);
 
         return result == 1;
     }

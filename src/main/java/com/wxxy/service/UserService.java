@@ -1,5 +1,6 @@
 package com.wxxy.service;
 
+import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxxy.vo.BaseResponse;
@@ -33,5 +34,7 @@ public interface UserService extends IService<User> {
     User getMyselfInfo(HttpServletRequest request);
 
     boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request);
+
+    boolean updateMyselfInfo(User updateUser, HttpServletRequest request);
 
 }
