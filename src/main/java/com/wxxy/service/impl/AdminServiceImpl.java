@@ -3,6 +3,7 @@ package com.wxxy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -14,6 +15,7 @@ import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 
-
+@Slf4j
 @Service
 public class AdminServiceImpl implements AdminService {
 
@@ -406,8 +408,62 @@ public class AdminServiceImpl implements AdminService {
             joinedUser.setUserPassword(null);
             joinedUsers.add(joinedUser);
         }
-
+        log.info("查看老师：" + teacherId + " 的队伍成功！");
         return joinedUsers;
+    }
+
+    /**
+     * 重置学生密码
+     * @param userId
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean resetStudentPassword(Long userId, HttpServletRequest request) {
+        log.info("重置学生密码");
+        //鉴权
+        checkRole(request);
+        //参数校验
+        if (userId == null) {
+            throw new IllegalArgumentException("传入的学生id不能为空！");
+        } else {
+            User user = userMapper.selectById(userId);
+            if (user == null) {
+                throw new IllegalArgumentException("该学生不存在，请重试！");
+            }
+        }
+        int result = userMapper.update(new UpdateWrapper<User>()
+                .eq("id", userId)
+                .set("userPassword", DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()))
+                .set("updateTime", DateFormat.getCurrentTime()));
+        return result == 1;
+    }
+
+    /**
+     * 重置老师密码
+     * @param teacherId
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean resetTeacherPassword(Long teacherId, HttpServletRequest request) {
+        log.info("重置老师密码");
+        //鉴权
+        checkRole(request);
+        //参数校验
+        if (teacherId == null) {
+            throw new IllegalArgumentException("传入的老师id不能为空！");
+        } else {
+            Teacher teacher = teacherMapper.selectById(teacherId);
+            if (teacher == null) {
+                throw new IllegalArgumentException("该老师不存在，请重试！");
+            }
+        }
+        int result = teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("userPassword", DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()))
+                .set("updateTime", DateFormat.getCurrentTime()));
+        return result == 1;
     }
 
 

@@ -9,6 +9,7 @@ import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.ResultType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -182,6 +184,7 @@ public class AdminController {
     public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         boolean result = adminService.uploadExcelTeacher(file, request);
         if (result) {
+
             return ResultUtils.success(Code.SUCCESS, null, "新增excel数据成功");
         }
         return ResultUtils.failure(Code.FAILURE, null, "新增excel数据失败");
@@ -199,5 +202,39 @@ public class AdminController {
         }
         List<User> joinedStudent = adminService.joinedStudent(request, teacherId);
         return ResultUtils.success(Code.SUCCESS, joinedStudent, "查看老师队伍成功");
+    }
+
+    /**
+     * 重置学生密码
+     * @param request
+     * @param userId
+     * @return
+     */
+    @PostMapping("/resetStudentPassword")
+    public BaseResponse<Object> resetStudentPassword(HttpServletRequest request, Long userId) {
+        boolean result = adminService.resetStudentPassword(userId, request);
+        if (result) {
+            log.info("重置学生密码成功");
+            return ResultUtils.success(Code.SUCCESS, null, "重置学生密码成功");
+        }
+        log.info("重置学生密码失败");
+        return ResultUtils.failure(Code.FAILURE, null, "重置学生密码失败");
+    }
+
+    /**
+     * 重置教师密码
+     * @param request
+     * @param teacherId
+     * @return
+     */
+    @PostMapping("/resetTeacherPassword")
+    public BaseResponse<Object> resetTeacherPassword(HttpServletRequest request, Long teacherId) {
+        boolean result = adminService.resetTeacherPassword(teacherId, request);
+        if (result) {
+            log.info("重置教师密码成功");
+            return ResultUtils.success(Code.SUCCESS, null, "重置教师密码成功");
+        }
+        log.info("重置教师密码失败");
+        return ResultUtils.failure(Code.FAILURE, null, "重置教师密码失败");
     }
 }
