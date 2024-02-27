@@ -396,7 +396,6 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", loginTeacher.getId());
         updateWrapper.set("name", updateTeacher.getName());
-        updateWrapper.set("userAccount", updateTeacher.getUserAccount());
         updateWrapper.set("avatarUrl", updateTeacher.getAvatarUrl());
         updateWrapper.set("description", updateTeacher.getDescription());
         updateWrapper.set("phone", updateTeacher.getPhone());

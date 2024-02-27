@@ -348,8 +348,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", loginUser.getId());
         updateWrapper.set("username", updateUser.getUsername());
-        updateWrapper.set("userAccount", updateUser.getUserAccount());
-        updateWrapper.set("description", updateUser.getProfile());
+        updateWrapper.set("academy", updateUser.getAcademy());
+        updateWrapper.set("degree", updateUser.getDegree());
+        updateWrapper.set("profile", updateUser.getProfile());
         updateWrapper.set("phone", updateUser.getPhone());
         updateWrapper.set("email", updateUser.getEmail());
         updateWrapper.set("updateTime", DateFormat.getCurrentTime());
