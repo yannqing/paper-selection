@@ -32,4 +32,6 @@ public interface UserService extends IService<User> {
 
     User getMyselfInfo(HttpServletRequest request);
 
+    boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request);
+
 }

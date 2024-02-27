@@ -36,4 +36,7 @@ public interface TeacherService extends IService<Teacher> {
 
     Teacher getMyselfInfo(HttpServletRequest request);
 
+    boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request);
+
+
 }

@@ -146,4 +146,16 @@ public class TeacherController {
         Teacher myselfInfo = teacherService.getMyselfInfo(request);
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
+
+    @PostMapping("/changeMyPassword")
+    public BaseResponse<Object> changeMyPassword(@RequestParam("oldPassword") String oldPassword,
+                                                 @RequestParam("newPassword") String newPassword,
+                                                 @RequestParam("againPassword") String againPassword,
+                                                 HttpServletRequest request) {
+        boolean result = teacherService.changeMyPassword(oldPassword, newPassword, againPassword, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "修改老师密码成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "修改老师密码失败");
+    }
 }

@@ -11,10 +11,7 @@ import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -149,5 +146,17 @@ public class UserController {
     public BaseResponse<User> getMyselfInfo(HttpServletRequest request) {
         User myselfInfo = userService.getMyselfInfo(request);
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
+    }
+
+    @PostMapping("/changeMyPassword")
+    public BaseResponse<Object> changeMyPassword(@RequestParam("oldPassword") String oldPassword,
+                                                 @RequestParam("newPassword") String newPassword,
+                                                 @RequestParam("againPassword") String againPassword,
+                                                 HttpServletRequest request) {
+        boolean result = userService.changeMyPassword(oldPassword, newPassword, againPassword, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "修改学生密码成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "修改学生密码失败");
     }
 }

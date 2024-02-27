@@ -19,19 +19,26 @@ import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
+import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
+import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
+import static com.wxxy.utils.CheckLoginUtils.checkUserLoginStatus;
 
 /**
 * @author 67121
 * @description 针对表【teacher(老师(队伍))】的数据库操作Service实现
 * @createDate 2024-01-24 00:24:30
 */
+@Slf4j
 @Service
 public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
@@ -209,7 +216,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
         byte[] avatarBytes = avatar.getBytes();
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
-        Teacher teacher = CheckLoginUtils.checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request);
         updateWrapper.eq("id",teacher.getId());
         updateWrapper.set("avatarUrl", avatarBytes);
         teacherMapper.update(null, updateWrapper);
@@ -300,7 +307,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public CountOfTeamVo getCountOfTeam(HttpServletRequest request) {
         //1. 查询登录状态
-        Teacher teacher = CheckLoginUtils.checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request);
         //2. 新建返回变量
         CountOfTeamVo result = new CountOfTeamVo();
         //3. 获取队伍最大人数，并赋值
@@ -329,7 +336,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public Teacher getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
-        Teacher loginTeacher = CheckLoginUtils.checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
         //获取个人信息
         Teacher teacherMsg = teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", loginTeacher.getId()));
         //脱敏
@@ -344,6 +351,31 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 //        teacherVo.setMaxNum(teacherMsg.getMaxNum());
         teacherMsg.setUserPassword(null);
         return teacherMsg;
+    }
+
+    @Override
+    public boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request) {
+        //验证登录态
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
+        //确保两次输入密码相同
+        if (!Objects.equals(newPassword, againPassword)) {
+            throw new IllegalArgumentException("两次输入密码不同，请重试！");
+        }
+        String oldEncryptPassword = DigestUtils.md5DigestAsHex((SALT + oldPassword).getBytes());
+        String newEncryptPassword = DigestUtils.md5DigestAsHex((SALT + newPassword).getBytes());
+        //判断原密码是否相同
+        if (!oldEncryptPassword.equals(teacher.getUserPassword())) {
+            throw new IllegalArgumentException("原密码错误，请重试！");
+        }
+        //修改密码
+        int result = teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("userPassword", newEncryptPassword));
+
+        //移出登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        log.info("老师修改密码成功，请重新登录！");
+
+        return result == 1;
     }
 
 

@@ -8,12 +8,14 @@ import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -38,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
             user.setUserPassword(null);
             //记录用户登录态
             request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            log.info("用户: "+ user.getUsername() +" 登录成功！");
             return user;
         }
         //2. 检测是否是老师登录，如果也不是老师登录，返回 null
@@ -51,6 +54,7 @@ public class AuthServiceImpl implements AuthService {
         teacher.setUserPassword(null);
         //记录用户登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, teacher);
+        log.info("老师: "+ teacher.getName() +" 登录成功！");
         return teacher;
 
     }

@@ -11,15 +11,19 @@ import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.service.UserTeamService;
+import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
@@ -30,12 +34,16 @@ import static com.wxxy.utils.CheckLoginUtils.checkUserLoginStatus;
 * @description 针对表【user】的数据库操作Service实现
 * @createDate 2024-01-22 01:11:58
 */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
     @Resource
     private UserTeamService userTeamService;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Resource
     private TeacherMapper teacherMapper;
@@ -292,6 +300,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         return userMsg;
     }
+
+    @Override
+    public boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request) {
+        //验证登录态
+        User loginUser = checkUserLoginStatus(request);
+        User user = userMapper.selectById(loginUser.getId());
+        //确保两次输入密码相同
+        if (!Objects.equals(newPassword, againPassword)) {
+            throw new IllegalArgumentException("两次输入密码不同，请重试！");
+        }
+        String oldEncryptPassword = DigestUtils.md5DigestAsHex((SALT + oldPassword).getBytes());
+        String newEncryptPassword = DigestUtils.md5DigestAsHex((SALT + newPassword).getBytes());
+        //判断原密码是否相同
+        if (!oldEncryptPassword.equals(user.getUserPassword())) {
+            throw new IllegalArgumentException("原密码错误，请重试！");
+        }
+        //修改密码
+        int result = userMapper.update(new UpdateWrapper<User>().eq("id", user.getId()).set("userPassword", newEncryptPassword));
+
+        //移出登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        log.info("学生修改密码成功，请重新登录！");
+
+        return result == 1;
+    }
+
 
 }
 
