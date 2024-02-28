@@ -12,4 +12,6 @@ public class Code {
     public static final Integer AUTH_ERROR = 20011; //身份过期
 
 
+
+
 }

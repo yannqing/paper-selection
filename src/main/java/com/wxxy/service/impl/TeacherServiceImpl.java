@@ -1,5 +1,8 @@
 package com.wxxy.service.impl;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -22,6 +25,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +45,7 @@ import static com.wxxy.utils.CheckLoginUtils.checkUserLoginStatus;
 * @createDate 2024-01-24 00:24:30
 */
 @Slf4j
+@ConfigurationProperties("project")
 @Service
 public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
@@ -53,6 +59,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
     @Resource
     private UserTeamService userTeamService;
+
+    @Value("${project.upload-url}")
+    private String uploadUrl;
 
     /**
      * 查询全部老师信息
@@ -213,15 +222,27 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public boolean uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException {
-
-        byte[] avatarBytes = avatar.getBytes();
-        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+    public String uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException {
+        //参数校验
+        if (avatar == null) {
+            throw new IllegalArgumentException("传入的头像为空，请重新上传！");
+        }
+        //权限校验
         Teacher teacher = checkTeacherLoginStatus(request);
+        //获取文件路径
+        String fileName = avatar.getOriginalFilename();
+        Path path = Paths.get(uploadUrl + fileName);
+        //存储到服务器
+        byte[] avatarBytes = avatar.getBytes();
+        Files.write(path, avatarBytes);
+        //下载路径
+        String downloadUrl = "http://localhost:8080/download/"+fileName;
+        //存储url
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id",teacher.getId());
-        updateWrapper.set("avatarUrl", avatarBytes);
+        updateWrapper.set("avatarUrl", downloadUrl);
         teacherMapper.update(null, updateWrapper);
-        return false;
+        return downloadUrl;
     }
 
     /**

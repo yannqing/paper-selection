@@ -9,6 +9,7 @@ import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @NoArgsConstructor
@@ -28,13 +29,11 @@ class PaperSelectionApplicationTests {
     private UserTeamMapper userTeamMapper;
 
 
+    private String uploadUrl;
+
     @Test
     void contextLoads() {
-        if (userMapper.exists(new QueryWrapper<User>().eq("userAccount", "yannqing"))) {
-            System.out.println("exists");
-        }else {
-            System.out.println("not exists");
-        }
+        System.out.println(System.getProperty("user.dir"));
 
 
     }

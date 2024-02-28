@@ -24,7 +24,7 @@ public interface TeacherService extends IService<Teacher> {
 
     List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId);
 
-    boolean uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException;
+    String uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException;
 
     boolean exitTeam(Long teacherId, HttpServletRequest request);
 

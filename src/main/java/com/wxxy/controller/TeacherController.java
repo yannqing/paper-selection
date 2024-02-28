@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -73,12 +74,10 @@ public class TeacherController {
 
 
     @PostMapping("/uploadAvatar")
-    public BaseResponse<Boolean> uploadAvatar(@RequestParam("avatar") MultipartFile avatar, HttpServletRequest request) throws JsonProcessingException {
-        if (avatar == null) {
-            throw new IllegalArgumentException("Avatar cannot be null");
-        }
+    public BaseResponse<String> uploadAvatar(@RequestParam("avatar") MultipartFile avatar, HttpServletRequest request) throws IOException {
+        String downloadUrl = teacherService.uploadAvatar(avatar, request);
 
-        return null;
+        return ResultUtils.success(Code.SUCCESS, downloadUrl, "上传成功！");
     }
 
     /**
