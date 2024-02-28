@@ -127,18 +127,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public boolean joinTeacher(int[] teacherIds, Long userId) {
-        //选择的老师数量不能超过2
-        if (teacherIds.length > 2) {
-            throw new IllegalArgumentException("选择老师的数量过多");
-        }
+    public boolean joinTeacher(int teacherId, Long userId) {
         //查询{已选择的老师数量}是否为2（达到最大）
         int teacherAccount = this.selectedTeacherAccount(userId);
-        if(2 - teacherAccount - teacherIds.length < 0) {
+        if(2 - teacherAccount <= 0) {
             throw new IllegalArgumentException("选择的老师数量超过可选择的范围！");
         }
         //查询对应老师的队伍人数限制和申请限制是否达到最大
-        for (int teacherId : teacherIds) {
             //1. 先查询老师的总人数限制 和申请人数限制
             Teacher teacher = teacherMapper.selectById(teacherId);
             Integer maxNum = teacher.getMaxNum();
@@ -165,7 +160,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
                         .eq("id", teacher.getId())
                         .set("applyNum", applyNum + 1));
             }
-        }
+
         return true;
     }
 

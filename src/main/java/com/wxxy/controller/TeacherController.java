@@ -43,7 +43,7 @@ public class TeacherController {
      * @return
      */
     @PostMapping("/join")
-    public BaseResponse<Teacher> joinTeacher(int[] teacherIds, Long userId) {
+    public BaseResponse<Teacher> joinTeacher(int teacherIds, Long userId) {
         boolean result = teacherService.joinTeacher(teacherIds, userId);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "申请加入队伍成功，在审核");
