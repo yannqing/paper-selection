@@ -236,13 +236,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         byte[] avatarBytes = avatar.getBytes();
         Files.write(path, avatarBytes);
         //下载路径
-        String downloadUrl = "http://localhost:8080/download/"+fileName;
-        //存储url
-        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id",teacher.getId());
-        updateWrapper.set("avatarUrl", downloadUrl);
-        teacherMapper.update(null, updateWrapper);
-        return downloadUrl;
+        return "http://localhost:8080/download/"+fileName;
     }
 
     /**
