@@ -23,6 +23,7 @@ import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.vo.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,18 +123,22 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
     /**
      * 用户加入老师队伍
-     * @param teacherIds 加入的老师id数组，最大2个
+     * @param teacherId 加入的老师id
      * @param userId 登录的用户id，前面无session时写的，后面可以优化掉
      * @return
      */
     @Override
-    public boolean joinTeacher(int teacherId, Long userId) {
-        //查询{已选择的老师数量}是否为2（达到最大）
-        int teacherAccount = this.selectedTeacherAccount(userId);
-        if(2 - teacherAccount <= 0) {
-            throw new IllegalArgumentException("选择的老师数量超过可选择的范围！");
+    public boolean joinTeacher(Integer teacherId, Long userId) {
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师id不能为空");
         }
-        //查询对应老师的队伍人数限制和申请限制是否达到最大
+//        synchronized(teacherId) {
+            //查询{已选择的老师数量}是否为2（达到最大）
+            int teacherAccount = this.selectedTeacherAccount(userId);
+            if (2 - teacherAccount <= 0) {
+                throw new IllegalArgumentException("选择的老师数量超过可选择的范围！");
+            }
+            //查询对应老师的队伍人数限制和申请限制是否达到最大
             //1. 先查询老师的总人数限制 和申请人数限制
             Teacher teacher = teacherMapper.selectById(teacherId);
             Integer maxNum = teacher.getMaxNum();
@@ -143,14 +148,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             Integer applyNum = teacher.getApplyNum();
             if (currentNum >= maxNum) {
                 throw new IllegalArgumentException("老师队伍已满，无法申请");
-            }
-            else if (applyNum >= maxApply) {
+            } else if (applyNum >= maxApply) {
                 throw new IllegalArgumentException("该老师队伍的申请已达最大限制，无法申请");
-            }
-            else if(userTeamService.getOne(new QueryWrapper<UserTeam>().eq("teacherId",teacherId).eq("userId",userId))!=null){
-                throw new IllegalArgumentException("已经申请加入此老师的队伍，请勿重复加入:"+teacherId);
-            }
-            else {
+            } else if (userTeamService.getOne(new QueryWrapper<UserTeam>().eq("teacherId", teacherId).eq("userId", userId)) != null) {
+                throw new IllegalArgumentException("已经申请加入此老师的队伍，请勿重复加入:" + teacherId);
+            } else {
                 //加入老师队伍
                 UserTeam userTeam = new UserTeam();
                 userTeam.setUserId(userId);
@@ -160,7 +162,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
                         .eq("id", teacher.getId())
                         .set("applyNum", applyNum + 1));
             }
-
+//        }
         return true;
     }
 

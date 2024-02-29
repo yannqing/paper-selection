@@ -268,7 +268,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
         }
         //查询是否登录
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        //查询修改的容量是否小于已经申请的容量
+        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
+        if (teacher.getApplyNum() >= applySize) {
+            throw new IllegalArgumentException("申请限制不能小于已申请数量！");
+        }
         //修改申请容量
         teacherMapper.update(new UpdateWrapper<Teacher>()
                 .eq("id", teacher.getId())

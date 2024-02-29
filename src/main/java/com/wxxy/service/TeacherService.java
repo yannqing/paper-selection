@@ -18,7 +18,7 @@ public interface TeacherService extends IService<Teacher> {
 
     GetAllByPageVo<StudentGetTeachersVo> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request);
 
-    boolean joinTeacher(int teachers, Long userId);
+    boolean joinTeacher(Integer teachers, Long userId);
 
     int selectedTeacherAccount(Long userId);
 
