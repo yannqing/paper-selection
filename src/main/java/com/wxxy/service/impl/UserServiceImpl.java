@@ -134,7 +134,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean disagreeJoin(Long userId, HttpServletRequest request) {
         //查询是否登录
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
         //查询用户id是否合法
         if (userId == null) {
             throw new IllegalArgumentException("用户id为空");
@@ -145,7 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //查询用户是否已加入，是否已申请
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
-        queryWrapper.eq("teacherId", teacher.getId());
+        queryWrapper.eq("teacherId", loginTeacher.getId());
         UserTeam userteam = userTeamService.getOne(queryWrapper);
         if (userteam == null) {
             throw new IllegalArgumentException("学生还未申请，无法拒绝");
@@ -155,6 +155,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         //取消申请
         int result = userTeamService.getBaseMapper().delete(queryWrapper);
+        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
+        Integer applyNum = teacher.getApplyNum();
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", loginTeacher.getId())
+                .set("applyNum", applyNum-1));
         return result == 1;
     }
 
