@@ -310,10 +310,10 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         }
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
 
-        Integer applyNum = teacher.getApplyNum();
+        Integer applyNum = teacher.getApplyNum() - 1;
         teacherMapper.update(new UpdateWrapper<Teacher>()
                 .eq("id", teacherId)
-                .set("applyNum", applyNum-1));
+                .set("applyNum", applyNum));
         return result == 1;
     }
 
