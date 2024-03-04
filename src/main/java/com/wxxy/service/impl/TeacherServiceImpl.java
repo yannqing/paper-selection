@@ -309,6 +309,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             throw new IllegalArgumentException("老师已同意申请，无法取消");
         }
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
+
+        Integer applyNum = teacher.getApplyNum();
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("applyNum", applyNum-1));
         return result == 1;
     }
 
