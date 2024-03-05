@@ -3,8 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -31,9 +30,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Objects;
 
 import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
@@ -228,7 +224,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         Teacher teacher = checkTeacherLoginStatus(request);
         //获取文件路径
         String fileName = avatar.getOriginalFilename();
-        Path path = Paths.get(uploadUrl + fileName);
+        UUID uuid = UUID.randomUUID();
+        String newFilename = replaceFilename(fileName, uuid.toString());
+        Path path = Paths.get(uploadUrl + newFilename);
         //存储到服务器
         byte[] avatarBytes = avatar.getBytes();
         Files.write(path, avatarBytes);
@@ -423,7 +421,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return result == 1;
     }
 
-
+    public static String replaceFilename(String filename, String newName) {
+        // 使用正则表达式匹配文件名和扩展名部分
+        String regex = "(.*)(\\..*)";
+        // 将文件名替换为新名称
+        return filename.replaceAll(regex, newName + "$2");
+    }
 }
 
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.File;
+import java.util.UUID;
 
 @Controller
 public class ImageController {
@@ -17,7 +18,9 @@ public class ImageController {
 
     @GetMapping("/download/{filename}")
     public ResponseEntity<FileSystemResource> downloadImage(@PathVariable("filename") String filename) {
+
         String imagePath = "./images/" + filename; // 图片的本地路径
+
         File imageFile = new File(imagePath);
 
         if (imageFile.exists()) {
@@ -33,4 +36,5 @@ public class ImageController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }
