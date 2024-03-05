@@ -85,7 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean agreeJoin(Long userId, HttpServletRequest request) {
         //查询是否登录
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
         //查询用户id是否合法
         if (userId == null) {
             throw new IllegalArgumentException("用户id为空");
@@ -96,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //查询用户是否已加入，是否已申请
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
-        queryWrapper.eq("teacherId", teacher.getId());
+        queryWrapper.eq("teacherId", loginTeacher.getId());
         UserTeam userteam = userTeamService.getOne(queryWrapper);
         if (userteam == null) {
             throw new IllegalArgumentException("学生还未申请，无法加入队伍");
@@ -104,6 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userteam.getIsJoin() == 1) {
             throw new IllegalArgumentException("学生已加入，请勿重复加入");
         }
+        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
         //查询队伍数量是否已达最大
         Integer currentNum = teacher.getCurrentNum();
         Integer applyNum = teacher.getApplyNum();
@@ -117,11 +118,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         updateWrapper.eq("userId", userId);
         updateWrapper.eq("teacherId", teacher.getId());
         updateWrapper.set("isJoin", 1);
+        //更新老师的队伍数据
         teacherMapper.update(new UpdateWrapper<Teacher>()
                 .eq("id", teacher.getId())
                 .set("currentNum", currentNum + 1)      //当前队伍数量+1
                 .set("applyNum", applyNum - 1));        //当前申请数量-1
-        return userTeamService.update(null, updateWrapper);
+        boolean result = userTeamService.update(updateWrapper);
+
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<UserTeam>()
+                .eq("userId", userId)
+                .eq("isJoin", 0);
+        UserTeam otherTeam = userTeamService.getOne(userTeamQueryWrapper);
+
+        if (otherTeam != null) {
+            //删除此用户的其他申请
+            userTeamService.remove(userTeamQueryWrapper);
+            //修改与申请相关老师的信息
+            Long teacherId = otherTeam.getTeacherId();
+            Teacher otherTeacher = teacherMapper.selectById(teacherId);
+            Integer otherTeacherApplyNum = otherTeacher.getApplyNum();
+            teacherMapper.update(new UpdateWrapper<Teacher>()
+                    .eq("id", teacherId)
+                    .set("applyNum", otherTeacherApplyNum-1));
+        }
+        return result;
 
     }
 
@@ -208,12 +228,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         //查询是否登录
-        Teacher teacher = checkTeacherLoginStatus(request);
-        Integer currentNum = teacher.getCurrentNum();
+        Teacher loginTeacher = checkTeacherLoginStatus(request);
+
         //查询此用户是否加入队伍
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
         userTeamQueryWrapper.eq("userId", userId);
-        userTeamQueryWrapper.eq("teacherId", teacher.getId());
+        userTeamQueryWrapper.eq("teacherId", loginTeacher.getId());
         userTeamQueryWrapper.eq("isJoin", 1);
         UserTeam userJoinedTeam = userTeamService.getOne(userTeamQueryWrapper);
         if (userJoinedTeam == null) {
@@ -222,6 +242,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //移出队伍
         int result = userTeamService.getBaseMapper().delete(userTeamQueryWrapper);
 
+        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
+        Integer currentNum = teacher.getCurrentNum();
         teacherMapper.update(new UpdateWrapper<Teacher>()
                 .eq("id", teacher.getId())
                 .set("currentNum", currentNum - 1));

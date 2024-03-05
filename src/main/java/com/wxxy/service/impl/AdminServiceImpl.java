@@ -316,7 +316,6 @@ public class AdminServiceImpl implements AdminService {
 //            System.out.println(data);
             //查重
             for (User user : users) {
-                System.out.println(user);
                 if (!userMapper.exists(new QueryWrapper<User>().eq("userAccount", user.getUserAccount()))){
                     userMapper.insert(user);
                 }
