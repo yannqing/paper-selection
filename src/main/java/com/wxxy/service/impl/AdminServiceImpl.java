@@ -283,24 +283,40 @@ public class AdminServiceImpl implements AdminService {
                 if (rowIndex++ == 0) {
                     continue;
                 }
-                // 遍历行中的单元格
-                Iterator<Cell> cellIterator = row.cellIterator();
                 int cellIndex = 0 ;
                 User user = new User();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    if (cell.getCellType() == CellType.NUMERIC) {
-                        // 将NUMERIC类型的单元格转换为STRING类型
-                        cell.setCellType(CellType.STRING);
+                while (cellIndex <=8) {
+                    String cellValue = null;
+                    Cell cell = row.getCell(cellIndex);
+                    if (cell != null) {
+                        if (cell.getCellType() == CellType.NUMERIC) {
+                            // 将NUMERIC类型的单元格转换为STRING类型
+                            cell.setCellType(CellType.STRING);
+                        }
+                        cellValue = cell.getStringCellValue();
                     }
-                    String cellValue = cell.getStringCellValue();
+
                     switch (cellIndex) {
                         case 0: user.setUsername(cellValue); break;
                         case 1: user.setAcademy(cellValue); break;
                         case 2: user.setDegree(cellValue); break;
                         case 3: user.setUserAccount(cellValue); break;
-                        case 4: user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes())); break;
-                        case 5: user.setGender(cellValue.equals("男")?1:0); break;
+                        case 4: {
+                            if (cellValue != null) {
+                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
+                            }else {
+                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
+                            }
+                            break;
+                        }
+                        case 5: {
+                            if (cellValue != null) {
+                                user.setGender(cellValue.equals("男")?1:0);
+                            }else{
+                                user.setGender(1);
+                            }
+                            break;
+                        }
                         case 6: user.setProfile(cellValue); break;
                         case 7: user.setPhone(cellValue); break;
                         case 8: user.setEmail(cellValue);
@@ -345,21 +361,29 @@ public class AdminServiceImpl implements AdminService {
             if (rowIndex++ == 0) {
                 continue;
             }
-            // 遍历行中的单元格
-            Iterator<Cell> cellIterator = row.cellIterator();
             int cellIndex = 0 ;
             Teacher teacher = new Teacher();
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                if (cell.getCellType() == CellType.NUMERIC) {
-                    // 将NUMERIC类型的单元格转换为STRING类型
-                    cell.setCellType(CellType.STRING);
+            while (cellIndex <= 5) {
+                String cellValue = null;
+                Cell cell = row.getCell(cellIndex);
+                if (cell != null) {
+                    if (cell.getCellType() == CellType.NUMERIC) {
+                        // 将NUMERIC类型的单元格转换为STRING类型
+                        cell.setCellType(CellType.STRING);
+                    }
+                    cellValue = cell.getStringCellValue();
                 }
-                String cellValue = cell.getStringCellValue();
                 switch (cellIndex) {
                     case 0: teacher.setName(cellValue); break;
                     case 1: teacher.setUserAccount(cellValue); break;
-                    case 2: teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes())); break;
+                    case 2: {
+                        if (cellValue != null) {
+                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
+                        }else {
+                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
+                        }
+                        break;
+                    }
                     case 3: teacher.setDescription(cellValue); break;
                     case 4: teacher.setPhone(cellValue); break;
                     case 5: teacher.setEmail(cellValue);
