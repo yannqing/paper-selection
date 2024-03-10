@@ -3,6 +3,9 @@ package com.wxxy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
@@ -12,12 +15,14 @@ import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.AdminService;
 import com.wxxy.utils.CheckLoginUtils;
+import com.wxxy.utils.RedisCache;
 import com.wxxy.vo.GetAllByPageVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,8 +31,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.wxxy.common.UserLoginState.SALT;
-import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
-import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 
 @Slf4j
 @Service
@@ -40,6 +43,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Resource
     private UserTeamMapper userTeamMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    RedisCache redisCache;
 
     @Override
     public boolean addUser(User user, HttpServletRequest request) {
@@ -261,8 +270,15 @@ public class AdminServiceImpl implements AdminService {
         return result == 1;
     }
 
+    /**
+     *
+     * @param studentExcel
+     * @param request
+     * @return 1有重复，0无重复
+     * @throws IOException
+     */
     @Override
-    public boolean uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException {
+    public int uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException {
         checkRole(request);
         if (studentExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
@@ -331,16 +347,24 @@ public class AdminServiceImpl implements AdminService {
             workbook.close();
 //            System.out.println(data);
             //查重
-            for (User user : users) {
-                if (!userMapper.exists(new QueryWrapper<User>().eq("userAccount", user.getUserAccount()))){
-                    userMapper.insert(user);
+            for (int i = 0 ; i < users.size() ; ) {
+                if (!userMapper.exists(new QueryWrapper<User>().eq("userAccount", users.get(i).getUserAccount()))){
+                    userMapper.insert(users.get(i));
+                    users.remove(i);
+                } else {
+                    i ++;
                 }
             }
-            return true;
+            if (users.size() != 0) {
+                redisCache.setCacheObject("student:excel", objectMapper.writeValueAsString(users));
+                return 1;
+            }
+
+            return 0;
     }
 
     @Override
-    public boolean uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException {
+    public int uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException {
         checkRole(request);
         if (teacherExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
@@ -398,13 +422,20 @@ public class AdminServiceImpl implements AdminService {
         workbook.close();
 //            System.out.println(data);
         //查重
-        for (Teacher teacher : teachers) {
-            System.out.println(teacher);
-            if (!teacherMapper.exists(new QueryWrapper<Teacher>().eq("userAccount", teacher.getUserAccount()))){
-                teacherMapper.insert(teacher);
+        for (int i = 0 ; i < teachers.size(); ) {
+            if (!teacherMapper.exists(new QueryWrapper<Teacher>().eq("userAccount", teachers.get(i).getUserAccount()))){
+                teacherMapper.insert(teachers.get(i));
+                teachers.remove(i);
+            }
+            else {
+                i ++;
             }
         }
-        return true;
+        if (teachers.size() != 0) {
+            redisCache.setCacheList("teacher:excel", teachers);
+            return 1;
+        }
+        return 0;
 
     }
 
@@ -487,6 +518,60 @@ public class AdminServiceImpl implements AdminService {
                 .set("userPassword", DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()))
                 .set("updateTime", DateFormat.getCurrentTime()));
         return result == 1;
+    }
+
+    /**
+     * 覆盖Excel数据
+     *
+     * @param isCover 1为覆盖，0为不覆盖
+     * @param role    1学生，0老师
+     * @param request
+     */
+    @Override
+    public void isCover(int isCover, int role, HttpServletRequest request) throws JsonProcessingException {
+        //鉴权
+        checkRole(request);
+        //检查是否覆盖
+        if (isCover == 0) {
+            //不覆盖则删除redis数据
+            if (role == 1) {
+                redisCache.deleteObject("student:excel");
+            }else {
+                redisCache.deleteObject("teacher:excel");
+            }
+        }else {
+            if (role == 1) {
+                String studentInfo = redisCache.getCacheObject("student:excel");
+                List<User> students = objectMapper.readValue(studentInfo, new TypeReference<List<User>>() {});
+                students.forEach(user -> {
+                    userMapper.update(new UpdateWrapper<User>().
+                            eq("userAccount", user.getUserAccount())
+                            .set("username", user.getUsername())
+                            .set("academy", user.getAcademy())
+                            .set("degree", user.getDegree())
+                            .set("profile", user.getProfile())
+                            .set("phone", user.getPhone())
+                            .set("email", user.getEmail())
+                            .set("gender", user.getGender())
+                            .set("userPassword", user.getUserPassword()));
+                });
+                redisCache.deleteObject("student:excel");
+            }else {
+                String teacherInfo = redisCache.getCacheObject("teacher:excel");
+                List<Teacher> teachers = objectMapper.readValue(teacherInfo, new TypeReference<List<Teacher>>() {});
+                teachers.forEach(teacher -> {
+                    teacherMapper.update(new UpdateWrapper<Teacher>()
+                            .eq("userAccount", teacher.getUserAccount())
+                            .set("name", teacher.getName())
+                            .set("userPassword", teacher.getUserPassword())
+                            .set("description", teacher.getDescription())
+                            .set("phone", teacher.getPhone())
+                            .set("email", teacher.getEmail()));
+                });
+                redisCache.deleteObject("teacher:excel");
+            }
+        }
+
     }
 
 
