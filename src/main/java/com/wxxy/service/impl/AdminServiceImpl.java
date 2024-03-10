@@ -543,6 +543,9 @@ public class AdminServiceImpl implements AdminService {
             if (role == 1) {
                 String studentInfo = redisCache.getCacheObject("student:excel");
                 List<User> students = objectMapper.readValue(studentInfo, new TypeReference<List<User>>() {});
+                if (students == null || students.size() == 0) {
+                    throw new IllegalArgumentException("覆盖失败，请重试");
+                }
                 students.forEach(user -> {
                     userMapper.update(new UpdateWrapper<User>().
                             eq("userAccount", user.getUserAccount())
@@ -559,6 +562,9 @@ public class AdminServiceImpl implements AdminService {
             }else {
                 String teacherInfo = redisCache.getCacheObject("teacher:excel");
                 List<Teacher> teachers = objectMapper.readValue(teacherInfo, new TypeReference<List<Teacher>>() {});
+                if (teachers == null || teachers.size() == 0) {
+                    throw new IllegalArgumentException("覆盖失败，请重试");
+                }
                 teachers.forEach(teacher -> {
                     teacherMapper.update(new UpdateWrapper<Teacher>()
                             .eq("userAccount", teacher.getUserAccount())
