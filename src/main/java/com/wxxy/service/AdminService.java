@@ -41,4 +41,8 @@ public interface AdminService {
 
     void isCover(int isCover, int role, HttpServletRequest request) throws JsonProcessingException;
 
+    boolean changeAllTeachersTeamSize(Integer teamSize, HttpServletRequest request);
+
+    boolean changeAllTeachersApplySize(Integer applySize, HttpServletRequest request);
+
 }

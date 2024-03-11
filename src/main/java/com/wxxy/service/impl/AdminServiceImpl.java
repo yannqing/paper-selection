@@ -580,6 +580,60 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
+    /**
+     * 修改所有老师队伍限制人数
+     * @param teamSize
+     * @param request
+     * @return 如果是true，则全部修改成功，否则的话，队伍人数大于修改的限制，无法修改
+     */
+    @Override
+    public boolean changeAllTeachersTeamSize(Integer teamSize, HttpServletRequest request) {
+        //鉴权
+        checkRole(request);
+        //
+        boolean result = true;
+        log.info("修改全部老师的队伍人数限制");
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        for (Teacher teacher : teachers) {
+            if (teacher.getCurrentNum() <= teamSize) {
+                teacherMapper.update(new UpdateWrapper<Teacher>()
+                        .eq("id", teacher.getId())
+                        .set("maxNum", teamSize));
+            }
+            else {
+                result = false;
+                log.info("修改全部老师的队伍人数限制：存在修改失败的老师！");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 修改全部老师的队伍人申请制
+     * @param applySize
+     * @param request
+     * @return 如果是true，则全部修改成功，否则的话，存在修改失败的老师
+     */
+    @Override
+    public boolean changeAllTeachersApplySize(Integer applySize, HttpServletRequest request) {
+        checkRole(request);
+        boolean result = true;
+        log.info("修改全部老师的队伍人申请制");
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        for (Teacher teacher : teachers) {
+            if (teacher.getApplyNum() <= applySize) {
+                teacherMapper.update(new UpdateWrapper<Teacher>()
+                        .eq("id", teacher.getId())
+                        .set("maxApply", applySize));
+            }
+            else {
+                result = false;
+                log.info("修改全部老师的队伍申请限制：存在修改失败的老师！");
+            }
+        }
+        return result;
+    }
+
 
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);

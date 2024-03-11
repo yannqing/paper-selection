@@ -11,6 +11,9 @@ public class Code {
 
     public static final Integer AUTH_ERROR = 20011; //身份过期
 
+    public static final Integer CHANGE_SIZE_SUCCESS = 30001; //修改数量成功
+
+    public static final Integer CHANGE_SIZE_FAILURE = 30000; //修改数量失败
 
 
 

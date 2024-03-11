@@ -244,4 +244,38 @@ public class AdminController {
         adminService.isCover(isCover, role, request);
         return ResultUtils.success(Code.SUCCESS, null, "覆盖成功");
     }
+
+    /**
+     * 修改所有老师队伍限制人数
+     * @param teamSize
+     * @param request
+     * @return 如果是true，则全部修改成功，否则的话，队伍人数大于修改的限制，无法修改
+     */
+    @PostMapping("/changeAllTeachersTeamSize")
+    public BaseResponse<Object> changeAllTeachersTeamSize(Integer teamSize, HttpServletRequest request) {
+        boolean result = adminService.changeAllTeachersTeamSize(teamSize, request);
+        if (result) {
+            return ResultUtils.success(Code.CHANGE_SIZE_SUCCESS, null, "修改所有老师的队伍人数限制成功！");
+        } else {
+            return ResultUtils.failure(Code.CHANGE_SIZE_FAILURE, null, "修改所有的老师队伍人数限制：存在修改失败的老师！");
+        }
+    }
+
+    /**
+     * 修改全部老师的队伍申请限制
+     * @param applySize
+     * @param request
+     * @return 如果是true，则全部修改成功，否则的话，存在修改失败的老师
+     */
+    @PostMapping("/changeAllTeachersApplySize")
+    public BaseResponse<Object> changeAllTeachersApplySize(Integer applySize, HttpServletRequest request) {
+        boolean result = adminService.changeAllTeachersApplySize(applySize, request);
+        if (result) {
+            return ResultUtils.success(Code.CHANGE_SIZE_SUCCESS, null, "修改所有老师的队伍申请限制成功！");
+        } else {
+            return ResultUtils.failure(Code.CHANGE_SIZE_FAILURE, null, "修改所有的老师队伍申请限制：存在修改失败的老师！");
+        }
+    }
+
+
 }
