@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.wxxy.common.UserLoginState.SALT;
-import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 
 @Slf4j
 @Service
@@ -272,14 +271,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     *
      * @param studentExcel
      * @param request
      * @return 1有重复，0无重复
      * @throws IOException
      */
     @Override
-    public int uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException {
+    public String uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException {
         checkRole(request);
         if (studentExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
@@ -357,15 +355,15 @@ public class AdminServiceImpl implements AdminService {
                 }
             }
             if (users.size() != 0) {
-                redisCache.setCacheObject("student:excel", objectMapper.writeValueAsString(users));
-                return 1;
+                String uuid = UUID.randomUUID().toString();
+                redisCache.setCacheObject("student:excel:"+uuid, objectMapper.writeValueAsString(users));
+                return uuid;
             }
-
-            return 0;
+            return null;
     }
 
     @Override
-    public int uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException {
+    public String uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException {
         checkRole(request);
         if (teacherExcel.isEmpty()) {
             throw new IllegalArgumentException("传入的文件为空");
@@ -433,11 +431,11 @@ public class AdminServiceImpl implements AdminService {
             }
         }
         if (teachers.size() != 0) {
-            redisCache.setCacheList("teacher:excel", teachers);
-            return 1;
+            String uuid = UUID.randomUUID().toString();
+            redisCache.setCacheList("teacher:excel:"+uuid, teachers);
+            return uuid;
         }
-        return 0;
-
+        return null;
     }
 
     /**
@@ -529,11 +527,11 @@ public class AdminServiceImpl implements AdminService {
      * @param request
      */
     @Override
-    public void isCover(int isCover, int role, HttpServletRequest request) throws JsonProcessingException {
+    public void isCover(String isCover, int role, HttpServletRequest request) throws JsonProcessingException {
         //鉴权
         checkRole(request);
         //检查是否覆盖
-        if (isCover == 0) {
+        if (isCover == null) {
             //不覆盖则删除redis数据
             if (role == 1) {
                 redisCache.deleteObject("student:excel");
@@ -542,7 +540,7 @@ public class AdminServiceImpl implements AdminService {
             }
         }else {
             if (role == 1) {
-                String studentInfo = redisCache.getCacheObject("student:excel");
+                String studentInfo = redisCache.getCacheObject("student:excel:"+isCover);
                 List<User> students = objectMapper.readValue(studentInfo, new TypeReference<List<User>>() {});
                 if (students == null || students.size() == 0) {
                     throw new IllegalArgumentException("覆盖失败，请重试");
@@ -561,7 +559,7 @@ public class AdminServiceImpl implements AdminService {
                 });
                 redisCache.deleteObject("student:excel");
             }else {
-                String teacherInfo = redisCache.getCacheObject("teacher:excel");
+                String teacherInfo = redisCache.getCacheObject("teacher:excel:"+isCover);
                 List<Teacher> teachers = objectMapper.readValue(teacherInfo, new TypeReference<List<Teacher>>() {});
                 if (teachers == null || teachers.size() == 0) {
                     throw new IllegalArgumentException("覆盖失败，请重试");

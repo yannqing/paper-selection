@@ -29,9 +29,9 @@ public interface AdminService {
 
     boolean updateTeacher(Teacher teacher, HttpServletRequest request);
 
-    int uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException;
+    String uploadExcelStudent(MultipartFile studentExcel, HttpServletRequest request) throws IOException;
 
-    int uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException;
+    String uploadExcelTeacher(MultipartFile teacherExcel, HttpServletRequest request) throws IOException;
 
     List<User> joinedStudent(HttpServletRequest request, Integer teacherId);
 
@@ -39,7 +39,7 @@ public interface AdminService {
 
     boolean resetTeacherPassword(Long teacherId, HttpServletRequest request);
 
-    void isCover(int isCover, int role, HttpServletRequest request) throws JsonProcessingException;
+    void isCover(String isCover, int role, HttpServletRequest request) throws JsonProcessingException;
 
     boolean changeAllTeachersTeamSize(Integer teamSize, HttpServletRequest request);
 

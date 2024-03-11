@@ -163,24 +163,24 @@ public class AdminController {
     /**
      * 上传excel文档，新增学生数据
      * @param file
-     * @return 1有需要覆盖的数据，0无
+     * @return uuid有需要覆盖的数据，null无
      * @throws IOException
      */
     @PostMapping("/uploadExcelStudent")
     public BaseResponse<Object> uploadExcelStudent(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-        int result = adminService.uploadExcelStudent(file, request);
+        String result = adminService.uploadExcelStudent(file, request);
         return ResultUtils.success(Code.SUCCESS, result, "新增excel数据成功");
     }
 
     /**
      * 上传excel文档，新增教师数据
      * @param file
-     * @return 1有需要覆盖的数据，0无
+     * @return uuid有需要覆盖的数据，null无
      * @throws IOException
      */
     @PostMapping("/uploadExcelTeacher")
     public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-        int result = adminService.uploadExcelTeacher(file, request);
+        String result = adminService.uploadExcelTeacher(file, request);
         return ResultUtils.success(Code.SUCCESS, result, "新增excel数据成功");
     }
 
@@ -234,13 +234,13 @@ public class AdminController {
 
     /**
      * 覆盖Excel数据
-     * @param isCover 1为覆盖，0为不覆盖
+     * @param isCover uuid为覆盖，null为不覆盖
      * @param role 1学生，0老师
      * @param request
      * @return
      */
     @PostMapping("/cover")
-    public BaseResponse<Object> coverExcel(int isCover, int role, HttpServletRequest request) throws JsonProcessingException {
+    public BaseResponse<Object> coverExcel(String isCover, int role, HttpServletRequest request) throws JsonProcessingException {
         adminService.isCover(isCover, role, request);
         return ResultUtils.success(Code.SUCCESS, null, "覆盖成功");
     }
