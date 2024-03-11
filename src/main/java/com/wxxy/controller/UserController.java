@@ -106,40 +106,6 @@ public class UserController {
     }
 
     /**
-     * 更改队伍容量
-     * @param maxSize 要修改的容量
-     * @param request 获取老师信息
-     * @return
-     */
-    @PostMapping("/changeMaxSize")
-    public BaseResponse<Object> changeMaxSize(int maxSize, HttpServletRequest request) {
-        if (maxSize < 0) {
-            throw new IllegalArgumentException("最大数量不能修改为小于0的数字");
-        }
-        boolean result = userService.changeMaxSize(maxSize, request);
-        if (result) {
-            return ResultUtils.success(Code.SUCCESS, null, "修改队伍容量成功");
-        }
-        return ResultUtils.failure(Code.FAILURE, null, "修改队伍容量失败");
-    }
-
-    /**
-     * 更改申请容量
-     * @param applySize 最新申请限制数量
-     * @param request 验证登录
-     * @return
-     */
-    @PostMapping("/changeApplySize")
-    public BaseResponse<Object> changeApplySize(int applySize, HttpServletRequest request) {
-        //查询参数是否合法
-        if (applySize <= 0) {
-            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
-        }
-        boolean result = userService.changeApplySize(applySize, request);
-        return ResultUtils.success(Code.SUCCESS, result, "修改队伍的申请限制成功！");
-    }
-
-    /**
      * 获取个人信息（学生）
      * @param request 获取session
      * @return

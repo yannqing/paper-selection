@@ -45,4 +45,8 @@ public interface AdminService {
 
     boolean changeAllTeachersApplySize(Integer applySize, HttpServletRequest request);
 
+    boolean changeMaxSize(int maxSize, int teacherId, HttpServletRequest request);
+
+    boolean changeApplySize(int applySize, int teacherId, HttpServletRequest request);
+
 }

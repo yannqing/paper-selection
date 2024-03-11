@@ -27,9 +27,7 @@ public interface UserService extends IService<User> {
 
     boolean removeFromTeam(Long userId, HttpServletRequest request);
 
-    boolean changeMaxSize(int maxSize, HttpServletRequest request);
 
-    boolean changeApplySize(int applySize, HttpServletRequest request);
 
     User getMyselfInfo(HttpServletRequest request);
 

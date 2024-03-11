@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.wxxy.common.UserLoginState.SALT;
+import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 
 @Slf4j
 @Service
@@ -633,7 +634,65 @@ public class AdminServiceImpl implements AdminService {
         }
         return result;
     }
+    /**
+     * 更改队伍容量
+     * @param maxSize 要修改的容量
+     * @param teacherId 要修改的老师id
+     * @param request 获取老师信息
+     * @return
+     */
+    @Override
+    public boolean changeMaxSize(int maxSize, int teacherId, HttpServletRequest request) {
+        //参数校验
+        if (maxSize < 0) {
+            throw new IllegalArgumentException("队伍最大数量不能小于0");
+        }
+        //鉴权
+        checkRole(request);
+        //查寻要修改的数量是否小于队伍中已存在的用户数量
+        Teacher teacher = teacherMapper.selectById(teacherId);
+        if (teacher.getCurrentNum() > maxSize) {
+            throw new IllegalArgumentException("要修改的数量不能低于队伍中已有的成员数量，若要修改，请先移出部分成员");
+        }
+        //修改最大数量
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", teacherId);
+        updateWrapper.set("maxNum", maxSize);
+        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
+        int result = teacherMapper.update(updateWrapper);
+        log.info("修改老师{id："+teacherId+"} 的队伍人数限制成功！");
+        return result == 1;
+    }
 
+    /**
+     * 更改申请容量
+     * @param applySize 最新申请限制数量
+     * @param teacherId 要修改的老师id
+     * @param request 验证登录
+     * @return
+     */
+    @Override
+    public boolean changeApplySize(int applySize, int teacherId, HttpServletRequest request) {
+        //查询参数是否合法
+        if (applySize <= 0) {
+            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
+        }
+        //查询是否登录
+        checkRole(request);
+        //查询修改的容量是否小于已经申请的容量
+        Teacher teacher = teacherMapper.selectById(teacherId);
+        if (teacher.getApplyNum() >= applySize) {
+            throw new IllegalArgumentException("申请限制不能小于已申请数量！");
+        }
+        //修改申请容量
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("maxApply", applySize)
+                .set("updateTime", DateFormat.getCurrentTime()));
+
+        log.info("修改老师{id："+teacherId+"} 的申请限制成功！");
+        return true;
+    }
 
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);

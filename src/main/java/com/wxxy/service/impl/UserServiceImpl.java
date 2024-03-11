@@ -252,65 +252,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     /**
-     * 更改队伍容量
-     * @param maxSize 要修改的容量
-     * @param request 获取老师信息
-     * @return
-     */
-    @Override
-    public boolean changeMaxSize(int maxSize, HttpServletRequest request) {
-        //参数校验
-        if (maxSize < 0) {
-            throw new IllegalArgumentException("队伍最大数量不能小于0");
-        }
-        //查询是否登录
-        Teacher teacher = checkTeacherLoginStatus(request);
-        //查寻要修改的数量是否小于队伍中已存在的用户数量
-        QueryWrapper<UserTeam> queryUserTeamWrapper = new QueryWrapper<>();
-        queryUserTeamWrapper.eq("teacherId", teacher.getId());
-        queryUserTeamWrapper.eq("isJoin", 1);
-        List<UserTeam> joinedUser = userTeamService.getBaseMapper().selectList(queryUserTeamWrapper);
-        if (joinedUser.size() > maxSize) {
-            throw new IllegalArgumentException("要修改的数量不能低于队伍中已有的成员数量，若要修改，请先移出部分成员");
-        }
-        //修改最大数量
-        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", teacher.getId());
-        updateWrapper.set("maxNum", maxSize);
-        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
-        int result = teacherMapper.update(updateWrapper);
-        return result == 1;
-    }
-
-    /**
-     * 更改申请容量
-     * @param applySize 最新申请限制数量
-     * @param request 验证登录
-     * @return
-     */
-    @Override
-    public boolean changeApplySize(int applySize, HttpServletRequest request) {
-        //查询参数是否合法
-        if (applySize <= 0) {
-            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
-        }
-        //查询是否登录
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
-        //查询修改的容量是否小于已经申请的容量
-        Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
-        if (teacher.getApplyNum() >= applySize) {
-            throw new IllegalArgumentException("申请限制不能小于已申请数量！");
-        }
-        //修改申请容量
-        teacherMapper.update(new UpdateWrapper<Teacher>()
-                .eq("id", teacher.getId())
-                .set("maxApply", applySize)
-                .set("updateTime", DateFormat.getCurrentTime()));
-
-        return true;
-    }
-
-    /**
      * 获取个人信息（学生）
      * @param request 获取session
      * @return
