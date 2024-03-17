@@ -15,6 +15,12 @@ public class Code {
 
     public static final Integer CHANGE_SIZE_FAILURE = 30000; //修改数量失败
 
+    public static final Integer DISTRIBUTE_SUCCESS = 40001;     //随机分配，正好分配完
+
+    public static final Integer DISTRIBUTE_STUDENT_REMAINING = 40002;   //随机分配，学生有剩余
+
+    public static final Integer DISTRIBUTE_TEACHER_REMAINING = 40003;   //随机分配，队伍名额有剩余
+
 
 
 }

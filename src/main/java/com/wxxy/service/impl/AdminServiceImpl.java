@@ -714,6 +714,70 @@ public class AdminServiceImpl implements AdminService {
         return true;
     }
 
+    @Override
+    public Integer distribute(HttpServletRequest request) {
+        //鉴权
+        checkRole(request);
+        //随机分配
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("isJoin", 1);
+        List<UserTeam> userTeams = userTeamMapper.selectList(userTeamQueryWrapper);
+        Set<Long> joinedUserIds = new HashSet<>();
+        for (UserTeam team : userTeams) {
+            joinedUserIds.add(team.getUserId());
+        }
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        for (Long id : joinedUserIds) {
+            userQueryWrapper.ne("id", id);
+        }
+        //所有未加入队伍的学生
+        List<User> users = userMapper.selectList(userQueryWrapper);
+        int userSize = users.size();
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        //判断结果：
+        int teamSize = 0;
+        for (Teacher teacher :
+                teachers) {
+            teamSize += teacher.getMaxNum() - teacher.getCurrentNum();
+        }
+        Integer result ;
+        if (teamSize > userSize) {
+            result = 1; //学生全部分配完毕，老师队伍名额有多余
+        }else if (teamSize < userSize) {
+            result = -1; //学生没有分配完毕，老师队伍名额没有了
+        }else {
+            result = 0; //学生全部分配完毕，老师队伍名额无多余
+        }
+        //三层循环，一遍历所有学生
+        int i;
+        for (i = 0; i <userSize; ) {
+            //二遍历所有老师
+            for (Teacher teacher : teachers) {
+                //三遍历队伍
+                Integer currentNum = teacher.getCurrentNum();
+                Integer maxNum = teacher.getMaxNum();
+                for (int j = 0; j < maxNum - currentNum; j++) {
+                    //加入队伍
+                    if (++i >= userSize) {
+                        return result;  //学生全部分配完毕，老师队伍名额有多余
+                    }
+                    UserTeam userTeam = new UserTeam();
+                    userTeam.setUserId(users.get(i).getId());
+                    userTeam.setTeacherId(teacher.getId());
+                    userTeam.setIsJoin(1);
+                    userTeamMapper.insert(userTeam);
+
+                    teacherMapper.update(new UpdateWrapper<Teacher>()
+                            .eq("id", teacher.getId())
+                            .set("currentNum", currentNum + 1));
+                }
+
+            }
+        }
+
+        return result;
+    }
+
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);
         if (user.getUserRole() == 0) {

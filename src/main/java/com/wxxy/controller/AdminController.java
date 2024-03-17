@@ -332,4 +332,16 @@ public class AdminController {
         return ResultUtils.failure(Code.FAILURE, null, "管理员删除队伍（id：" + teacherId + "）中的成员（id：" + userId + "）失败！");
     }
 
+    @PostMapping("/distribute")
+    public BaseResponse<Object> distribute(HttpServletRequest request) {
+        Integer result = adminService.distribute(request);
+        if (result == 1) {
+            return ResultUtils.success(Code.DISTRIBUTE_TEACHER_REMAINING, null, "队伍名额有剩余，学生全部分配成功");
+        }else if (result == 0) {
+            return ResultUtils.success(Code.DISTRIBUTE_SUCCESS, null, "学生全部分配成功，所有老师队伍均已满");
+        } else {
+            return ResultUtils.success(Code.DISTRIBUTE_STUDENT_REMAINING, null, "仍有剩余学生没有分配成功，所有老师队伍均已满");
+        }
+    }
+
 }
