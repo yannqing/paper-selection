@@ -49,4 +49,6 @@ public interface AdminService {
 
     boolean changeApplySize(int applySize, int teacherId, HttpServletRequest request);
 
+    boolean removeFromTeam(Long userId, Long teacherId, HttpServletRequest request);
+
 }

@@ -692,6 +692,28 @@ public class AdminServiceImpl implements AdminService {
         return true;
     }
 
+    @Override
+    public boolean removeFromTeam(Long userId, Long teacherId, HttpServletRequest request) {
+        //鉴权
+        checkRole(request);
+        //查询用户是否加入老师队伍，并移除
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("userId", userId);
+        userTeamQueryWrapper.eq("teacherId", teacherId);
+        int delete = userTeamMapper.delete(userTeamQueryWrapper);
+        if (delete == 0) {
+            throw new IllegalArgumentException("该用户未加入此队伍，无法删除，请重试");
+        }
+        Teacher teacher = teacherMapper.selectById(teacherId);
+        int joinedNum = teacher.getCurrentNum();
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("currentNum", joinedNum - 1));
+
+        log.info("管理员删除队伍（id："+teacherId + "）中的成员（id：" + userId + "）成功！");
+        return true;
+    }
+
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);
         if (user.getUserRole() == 0) {
