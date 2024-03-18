@@ -734,13 +734,13 @@ public class AdminServiceImpl implements AdminService {
         List<User> users = userMapper.selectList(userQueryWrapper);
         int userSize = users.size();
         List<Teacher> teachers = teacherMapper.selectList(null);
+        int teacherSize = teachers.size();
         //判断结果：
         int teamSize = 0;
-        for (Teacher teacher :
-                teachers) {
+        for (Teacher teacher : teachers) {
             teamSize += teacher.getMaxNum() - teacher.getCurrentNum();
         }
-        Integer result ;
+        int result ;
         if (teamSize > userSize) {
             result = 1; //学生全部分配完毕，老师队伍名额有多余
         }else if (teamSize < userSize) {
@@ -748,31 +748,29 @@ public class AdminServiceImpl implements AdminService {
         }else {
             result = 0; //学生全部分配完毕，老师队伍名额无多余
         }
-        //三层循环，一遍历所有学生
-        int i;
-        for (i = 0; i <userSize; ) {
-            //二遍历所有老师
-            for (Teacher teacher : teachers) {
-                //三遍历队伍
-                Integer currentNum = teacher.getCurrentNum();
-                Integer maxNum = teacher.getMaxNum();
-                for (int j = 0; j < maxNum - currentNum; j++) {
-                    //加入队伍
-                    if (++i >= userSize) {
-                        return result;  //学生全部分配完毕，老师队伍名额有多余
-                    }
-                    UserTeam userTeam = new UserTeam();
-                    userTeam.setUserId(users.get(i).getId());
-                    userTeam.setTeacherId(teacher.getId());
-                    userTeam.setIsJoin(1);
-                    userTeamMapper.insert(userTeam);
 
-                    teacherMapper.update(new UpdateWrapper<Teacher>()
-                            .eq("id", teacher.getId())
-                            .set("currentNum", currentNum + 1));
-                }
-
+        for (int i = 0, j = 0; i <userSize; i ++) {
+            if (j == teacherSize) {
+                j = 0;
             }
+            User user = users.get(i);
+            Teacher teacher = teachers.get(j);
+            //查询人数
+            Integer maxNum = teacher.getMaxNum();
+            Integer currentNum = teacher.getCurrentNum();
+            if (maxNum - currentNum > 0) {
+                //加入队伍
+                UserTeam team = new UserTeam();
+                team.setUserId(user.getId());
+                team.setTeacherId(teacher.getId());
+                team.setIsJoin(1);
+                userTeamMapper.insert(team);
+                //减少名额
+                teacherMapper.update(new UpdateWrapper<Teacher>()
+                        .eq("id", teacher.getId())
+                        .set("currentNum", currentNum + 1));
+            }
+            j ++;
         }
 
         return result;
