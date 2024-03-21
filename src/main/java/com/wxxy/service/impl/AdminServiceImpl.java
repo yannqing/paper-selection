@@ -717,6 +717,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Integer distribute(HttpServletRequest request) throws InterruptedException {
+        log.info("管理员第三轮筛选：随机分配！");
         //鉴权
         checkRole(request);
         //随机分配
@@ -743,12 +744,18 @@ public class AdminServiceImpl implements AdminService {
         }
         int result ;
         if (teamSize > userSize) {
-            result = 1; //学生全部分配完毕，老师队伍名额有多余
+            result = 1;
+            log.info("随机分配结果：{}", "学生全部分配完毕，老师队伍名额有多余");
         }else if (teamSize < userSize) {
-            result = -1; //学生没有分配完毕，老师队伍名额没有了
+            result = -1;
+            log.info("随机分配结果：{}", "学生没有分配完毕，老师队伍名额没有了");
+
         }else {
-            result = 0; //学生全部分配完毕，老师队伍名额无多余
+            result = 0;
+            log.info("随机分配结果：{}", "学生全部分配完毕，老师队伍名额无多余");
+
         }
+
         SecureRandom random = new SecureRandom();
         //随机加入
         while (userSize > 0) {
