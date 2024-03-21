@@ -28,6 +28,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.*;
 
 import static com.wxxy.common.UserLoginState.SALT;
@@ -715,7 +716,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Integer distribute(HttpServletRequest request) {
+    public Integer distribute(HttpServletRequest request) throws InterruptedException {
         //鉴权
         checkRole(request);
         //随机分配
@@ -748,32 +749,39 @@ public class AdminServiceImpl implements AdminService {
         }else {
             result = 0; //学生全部分配完毕，老师队伍名额无多余
         }
+        SecureRandom random = new SecureRandom();
+        //随机加入
+        while (userSize > 0) {
+            for (Teacher teacher : teachers) {
+                int currentNum = teacher.getCurrentNum();
+                int maxNum = teacher.getMaxNum();
+                while (maxNum - currentNum > 0) {
+                    if (userSize <= 0) {
+                        return result;
+                    }
+                    int userIndex = random.nextInt(userSize);
+                    joinTeam(users.get(userIndex).getId(), teacher.getId(), currentNum++);
+                    users.remove(userIndex);
+                    userSize --;
+                }
+            }
 
-        for (int i = 0, j = 0; i <userSize; i ++) {
-            if (j == teacherSize) {
-                j = 0;
-            }
-            User user = users.get(i);
-            Teacher teacher = teachers.get(j);
-            //查询人数
-            Integer maxNum = teacher.getMaxNum();
-            Integer currentNum = teacher.getCurrentNum();
-            if (maxNum - currentNum > 0) {
-                //加入队伍
-                UserTeam team = new UserTeam();
-                team.setUserId(user.getId());
-                team.setTeacherId(teacher.getId());
-                team.setIsJoin(1);
-                userTeamMapper.insert(team);
-                //减少名额
-                teacherMapper.update(new UpdateWrapper<Teacher>()
-                        .eq("id", teacher.getId())
-                        .set("currentNum", currentNum + 1));
-            }
-            j ++;
         }
 
         return result;
+    }
+
+    public void joinTeam(long userId, long teacherId, int currentNum) throws InterruptedException {
+        //加入队伍
+        UserTeam team = new UserTeam();
+        team.setUserId(userId);
+        team.setTeacherId(teacherId);
+        team.setIsJoin(1);
+        userTeamMapper.insert(team);
+        //减少名额
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", teacherId)
+                .set("currentNum", currentNum + 1));
     }
 
     public void checkRole(HttpServletRequest request) {

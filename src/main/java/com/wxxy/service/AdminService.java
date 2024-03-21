@@ -51,6 +51,6 @@ public interface AdminService {
 
     boolean removeFromTeam(Long userId, Long teacherId, HttpServletRequest request);
 
-    Integer distribute(HttpServletRequest request);
+    Integer distribute(HttpServletRequest request) throws InterruptedException;
 
 }

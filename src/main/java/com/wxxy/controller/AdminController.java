@@ -333,7 +333,7 @@ public class AdminController {
     }
 
     @PostMapping("/distribute")
-    public BaseResponse<Object> distribute(HttpServletRequest request) {
+    public BaseResponse<Object> distribute(HttpServletRequest request) throws InterruptedException {
         Integer result = adminService.distribute(request);
         if (result == 1) {
             return ResultUtils.success(Code.DISTRIBUTE_TEACHER_REMAINING, null, "队伍名额有剩余，学生全部分配成功");
