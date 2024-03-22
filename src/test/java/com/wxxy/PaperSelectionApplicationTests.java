@@ -3,10 +3,13 @@ import java.security.SecureRandom;
 import java.util.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
+import com.wxxy.domain.UserTeam;
 import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
@@ -67,7 +70,8 @@ class PaperSelectionApplicationTests {
 
     @Test
     public void test(){
-        redisCache.setCacheObject("test1", "value1");
+        int currentNum = teacherMapper.update(new UpdateWrapper<Teacher>().set("currentNum", 0));
+        System.out.println(currentNum);
     }
     public static String replaceFilename(String filename, String newName) {
         // 使用正则表达式匹配文件名和扩展名部分

@@ -36,7 +36,14 @@ public class AuthServiceImpl implements AuthService {
         queryUserWrapper.eq("userAccount",username);
         queryUserWrapper.eq("userPassword",encryptPassword);
         User user = userService.getOne(queryUserWrapper);
-        if (user != null) {
+        if (user != null && user.getUserRole() == 1) {
+            user.setUserPassword(null);
+            //记录用户登录态
+            request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            log.info("管理员: "+ user.getUsername() +" 登录成功！");
+            return user;
+        }
+        if (user != null && user.getUserStatus() != 1) {
             user.setUserPassword(null);
             //记录用户登录态
             request.getSession().setAttribute(USER_LOGIN_STATE, user);

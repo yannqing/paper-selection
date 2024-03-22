@@ -768,7 +768,9 @@ public class AdminServiceImpl implements AdminService {
                             return result;
                         }
                         int userIndex = random.nextInt(userSize);
-                        joinTeam(users.get(userIndex).getId(), teacher.getId(), currentNum++);
+                        if (users.get(userIndex).getUserRole() == 0) {
+                            joinTeam(users.get(userIndex).getId(), teacher.getId(), currentNum++);
+                        }
                         users.remove(userIndex);
                         userSize --;
                 }
