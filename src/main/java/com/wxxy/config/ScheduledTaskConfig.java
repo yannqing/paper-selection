@@ -1,7 +1,5 @@
 package com.wxxy.config;
 
-import com.wxxy.vo.task.FirstEndTask;
-import com.wxxy.vo.task.SecondEndTask;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
