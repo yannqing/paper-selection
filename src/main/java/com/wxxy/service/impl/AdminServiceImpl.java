@@ -267,6 +267,7 @@ public class AdminServiceImpl implements AdminService {
         updateWrapper.set("phone", teacher.getPhone());
         updateWrapper.set("email", teacher.getEmail());
         updateWrapper.set("maxNum", teacher.getMaxNum());
+        updateWrapper.set("maxApply", teacher.getMaxApply());
         int result = teacherMapper.update(null, updateWrapper);
         return result == 1;
     }
@@ -760,18 +761,19 @@ public class AdminServiceImpl implements AdminService {
         //随机加入
         while (userSize > 0) {
             for (Teacher teacher : teachers) {
-                int currentNum = teacher.getCurrentNum();
-                int maxNum = teacher.getMaxNum();
-                while (maxNum - currentNum > 0) {
-                    if (userSize <= 0) {
-                        return result;
-                    }
-                    int userIndex = random.nextInt(userSize);
-                    joinTeam(users.get(userIndex).getId(), teacher.getId(), currentNum++);
-                    users.remove(userIndex);
-                    userSize --;
+                    int currentNum = teacher.getCurrentNum();
+                    int maxNum = teacher.getMaxNum();
+                    while (maxNum - currentNum > 0) {
+                        if (userSize <= 0) {
+                            return result;
+                        }
+                        int userIndex = random.nextInt(userSize);
+                        joinTeam(users.get(userIndex).getId(), teacher.getId(), currentNum++);
+                        users.remove(userIndex);
+                        userSize --;
                 }
             }
+            return result;
 
         }
 
