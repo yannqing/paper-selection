@@ -15,6 +15,7 @@ import com.wxxy.service.ScheduledTaskService;
 import com.wxxy.utils.RedisCache;
 import jakarta.annotation.Resource;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
@@ -70,11 +71,12 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         taskScheduler.schedule(ThirdTask,
                 new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(thirdTime))));
     }
+    @Scheduled(cron = "0 * * * * ?")
     public void FirstTask() {
 
     }
 
-
+    @Scheduled(cron = "0 * * * * ?")
     public void SecondTask() throws JsonProcessingException {
         //0. 将第一轮的老师数据存入redis中
         SecondStorageTeacherMessage();
@@ -89,6 +91,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         //5.
     }
 
+    @Scheduled(cron = "0 * * * * ?")
     public void ThirdTask() {
 
     }
@@ -102,7 +105,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         //2. 存入redis
         String teacherMessage = objectMapper.writeValueAsString(teachers);
         redisCache.setCacheObject("firstResult:teacherMessage", teacherMessage);
-        
+
     }
 
     /**

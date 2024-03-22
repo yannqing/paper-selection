@@ -1,6 +1,7 @@
 package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wxxy.common.UserLoginState;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.service.AuthService;
@@ -30,39 +31,52 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Object login(String username, String password, HttpServletRequest request) {
 
-        //1. 先检测是否是学生登录
+
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         QueryWrapper<User> queryUserWrapper = new QueryWrapper<>();
         queryUserWrapper.eq("userAccount",username);
         queryUserWrapper.eq("userPassword",encryptPassword);
         User user = userService.getOne(queryUserWrapper);
-        if (user != null && user.getUserRole() == 1) {
-            user.setUserPassword(null);
+        //在时间段内登录
+        if (UserLoginState.isRunning) {
+            //1. 先检测是否是学生登录
+            if (user != null) {
+                user.setUserPassword(null);
+                //记录用户登录态
+                request.getSession().setAttribute(USER_LOGIN_STATE, user);
+                if (user.getUserRole() == 1) {
+                    log.info("管理员: "+ user.getUsername() +" 登录成功！");
+                }
+                else {
+                    log.info("学生: "+ user.getUsername() +" 登录成功！");
+                }
+                return user;
+            }
+            //2. 检测是否是老师登录，如果也不是老师登录，返回 null
+            QueryWrapper<Teacher> queryTeacherWrapper = new QueryWrapper<>();
+            queryTeacherWrapper.eq("userAccount",username);
+            queryTeacherWrapper.eq("userPassword",encryptPassword);
+            Teacher teacher = teacherService.getOne(queryTeacherWrapper);
+            if (teacher == null) {
+                throw new IllegalStateException("用户名或密码错误，请重试");
+            }
+            teacher.setUserPassword(null);
             //记录用户登录态
-            request.getSession().setAttribute(USER_LOGIN_STATE, user);
-            log.info("管理员: "+ user.getUsername() +" 登录成功！");
-            return user;
+            request.getSession().setAttribute(USER_LOGIN_STATE, teacher);
+            log.info("老师: "+ teacher.getName() +" 登录成功！");
+            return teacher;
+        } else {
+            //非时间段内登录
+            if (user != null && user.getUserRole() == 1) {
+                user.setUserPassword(null);
+                //记录用户登录态
+                request.getSession().setAttribute(USER_LOGIN_STATE, user);
+                log.info("管理员: "+ user.getUsername() +" 登录成功！");
+                return user;
+            }else {
+                throw new IllegalArgumentException("登录失败！不在程序运行时间段内，请联系管理员重试");
+            }
         }
-        if (user != null && user.getUserStatus() != 1) {
-            user.setUserPassword(null);
-            //记录用户登录态
-            request.getSession().setAttribute(USER_LOGIN_STATE, user);
-            log.info("用户: "+ user.getUsername() +" 登录成功！");
-            return user;
-        }
-        //2. 检测是否是老师登录，如果也不是老师登录，返回 null
-        QueryWrapper<Teacher> queryTeacherWrapper = new QueryWrapper<>();
-        queryTeacherWrapper.eq("userAccount",username);
-        queryTeacherWrapper.eq("userPassword",encryptPassword);
-        Teacher teacher = teacherService.getOne(queryTeacherWrapper);
-        if (teacher == null) {
-            throw new IllegalStateException("用户名或密码错误，请重试");
-        }
-        teacher.setUserPassword(null);
-        //记录用户登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, teacher);
-        log.info("老师: "+ teacher.getName() +" 登录成功！");
-        return teacher;
 
     }
 
