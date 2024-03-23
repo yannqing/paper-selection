@@ -1,6 +1,7 @@
 package com.wxxy.vo.task;
 
 import com.wxxy.common.UserLoginState;
+import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ public class FirstPeriod {
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内
             UserLoginState.isRunning = true;
-
+            execute();
         } else {
             // 不在时间段内
             UserLoginState.isRunning = false;
@@ -42,6 +43,14 @@ public class FirstPeriod {
     }
 
     public void init() {
-        System.out.println("初始化操作！");
+        System.out.println("任务1初始化操作！");
+    }
+
+    @PostConstruct
+    public void initTime() {
+        setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
+    }
+    public void execute() {
+        System.out.println("任务1执行");
     }
 }

@@ -69,9 +69,16 @@ class PaperSelectionApplicationTests {
     }
 
     @Test
-    public void test(){
-        int currentNum = teacherMapper.update(new UpdateWrapper<Teacher>().set("currentNum", 0));
-        System.out.println(currentNum);
+    public void test() throws JsonProcessingException {
+//        Map<String, String> map = new HashMap<>();
+//        map.put("key", "value1");
+//        map.put("key2", "value2");
+//        String s = objectMapper.writeValueAsString(map);
+//        redisCache.setCacheObject("xxx", s);
+
+        String xxx = redisCache.getCacheObject("123");
+        System.out.println(xxx == null);
+
     }
     public static String replaceFilename(String filename, String newName) {
         // 使用正则表达式匹配文件名和扩展名部分

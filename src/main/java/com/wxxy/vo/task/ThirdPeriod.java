@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
-public class SecondPeriod {
+public class ThirdPeriod {
 
     private static LocalDateTime startTime; // 开始时间
     private static LocalDateTime endTime;   // 结束时间
@@ -42,13 +42,16 @@ public class SecondPeriod {
     }
 
     public void init() {
-        System.out.println("任务2初始化操作！");
+        System.out.println("任务3初始化操作！");
     }
+
     @PostConstruct
     public void initTime() {
         setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
     }
+
+
     public void execute() {
-        System.out.println("任务2执行");
+        System.out.println("任务3执行");
     }
 }

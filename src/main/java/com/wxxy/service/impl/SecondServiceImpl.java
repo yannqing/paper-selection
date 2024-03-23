@@ -146,7 +146,7 @@ public class SecondServiceImpl implements SecondService {
     }
 
 
-    public void checkRole(HttpServletRequest request) {
+    public static void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request);
         if (user.getUserRole() == 0) {
             throw new IllegalArgumentException("您没有权限，请重试");

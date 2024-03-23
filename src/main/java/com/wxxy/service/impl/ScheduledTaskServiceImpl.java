@@ -13,17 +13,25 @@ import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.ScheduledTaskService;
 import com.wxxy.utils.RedisCache;
+import com.wxxy.vo.task.FirstPeriod;
+import com.wxxy.vo.task.SecondPeriod;
+import com.wxxy.vo.task.ThirdPeriod;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
     @Resource
@@ -51,50 +59,87 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
      */
     @Override
     public void scheduleTask(String firstTime, String secondTime, String thirdTime) {
-        // 执行任务逻辑
-        Runnable FirstTask = this::FirstTask;
-        // 执行任务逻辑
-        Runnable SecondTask = () -> {
-            try {
-                SecondTask();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("第一轮结束后的行为报错："+e.getMessage());
-            }
-        };
-        // 执行任务逻辑
-        Runnable ThirdTask = this::ThirdTask;
-        // 使用 CronTrigger 设置定时任务的执行时间
-        taskScheduler.schedule(FirstTask,
-                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(firstTime))));
-        taskScheduler.schedule(SecondTask,
-                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(secondTime))));
-        taskScheduler.schedule(ThirdTask,
-                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(thirdTime))));
-    }
-    @Scheduled(cron = "0 * * * * ?")
-    public void FirstTask() {
-
+//        // 执行任务逻辑
+//        Runnable FirstTask = this::FirstTask;
+//        // 执行任务逻辑
+//        Runnable SecondTask = () -> {
+//            try {
+//                SecondTask();
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException("第一轮结束后的行为报错："+e.getMessage());
+//            }
+//        };
+//        // 执行任务逻辑
+//        Runnable ThirdTask = this::ThirdTask;
+//        // 使用 CronTrigger 设置定时任务的执行时间
+//        taskScheduler.schedule(FirstTask,
+//                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(firstTime))));
+//        taskScheduler.schedule(SecondTask,
+//                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(secondTime))));
+//        taskScheduler.schedule(ThirdTask,
+//                new CronTrigger(Objects.requireNonNull(DateFormat.convertToCronExpression(thirdTime))));
     }
 
-    @Scheduled(cron = "0 * * * * ?")
-    public void SecondTask() throws JsonProcessingException {
-        //0. 将第一轮的老师数据存入redis中
-        SecondStorageTeacherMessage();
-        //1. 设置user表中，已选老师的学生status为1，队伍已满的老师maxNum为0
-        SecondChangeUserStatus();
-        //2. 将userTeam表中的所有未加入老师的数据删除，更新队伍表中的申请数量
-        SecondDeleteNotJoined();
-        //3. 调整所有老师的队伍限制/申请限制
-        SecondChangeMax();
-        //4. 将userTeam表中的所有已加入老师的数据存入redis，并删除，更新队伍表的当前数量
-        SecondStorage();
-        //5.
+    @Override
+    public void scheduleTask(String firstBeginTime, String firstEndTime, String secondBeginTime, String secondEndTime, String thirdBeginTime, String thirdEndTime, HttpServletRequest request) throws JsonProcessingException {
+        //设置各个阶段的定时任务
+        FirstPeriod.setTimePeriod(firstBeginTime, firstEndTime);
+        SecondPeriod.setTimePeriod(secondBeginTime, secondEndTime);
+        ThirdPeriod.setTimePeriod(thirdBeginTime, thirdEndTime);
+        //将时间存入redis
+        Map<String, String> scheduleTimePeriod = new HashMap<String, String>();
+        scheduleTimePeriod.put("firstPeriodBeginTime", firstBeginTime);
+        scheduleTimePeriod.put("firstPeriodEndTime", firstEndTime);
+        scheduleTimePeriod.put("secondPeriodBeginTime", secondBeginTime);
+        scheduleTimePeriod.put("secondPeriodEndTime", secondEndTime);
+        scheduleTimePeriod.put("thirdPeriodBeginTime", thirdBeginTime);
+        scheduleTimePeriod.put("thirdPeriodEndTime", thirdEndTime);
+
+        String scheduleTaskTime = objectMapper.writeValueAsString(scheduleTimePeriod);
+        String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
+        if (scheduleTaskPeriod != null) {
+            redisCache.deleteObject("scheduleTaskPeriod");
+        }
+        redisCache.setCacheObject("scheduleTaskPeriod", scheduleTaskTime);
+        log.info("设置定时任务成功！{}", scheduleTimePeriod);
     }
 
-    @Scheduled(cron = "0 * * * * ?")
-    public void ThirdTask() {
+    @Override
+    public Map getScheduleTasks(HttpServletRequest request) throws JsonProcessingException {
+        SecondServiceImpl.checkRole(request);
 
+        String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
+        Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
+
+        log.info("管理员查询定时任务！{}", map);
+        return map;
     }
+
+//
+//    @Scheduled(cron = "0 * * * * ?")
+//    public void FirstTask() {
+//
+//    }
+
+//    @Scheduled(cron = "0 * * * * ?")
+//    public void SecondTask() throws JsonProcessingException {
+//        //0. 将第一轮的老师数据存入redis中
+//        SecondStorageTeacherMessage();
+//        //1. 设置user表中，已选老师的学生status为1，队伍已满的老师maxNum为0
+//        SecondChangeUserStatus();
+//        //2. 将userTeam表中的所有未加入老师的数据删除，更新队伍表中的申请数量
+//        SecondDeleteNotJoined();
+//        //3. 调整所有老师的队伍限制/申请限制
+//        SecondChangeMax();
+//        //4. 将userTeam表中的所有已加入老师的数据存入redis，并删除，更新队伍表的当前数量
+//        SecondStorage();
+//        //5.
+//    }
+
+//    @Scheduled(cron = "0 * * * * ?")
+//    public void ThirdTask() {
+//
+//    }
 
     /**
      * 0. 将第一轮的老师数据存入redis中
@@ -126,7 +171,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         //2. 给第一轮队伍已满teacher的maxNum设为0
         List<Teacher> teachers = teacherMapper.selectList(null);
         for (Teacher teacher : teachers) {
-            if (teacher.getCurrentNum() == teacher.getMaxNum()) {
+            if (Objects.equals(teacher.getCurrentNum(), teacher.getMaxNum())) {
                 teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("maxNum", 0));
             }
         }
