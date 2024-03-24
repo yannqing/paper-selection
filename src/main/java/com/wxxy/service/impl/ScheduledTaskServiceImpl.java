@@ -88,12 +88,12 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         ThirdPeriod.setTimePeriod(thirdBeginTime, thirdEndTime);
         //将时间存入redis
         Map<String, String> scheduleTimePeriod = new HashMap<String, String>();
-        scheduleTimePeriod.put("firstPeriodBeginTime", firstBeginTime);
-        scheduleTimePeriod.put("firstPeriodEndTime", firstEndTime);
-        scheduleTimePeriod.put("secondPeriodBeginTime", secondBeginTime);
-        scheduleTimePeriod.put("secondPeriodEndTime", secondEndTime);
-        scheduleTimePeriod.put("thirdPeriodBeginTime", thirdBeginTime);
-        scheduleTimePeriod.put("thirdPeriodEndTime", thirdEndTime);
+        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
+        scheduleTimePeriod.put("firstEndTime", firstEndTime);
+        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);
+        scheduleTimePeriod.put("secondEndTime", secondEndTime);
+        scheduleTimePeriod.put("thirdBeginTime", thirdBeginTime);
+        scheduleTimePeriod.put("thirdEndTime", thirdEndTime);
 
         String scheduleTaskTime = objectMapper.writeValueAsString(scheduleTimePeriod);
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
