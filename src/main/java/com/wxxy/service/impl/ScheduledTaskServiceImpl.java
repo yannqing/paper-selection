@@ -100,7 +100,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         if (scheduleTaskPeriod != null) {
             redisCache.deleteObject("scheduleTaskPeriod");
         }
-        redisCache.setCacheObject("scheduleTaskPeriod", scheduleTaskTime);
+        redisCache.setCacheObject("scheduleTaskPeriod", scheduleTaskTime, 60*60*24*30, TimeUnit.SECONDS);
         log.info("设置定时任务成功！{}", scheduleTimePeriod);
     }
 
