@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
         //在时间段内登录
         if (UserLoginState.isRunning) {
             //1. 先检测是否是学生登录
-            if (user != null) {
+            if (user != null && user.getUserStatus() != 1) {
                 user.setUserPassword(null);
                 //记录用户登录态
                 request.getSession().setAttribute(USER_LOGIN_STATE, user);
@@ -59,6 +59,9 @@ public class AuthServiceImpl implements AuthService {
             Teacher teacher = teacherService.getOne(queryTeacherWrapper);
             if (teacher == null) {
                 throw new IllegalStateException("用户名或密码错误，请重试");
+            }
+            if (teacher.getMaxNum() == 0) {
+                throw new IllegalStateException("您无法正常登录，请联系管理员");
             }
             teacher.setUserPassword(null);
             //记录用户登录态
