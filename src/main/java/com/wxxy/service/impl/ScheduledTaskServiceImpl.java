@@ -109,10 +109,13 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         SecondServiceImpl.checkRole(request);
 
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
-        Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
+        if (scheduleTaskPeriod != null) {
+            Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
+            return map;
+        }
 
-        log.info("管理员查询定时任务！{}", map);
-        return map;
+        log.info("管理员查询定时任务！");
+        return null;
     }
 
 //

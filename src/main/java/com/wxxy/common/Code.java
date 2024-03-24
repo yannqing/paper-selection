@@ -21,6 +21,9 @@ public class Code {
 
     public static final Integer DISTRIBUTE_TEACHER_REMAINING = 40003;   //随机分配，队伍名额有剩余
 
+    public static final Integer GET_SCHEDULE_TIME_SUCCESS = 50001;
+    public static final Integer GET_SCHEDULE_TIME_FAILURE = 50000;  //查询定时任务，未设置定时任务
+
 
 
 }

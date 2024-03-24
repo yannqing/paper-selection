@@ -50,6 +50,9 @@ public class ScheduledTaskController {
     @GetMapping("/getTime")
     public BaseResponse<Map> getScheduleTasks(HttpServletRequest request) throws JsonProcessingException {
         Map scheduleTasks = scheduledTaskService.getScheduleTasks(request);
+        if (scheduleTasks == null) {
+            return ResultUtils.success(Code.GET_SCHEDULE_TIME_FAILURE, null , "未设置定时任务");
+        }
         return ResultUtils.success(Code.SUCCESS, scheduleTasks, "获取定时任务的时间成功");
     }
 }
