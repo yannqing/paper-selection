@@ -1,16 +1,15 @@
 package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wxxy.common.UserLoginState;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.service.AuthService;
 import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
+import com.wxxy.utils.RedisCache;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -26,19 +25,23 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private RedisCache redisCache;
+
 
 
     @Override
     public Object login(String username, String password, HttpServletRequest request) {
-
 
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         QueryWrapper<User> queryUserWrapper = new QueryWrapper<>();
         queryUserWrapper.eq("userAccount",username);
         queryUserWrapper.eq("userPassword",encryptPassword);
         User user = userService.getOne(queryUserWrapper);
+
+        String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         //在时间段内登录
-        if (UserLoginState.isRunning) {
+        if (userLoginIsRunning.equals("true")) {
             //1. 先检测是否是学生登录
             if (user != null && user.getUserStatus() != 1) {
                 user.setUserPassword(null);
@@ -77,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
                 log.info("管理员: "+ user.getUsername() +" 登录成功！");
                 return user;
             }else {
-                throw new IllegalArgumentException("登录失败！不在程序运行时间段内，请联系管理员重试");
+                throw new IllegalArgumentException("登录失败！不在程序运行时间段内，请联系管理员重试:");
             }
         }
 

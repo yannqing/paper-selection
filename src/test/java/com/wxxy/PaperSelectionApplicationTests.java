@@ -76,8 +76,7 @@ class PaperSelectionApplicationTests {
 //        String s = objectMapper.writeValueAsString(map);
 //        redisCache.setCacheObject("xxx", s);
 
-        String xxx = redisCache.getCacheObject("123");
-        System.out.println(xxx == null);
+        redisCache.setCacheObject("UserLoginIsRunning", true);
 
     }
     public static String replaceFilename(String filename, String newName) {
