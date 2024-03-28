@@ -268,6 +268,7 @@ public class AdminServiceImpl implements AdminService {
         updateWrapper.set("email", teacher.getEmail());
         updateWrapper.set("maxNum", teacher.getMaxNum());
         updateWrapper.set("maxApply", teacher.getMaxApply());
+        updateWrapper.set("status", teacher.getStatus());
         int result = teacherMapper.update(null, updateWrapper);
         return result == 1;
     }
