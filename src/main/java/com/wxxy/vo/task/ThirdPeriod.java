@@ -84,12 +84,15 @@ public class ThirdPeriod {
             offTime = "2124-12-12 13:00:00";
         }
         setTimePeriod(beginTime, offTime);
+//        setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
         //初始化登录状态
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         if (userLoginIsRunning != null) {
             redisCache.deleteObject("UserLoginIsRunning");
         }
         LocalDateTime currentTime = LocalDateTime.now();
+//        redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
+
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))){
             redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
         }else {
