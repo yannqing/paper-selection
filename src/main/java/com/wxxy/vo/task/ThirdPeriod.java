@@ -27,7 +27,7 @@ public class ThirdPeriod {
     private static LocalDateTime startTime; // 开始时间
     private static LocalDateTime endTime;   // 结束时间
 
-    private boolean isExecute = false;
+    private boolean isExecuteInit = false;  //初始化任务是否执行
 
     // 设置开始时间和结束时间
     public static void setTimePeriod(String start, String end) {
@@ -43,20 +43,18 @@ public class ThirdPeriod {
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
 
         // 判断当前时间是否在指定的时间段内
-        if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1)) && userLoginIsRunning.equals("false")) {
+        if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内
-            redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
-
-            execute();
+                redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
+                execute();
         } else {
             // 不在时间段内
             if (userLoginIsRunning.equals("true")) {
                 redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
-
             }
-            if (currentTime.isBefore(startTime.minusHours(1)) && !isExecute) {
+            if (currentTime.isAfter(startTime.minusHours(1)) && currentTime.isBefore(startTime) && !isExecuteInit) {
                 init();
-                isExecute = true;
+                isExecuteInit = true;
             }
         }
     }
@@ -69,23 +67,23 @@ public class ThirdPeriod {
     public void initTime() {
         //初始化时间
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
-        String firstBeginTime = null;
-        String firstEndTime = null;
+        String beginTime = null;
+        String offTime = null;
         if (scheduleTaskPeriod != null) {
             try {
                 Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
-                firstBeginTime = (String) map.get("firstBeginTime");
-                firstEndTime = (String) map.get("firstEndTime");
+                beginTime = (String) map.get("beginTime");
+                offTime = (String) map.get("offTime");
             }catch (JsonProcessingException e) {
-                log.error("第三阶段，初始化时间错误："+e.getMessage());
+                log.error("初始化时间错误："+e.getMessage());
             }
 
         }
         else {
-            firstBeginTime = "2124-12-12 12:00:00";
-            firstEndTime = "2124-12-12 13:00:00";
+            beginTime = "2124-12-12 12:00:00";
+            offTime = "2124-12-12 13:00:00";
         }
-        setTimePeriod(firstBeginTime, firstEndTime);
+        setTimePeriod(beginTime, offTime);
         //初始化登录状态
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         if (userLoginIsRunning != null) {

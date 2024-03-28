@@ -19,78 +19,98 @@ public class Teacher implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
      * 教师名称
      */
+    @TableField(value = "name")
     private String name;
 
     /**
      * 账号
      */
+    @TableField(value = "userAccount")
     private String userAccount;
 
     /**
      * 密码
      */
+    @TableField(value = "userPassword")
     private String userPassword;
 
     /**
      * 头像
      */
+    @TableField(value = "avatarUrl")
     private String avatarUrl;
 
     /**
      * 描述（个人简介）
      */
+    @TableField(value = "description")
     private String description;
 
     /**
      * 电话
      */
+    @TableField(value = "phone")
     private String phone;
 
     /**
      * 邮箱
      */
+    @TableField(value = "email")
     private String email;
 
     /**
      * 最大人数
      */
+    @TableField(value = "maxNum")
     private Integer maxNum;
 
     /**
      * 创建时间
      */
+    @TableField(value = "createTime")
     private Date createTime;
 
     /**
      * 
      */
+    @TableField(value = "updateTime")
     private Date updateTime;
 
     /**
      * 是否删除
      */
+    @TableField(value = "isDelete")
     private Integer isDelete;
 
     /**
      * 当前队伍人数
      */
+    @TableField(value = "currentNum")
     private Integer currentNum;
 
     /**
      * 申请数量限制
      */
+    @TableField(value = "maxApply")
     private Integer maxApply;
 
     /**
      * 申请数量
      */
+    @TableField(value = "applyNum")
     private Integer applyNum;
+
+    /**
+     * 老师状态（1无法登录）
+     */
+    @TableField(value = "status")
+    private Integer status;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -121,7 +141,8 @@ public class Teacher implements Serializable {
             && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
             && (this.getCurrentNum() == null ? other.getCurrentNum() == null : this.getCurrentNum().equals(other.getCurrentNum()))
             && (this.getMaxApply() == null ? other.getMaxApply() == null : this.getMaxApply().equals(other.getMaxApply()))
-            && (this.getApplyNum() == null ? other.getApplyNum() == null : this.getApplyNum().equals(other.getApplyNum()));
+            && (this.getApplyNum() == null ? other.getApplyNum() == null : this.getApplyNum().equals(other.getApplyNum()))
+            && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()));
     }
 
     @Override
@@ -143,6 +164,7 @@ public class Teacher implements Serializable {
         result = prime * result + ((getCurrentNum() == null) ? 0 : getCurrentNum().hashCode());
         result = prime * result + ((getMaxApply() == null) ? 0 : getMaxApply().hashCode());
         result = prime * result + ((getApplyNum() == null) ? 0 : getApplyNum().hashCode());
+        result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         return result;
     }
 
@@ -167,6 +189,7 @@ public class Teacher implements Serializable {
         sb.append(", currentNum=").append(currentNum);
         sb.append(", maxApply=").append(maxApply);
         sb.append(", applyNum=").append(applyNum);
+        sb.append(", status=").append(status);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

@@ -20,6 +20,7 @@
             <result property="currentNum" column="currentNum" jdbcType="INTEGER"/>
             <result property="maxApply" column="maxApply" jdbcType="INTEGER"/>
             <result property="applyNum" column="applyNum" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -27,6 +28,7 @@
         userPassword,avatarUrl,description,
         phone,email,maxNum,
         createTime,updateTime,isDelete,
-        currentNum,maxApply,applyNum
+        currentNum,maxApply,applyNum,
+        status
     </sql>
 </mapper>

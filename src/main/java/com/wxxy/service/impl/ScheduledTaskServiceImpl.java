@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -14,21 +13,19 @@ import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.ScheduledTaskService;
 import com.wxxy.utils.RedisCache;
 import com.wxxy.vo.task.FirstPeriod;
-import com.wxxy.vo.task.SecondPeriod;
 import com.wxxy.vo.task.ThirdPeriod;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static com.wxxy.service.impl.SecondServiceImpl.checkRole;
 
 @Service
 @Slf4j
@@ -81,19 +78,21 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
     }
 
     @Override
-    public void scheduleTask(String firstBeginTime, String firstEndTime, String secondBeginTime, String secondEndTime, String thirdBeginTime, String thirdEndTime, HttpServletRequest request) throws JsonProcessingException {
+    public void scheduleTask(String beginTime, String offTime, HttpServletRequest request) throws JsonProcessingException {
         //设置各个阶段的定时任务
-        FirstPeriod.setTimePeriod(firstBeginTime, firstEndTime);
-        SecondPeriod.setTimePeriod(secondBeginTime, secondEndTime);
-        ThirdPeriod.setTimePeriod(thirdBeginTime, thirdEndTime);
+//        FirstPeriod.setTimePeriod(firstBeginTime, firstEndTime, secondBeginTime, secondEndTime, thirdBeginTime, thirdEndTime);
+        ThirdPeriod.setTimePeriod(beginTime, offTime);
         //将时间存入redis
         Map<String, String> scheduleTimePeriod = new HashMap<String, String>();
-        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
-        scheduleTimePeriod.put("firstEndTime", firstEndTime);
-        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);
-        scheduleTimePeriod.put("secondEndTime", secondEndTime);
-        scheduleTimePeriod.put("thirdBeginTime", thirdBeginTime);
-        scheduleTimePeriod.put("thirdEndTime", thirdEndTime);
+        scheduleTimePeriod.put("beginTime", beginTime);
+        scheduleTimePeriod.put("offTime", offTime);
+
+//        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
+//        scheduleTimePeriod.put("firstEndTime", firstEndTime);
+//        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);
+//        scheduleTimePeriod.put("secondEndTime", secondEndTime);
+//        scheduleTimePeriod.put("thirdBeginTime", thirdBeginTime);
+//        scheduleTimePeriod.put("thirdEndTime", thirdEndTime);
 
         String scheduleTaskTime = objectMapper.writeValueAsString(scheduleTimePeriod);
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
@@ -106,7 +105,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
     @Override
     public Map getScheduleTasks(HttpServletRequest request) throws JsonProcessingException {
-        SecondServiceImpl.checkRole(request);
+        checkRole(request);
 
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
         if (scheduleTaskPeriod != null) {
@@ -116,6 +115,46 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
         log.info("管理员查询定时任务！");
         return null;
+    }
+
+    @Override
+    public boolean forbidden(HttpServletRequest request) {
+        checkRole(request);
+        //1. 查询所有已经选择老师的学生
+        List<UserTeam> joinedUsers = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("isJoin", 1));
+        for (UserTeam userTeam : joinedUsers) {
+            //给user的status字段设为1
+            userMapper.update(new UpdateWrapper<User>()
+                    .eq("id", userTeam.getUserId())
+                    .set("userStatus", 1));
+        }
+        // 排除管理员
+        userMapper.update(new UpdateWrapper<User>().eq("userRole", 1).set("userStatus", 0));
+
+        //2. 给第一轮队伍已满teacher的status设为1
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        for (Teacher teacher : teachers) {
+            if (Objects.equals(teacher.getCurrentNum(), teacher.getMaxNum())) {
+                teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacher.getId()).set("status", 1));
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean updateSize(HttpServletRequest request) {
+        checkRole(request);
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        for (Teacher teacher: teachers) {
+            if (teacher.getMaxNum() != 0) {
+                Integer maxNum = teacher.getMaxNum();
+                Integer currentNum = teacher.getCurrentNum();
+                teacherMapper.update(new UpdateWrapper<Teacher>()
+                        .eq("id", teacher.getId())
+                        .set("maxNum", maxNum-currentNum).set("MaxApply", maxNum-currentNum));
+            }
+        }
+        return true;
     }
 
 //

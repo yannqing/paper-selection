@@ -5,6 +5,7 @@ import com.wxxy.common.Code;
 import com.wxxy.service.ScheduledTaskService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,19 +31,15 @@ public class ScheduledTaskController {
 
     /**
      * 设置定时任务
-     * @param firstBeginTime
-     * @param firstEndTime
-     * @param secondBeginTime
-     * @param secondEndTime
-     * @param thirdBeginTime
-     * @param thirdEndTime
+     * @param beginTime
+     * @param offTime
      * @param request
      * @return
      * @throws JsonProcessingException
      */
     @PostMapping("/setTime")
-    public BaseResponse<Object> scheduleTask(String firstBeginTime, String firstEndTime, String secondBeginTime, String secondEndTime, String thirdBeginTime, String thirdEndTime, HttpServletRequest request) throws JsonProcessingException {
-        scheduledTaskService.scheduleTask(firstBeginTime, firstEndTime, secondBeginTime, secondEndTime, thirdBeginTime, thirdEndTime, request);
+    public BaseResponse<Object> scheduleTask(String beginTime, String offTime, HttpServletRequest request) throws JsonProcessingException {
+        scheduledTaskService.scheduleTask(beginTime, offTime, request);
 
         return ResultUtils.success(Code.SUCCESS, null, "设置定时任务的时间成功！");
     }
@@ -54,5 +51,17 @@ public class ScheduledTaskController {
             return ResultUtils.success(Code.GET_SCHEDULE_TIME_FAILURE, null , "未设置定时任务");
         }
         return ResultUtils.success(Code.SUCCESS, scheduleTasks, "获取定时任务的时间成功");
+    }
+
+    @PostMapping("/forbidden")
+    public BaseResponse<Object> forbidden(HttpServletRequest request) {
+        scheduledTaskService.forbidden(request);
+        return ResultUtils.success(Code.SUCCESS, null, "已禁止已选学生和队伍已满老师登录");
+    }
+
+    @PostMapping("/updateSize")
+    public BaseResponse<Object> updateSize(HttpServletRequest request) {
+        scheduledTaskService.updateSize(request);
+        return ResultUtils.success(Code.SUCCESS, null, "等额修改数量成功");
     }
 }

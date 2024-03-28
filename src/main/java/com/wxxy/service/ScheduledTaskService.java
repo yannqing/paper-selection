@@ -7,9 +7,13 @@ import java.util.Map;
 
 public interface ScheduledTaskService {
 
-    public void scheduleTask(String firstTime, String secondTime, String thirdTime);
+    void scheduleTask(String firstTime, String secondTime, String thirdTime);
 
-    void scheduleTask(String firstBeginTime, String firstEndTime, String secondBeginTime, String secondEndTime, String thirdBeginTime, String thirdEndTime, HttpServletRequest request) throws JsonProcessingException;
+    void scheduleTask(String beginTime, String offTime, HttpServletRequest request) throws JsonProcessingException;
 
     Map getScheduleTasks(HttpServletRequest request) throws JsonProcessingException;
+
+    boolean forbidden(HttpServletRequest request);
+
+    boolean updateSize(HttpServletRequest request);
 }
