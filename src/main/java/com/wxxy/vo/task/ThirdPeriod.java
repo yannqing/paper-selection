@@ -2,9 +2,11 @@ package com.wxxy.vo.task;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wxxy.common.UserLoginState;
 import com.wxxy.utils.RedisCache;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
 @Component
 @Slf4j
@@ -26,6 +30,8 @@ public class ThirdPeriod {
 
     private static LocalDateTime startTime; // 开始时间
     private static LocalDateTime endTime;   // 结束时间
+
+//    public static HttpServletRequest request;
 
     private boolean isExecuteInit = false;  //初始化任务是否执行
 
@@ -42,6 +48,8 @@ public class ThirdPeriod {
         //获取登录状态
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
 
+//        request.getSession().removeAttribute(USER_LOGIN_STATE);
+
         // 判断当前时间是否在指定的时间段内
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内
@@ -49,6 +57,7 @@ public class ThirdPeriod {
                 execute();
         } else {
             // 不在时间段内
+
             if (userLoginIsRunning.equals("true")) {
                 redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
             }

@@ -21,6 +21,7 @@ public class CheckLoginUtils {
         if (user == null) {
             throw new IllegalStateException("您已退出，请重新登录");
         }
+        //wqoeiuoi:23     user
         return user;
     }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 //@Component
 @Slf4j
 public class SecondPeriod {

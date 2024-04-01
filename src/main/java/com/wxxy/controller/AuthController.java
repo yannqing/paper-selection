@@ -29,4 +29,10 @@ public class AuthController {
         }
         return ResultUtils.success(Code.LOGIN_SUCCESS, login, "登录成功");
     }
+
+    @PostMapping("/logout")
+    public BaseResponse<Object> logout(HttpServletRequest request) {
+        authService.logout(request);
+        return ResultUtils.success(Code.LOGOUT_SUCCESS, null, "退出登录成功");
+    }
 }

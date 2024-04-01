@@ -87,6 +87,7 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         scheduleTimePeriod.put("beginTime", beginTime);
         scheduleTimePeriod.put("offTime", offTime);
 
+
 //        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
 //        scheduleTimePeriod.put("firstEndTime", firstEndTime);
 //        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);

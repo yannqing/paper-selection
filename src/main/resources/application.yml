@@ -6,6 +6,9 @@ spring:
     url: jdbc:mysql://localhost:3306/text
     username: root
     password: 123456
+#  session:
+#    redis:
+#      repository-type:
   data:
     redis:
       host: 127.0.0.1
@@ -20,6 +23,7 @@ spring:
           min-idle: 0
       timeout: 0
 
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -28,4 +32,7 @@ mybatis-plus:
       logic-delete-field: isDelete
       logic-delete-value: 1
       logic-not-delete-value: 0
-
+server:
+  servlet:
+    session:
+      timeout: 3600

@@ -4,4 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {
     Object login(String username, String password, HttpServletRequest request);
+
+    void logout(HttpServletRequest request);
 }

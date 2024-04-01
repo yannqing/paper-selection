@@ -86,5 +86,10 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
+    @Override
+    public void logout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+    }
+
 
 }
