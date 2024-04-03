@@ -79,6 +79,10 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.19</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

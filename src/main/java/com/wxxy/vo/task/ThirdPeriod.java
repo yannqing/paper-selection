@@ -65,6 +65,7 @@ public class ThirdPeriod {
                 init();
                 isExecuteInit = true;
             }
+
         }
     }
 
