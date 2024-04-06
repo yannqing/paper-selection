@@ -265,17 +265,6 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     public void checkRole(HttpServletRequest request) {
         User user = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
         if (user.getUserRole() == 0) {

@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
             if (teacher == null) {
                 throw new IllegalStateException("用户名或密码错误，请重试");
             }
-            if (teacher.getMaxNum() == 0) {
+            if (teacher.getStatus() == 1) {
                 throw new IllegalStateException("您无法正常登录，请联系管理员");
             }
             teacher.setUserPassword(null);
