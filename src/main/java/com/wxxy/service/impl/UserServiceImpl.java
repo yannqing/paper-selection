@@ -13,6 +13,7 @@ import com.wxxy.service.UserService;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.utils.CheckLoginUtils;
+import com.wxxy.utils.RedisCache;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
@@ -49,6 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Resource
     private TeacherMapper teacherMapper;
 
+    @Resource
+    private RedisCache redisCache;
+
     /**
      * 查询已选择的学生
      * @param request 获取session
@@ -57,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public List<User> getSelectedStudent(HttpServletRequest request) {
         //获取session中的登录信息
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request, redisCache);
         //查询已选择老师的所有学生Id
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teacherId", teacher.getId());
@@ -85,7 +89,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean agreeJoin(Long userId, HttpServletRequest request) {
         //查询是否登录
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
         //查询用户id是否合法
         if (userId == null) {
             throw new IllegalArgumentException("用户id为空");
@@ -154,7 +158,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean disagreeJoin(Long userId, HttpServletRequest request) {
         //查询是否登录
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
         //查询用户id是否合法
         if (userId == null) {
             throw new IllegalArgumentException("用户id为空");
@@ -192,7 +196,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public List<User> joinedStudent(HttpServletRequest request) {
         //获取老师id
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request, redisCache);
         //查询我的队伍
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teacherId", teacher.getId());
@@ -228,7 +232,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         //查询是否登录
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
 
         //查询此用户是否加入队伍
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
@@ -259,7 +263,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
-        User loginUser = checkUserLoginStatus(request);
+        User loginUser = checkUserLoginStatus(request, redisCache);
         //获取个人信息
         User userMsg = this.getBaseMapper().selectOne(new QueryWrapper<User>().eq("id", loginUser.getId()));
         //脱敏
@@ -279,10 +283,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userMsg;
     }
 
+    /**
+     * 修改密码
+     * @param oldPassword
+     * @param newPassword
+     * @param againPassword
+     * @param request
+     * @return
+     */
     @Override
     public boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request) {
         //验证登录态
-        User loginUser = checkUserLoginStatus(request);
+        User loginUser = checkUserLoginStatus(request, redisCache);
         User user = userMapper.selectById(loginUser.getId());
         //确保两次输入密码相同
         if (!Objects.equals(newPassword, againPassword)) {
@@ -316,7 +328,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean updateMyselfInfo(User updateUser, HttpServletRequest request) {
         //校验登录态
-        User loginUser = checkUserLoginStatus(request);
+        User loginUser = checkUserLoginStatus(request, redisCache);
         //更新个人信息
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", loginUser.getId());

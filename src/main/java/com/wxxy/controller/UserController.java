@@ -32,7 +32,6 @@ public class UserController {
      */
     @GetMapping("/getMySelectedStudent")
     public BaseResponse<List<User>> getSelectedStudent(HttpServletRequest request){
-        CheckLoginUtils.checkTeacherLoginStatus(request);
         List<User> selectedStudent = userService.getSelectedStudent(request);
         return ResultUtils.success(Code.SUCCESS, selectedStudent, "查询已选择的学生成功");
     }

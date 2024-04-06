@@ -797,7 +797,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public void checkRole(HttpServletRequest request) {
-        User user = CheckLoginUtils.checkUserLoginStatus(request);
+        User user = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
         if (user.getUserRole() == 0) {
             throw new IllegalArgumentException("您没有权限，请重试");
         }

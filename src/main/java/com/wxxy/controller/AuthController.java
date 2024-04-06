@@ -1,5 +1,6 @@
 package com.wxxy.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wxxy.common.Code;
 import com.wxxy.service.AuthService;
 import com.wxxy.service.UserService;
@@ -18,7 +19,7 @@ public class AuthController {
     @Resource
     private AuthService authService;
     @PostMapping("/login")
-    public BaseResponse<Object> login(String username, String password, HttpServletRequest request) {
+    public BaseResponse<Object> login(String username, String password, HttpServletRequest request) throws JsonProcessingException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("参数为空");
         }

@@ -1,6 +1,8 @@
 package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.service.AuthService;
@@ -31,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public Object login(String username, String password, HttpServletRequest request) {
+    public Object login(String username, String password, HttpServletRequest request) throws JsonProcessingException {
 
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         QueryWrapper<User> queryUserWrapper = new QueryWrapper<>();
@@ -80,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
                 log.info("管理员: "+ user.getUsername() +" 登录成功！");
                 return user;
             }else {
-                throw new IllegalArgumentException("登录失败！不在程序运行时间段内，请联系管理员重试:");
+                throw new IllegalArgumentException("登录失败！不在程序运行时间段内，请联系管理员重试");
             }
         }
 

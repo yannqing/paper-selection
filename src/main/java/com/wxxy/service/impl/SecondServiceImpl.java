@@ -1,7 +1,6 @@
 package com.wxxy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +14,6 @@ import com.wxxy.service.SecondService;
 import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.utils.RedisCache;
 import com.wxxy.vo.GetAllByPageVo;
-import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +46,6 @@ public class SecondServiceImpl implements SecondService {
 
     @Resource
     private ObjectMapper objectMapper;
-
 
     @Override
     public Object login(String username, String password, HttpServletRequest request) {
@@ -145,14 +142,15 @@ public class SecondServiceImpl implements SecondService {
 
     }
 
-
-    public static void checkRole(HttpServletRequest request) {
-        User user = CheckLoginUtils.checkUserLoginStatus(request);
+    /**
+     * 管理员鉴权
+     * @param request
+     */
+    public void checkRole(HttpServletRequest request) {
+        User user = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
         if (user.getUserRole() == 0) {
             throw new IllegalArgumentException("您没有权限，请重试");
         }
     }
-
-
 
 }

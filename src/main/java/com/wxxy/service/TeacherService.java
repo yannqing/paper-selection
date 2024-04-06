@@ -18,11 +18,11 @@ public interface TeacherService extends IService<Teacher> {
 
     GetAllByPageVo<StudentGetTeachersVo> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request);
 
-    boolean joinTeacher(Integer teachers, Long userId);
+    boolean joinTeacher(Integer teachers, Long userId, HttpServletRequest request);
 
-    int selectedTeacherAccount(Long userId);
+    int selectedTeacherAccount(Long userId, HttpServletRequest request);
 
-    List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId);
+    List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId, HttpServletRequest request);
 
     String uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException;
 

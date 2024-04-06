@@ -11,6 +11,7 @@ import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.ScheduledTaskService;
+import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.utils.RedisCache;
 import com.wxxy.vo.task.FirstPeriod;
 import com.wxxy.vo.task.ThirdPeriod;
@@ -25,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.wxxy.service.impl.SecondServiceImpl.checkRole;
 
 @Service
 @Slf4j
@@ -276,7 +276,12 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
 
 
-
+    public void checkRole(HttpServletRequest request) {
+        User user = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
+        if (user.getUserRole() == 0) {
+            throw new IllegalArgumentException("您没有权限，请重试");
+        }
+    }
 
 
 

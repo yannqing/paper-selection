@@ -1,9 +1,4 @@
 package com.wxxy.service.impl;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -13,23 +8,33 @@ import com.wxxy.common.DateFormat;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
-import com.wxxy.mapper.UserTeamMapper;
-import com.wxxy.service.TeacherService;
 import com.wxxy.mapper.TeacherMapper;
+import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
 import com.wxxy.service.UserTeamService;
 import com.wxxy.utils.CheckLoginUtils;
-import com.wxxy.vo.*;
+import com.wxxy.utils.RedisCache;
+import com.wxxy.vo.CountOfTeamVo;
+import com.wxxy.vo.GetAllByPageVo;
+import com.wxxy.vo.JoinedTeacherStatusVo;
+import com.wxxy.vo.StudentGetTeachersVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.wxxy.common.UserLoginState.SALT;
 import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
@@ -57,6 +62,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Resource
     private UserTeamService userTeamService;
 
+    @Resource
+    private RedisCache redisCache;
+
     @Value("${project.upload-url}")
     private String uploadUrl;
 
@@ -70,7 +78,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public GetAllByPageVo<StudentGetTeachersVo> getAllTeachers(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         //查看登录状态
-        User loginUser = CheckLoginUtils.checkUserLoginStatus(request);
+        User loginUser = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
         //分页查询数据
         Page<Teacher> pageConfig ;
             //如果传入的分页参数是空，则查询第一页，10条数据
@@ -124,13 +132,15 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public boolean joinTeacher(Integer teacherId, Long userId) {
+    public boolean joinTeacher(Integer teacherId, Long userId, HttpServletRequest request) {
+        checkUserLoginStatus(request, redisCache);
+
         if (teacherId == null) {
             throw new IllegalArgumentException("老师id不能为空");
         }
 //        synchronized(teacherId) {
             //查询{已选择的老师数量}是否为2（达到最大）
-            int teacherAccount = this.selectedTeacherAccount(userId);
+            int teacherAccount = this.selectedTeacherAccount(userId, request);
             if (2 - teacherAccount <= 0) {
                 throw new IllegalArgumentException("选择的老师数量超过可选择的范围！");
             }
@@ -168,7 +178,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public int selectedTeacherAccount(Long userId) {
+    public int selectedTeacherAccount(Long userId, HttpServletRequest request) {
+        checkUserLoginStatus(request, redisCache);
+
         //查询用户Id是否合法
         if (userService.getById(userId) == null) {
             throw new IllegalArgumentException("此用户id不存在");
@@ -188,7 +200,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
      * @return
      */
     @Override
-    public List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId) {
+    public List<JoinedTeacherStatusVo> getJoinedTeacherStatus(Long userId, HttpServletRequest request) {
+        checkUserLoginStatus(request,redisCache);
+
         //查询用户Id是否合法
         if (userService.getById(userId) == null) {
             throw new IllegalArgumentException("此用户id不存在");
@@ -214,6 +228,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return joinedTeacherStatus;
     }
 
+    /**
+     * 上传头像（下载头像的接口在fileController中）
+     * @param avatar
+     * @param request
+     * @return
+     * @throws IOException
+     */
     @Override
     public String uploadAvatar(MultipartFile avatar, HttpServletRequest request) throws IOException {
         //参数校验
@@ -221,7 +242,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             throw new IllegalArgumentException("传入的头像为空，请重新上传！");
         }
         //权限校验
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request, redisCache);
         //获取文件路径
         String fileName = avatar.getOriginalFilename();
         UUID uuid = UUID.randomUUID();
@@ -253,7 +274,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         Integer currentNum = teacher.getCurrentNum();
 
         //获取到此用户的信息
-        User loginUser = CheckLoginUtils.checkUserLoginStatus(request);
+        User loginUser = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
 
         //退出队伍
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
@@ -282,7 +303,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public boolean cancelApplication(Long teacherId, HttpServletRequest request) {
         //查询是否登录
-        User user = CheckLoginUtils.checkUserLoginStatus(request);
+        User user = CheckLoginUtils.checkUserLoginStatus(request, redisCache);
         //查询传入的参数是否为空
         if (teacherId == null) {
             throw new IllegalArgumentException("队伍id为空，无法确定取消哪个队伍的申请");
@@ -323,7 +344,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public CountOfTeamVo getCountOfTeam(HttpServletRequest request) {
         //1. 查询登录状态
-        Teacher teacher = checkTeacherLoginStatus(request);
+        Teacher teacher = checkTeacherLoginStatus(request, redisCache);
         //2. 新建返回变量
         CountOfTeamVo result = new CountOfTeamVo();
         //3. 获取队伍最大人数，并赋值
@@ -352,7 +373,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public Teacher getMyselfInfo(HttpServletRequest request) {
         //查看是否登录
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
         //获取个人信息
         Teacher teacherMsg = teacherMapper.selectOne(new QueryWrapper<Teacher>().eq("id", loginTeacher.getId()));
         //脱敏
@@ -369,10 +390,18 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return teacherMsg;
     }
 
+    /**
+     * 修改密码（老师）
+     * @param oldPassword
+     * @param newPassword
+     * @param againPassword
+     * @param request
+     * @return
+     */
     @Override
     public boolean changeMyPassword(String oldPassword, String newPassword, String againPassword, HttpServletRequest request) {
         //验证登录态
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
         Teacher teacher = teacherMapper.selectById(loginTeacher.getId());
         //确保两次输入密码相同
         if (!Objects.equals(newPassword, againPassword)) {
@@ -406,7 +435,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public boolean updateMyselfInfo(Teacher updateTeacher, HttpServletRequest request) {
         //校验登录态
-        Teacher loginTeacher = checkTeacherLoginStatus(request);
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
         //更新个人信息
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", loginTeacher.getId());
@@ -421,6 +450,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return result == 1;
     }
 
+    /**
+     * 自定义方法，用来替换文件名
+     * @param filename
+     * @param newName
+     * @return
+     */
     public static String replaceFilename(String filename, String newName) {
         // 使用正则表达式匹配文件名和扩展名部分
         String regex = "(.*)(\\..*)";
