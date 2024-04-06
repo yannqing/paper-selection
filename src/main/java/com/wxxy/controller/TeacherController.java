@@ -43,8 +43,8 @@ public class TeacherController {
      * @return
      */
     @PostMapping("/join")
-    public BaseResponse<Teacher> joinTeacher(Integer teacherIds, Long userId) {
-        boolean result = teacherService.joinTeacher(teacherIds, userId);
+    public BaseResponse<Teacher> joinTeacher(Integer teacherIds, Long userId, HttpServletRequest request) {
+        boolean result = teacherService.joinTeacher(teacherIds, userId, request);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, null, "申请加入队伍成功，在审核");
         }
@@ -56,8 +56,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getAccount")
-    public BaseResponse<Integer> getAccount(Long userId) {
-        int count = teacherService.selectedTeacherAccount(userId);
+    public BaseResponse<Integer> getAccount(Long userId, HttpServletRequest request) {
+        int count = teacherService.selectedTeacherAccount(userId, request);
         return ResultUtils.success(Code.SUCCESS, count, "查询此用户申请的老师队伍数量");
     }
 
@@ -67,8 +67,8 @@ public class TeacherController {
      * @return
      */
     @GetMapping("/getJoinedTeacherStatus")
-    public BaseResponse<List<JoinedTeacherStatusVo>> getJoinedTeacherStatus(Long userId) {
-        List<JoinedTeacherStatusVo> joinedTeacherStatus = teacherService.getJoinedTeacherStatus(userId);
+    public BaseResponse<List<JoinedTeacherStatusVo>> getJoinedTeacherStatus(Long userId, HttpServletRequest request) {
+        List<JoinedTeacherStatusVo> joinedTeacherStatus = teacherService.getJoinedTeacherStatus(userId, request);
         return ResultUtils.success(Code.SUCCESS, joinedTeacherStatus, "查询此用户加入的所有队伍名称，状态成功");
     }
 
