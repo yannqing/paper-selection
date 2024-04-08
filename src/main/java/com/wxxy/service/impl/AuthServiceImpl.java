@@ -41,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
         queryUserWrapper.eq("userPassword",encryptPassword);
         User user = userService.getOne(queryUserWrapper);
 
+
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         //在时间段内登录
         if (userLoginIsRunning.equals("true")) {
