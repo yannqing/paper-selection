@@ -1,14 +1,10 @@
 package com.wxxy.controller;
 
 import com.wxxy.common.Code;
-import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.service.UserService;
-import com.wxxy.service.impl.AuthServiceImpl;
-import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
-import com.wxxy.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

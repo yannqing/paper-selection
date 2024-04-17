@@ -31,15 +31,31 @@ public class ScheduledTaskController {
 
     /**
      * 设置定时任务
-     * @param beginTime
-     * @param offTime
+     * @param firstBeginTime
+     * @param firstOffTime
+     * @param firstResult
+     * @param secondBeginTime
+     * @param secondOffTime
+     * @param secondResult
+     * @param thirdBeginTime
+     * @param thirdOffTime
+     * @param thirdResult
      * @param request
      * @return
      * @throws JsonProcessingException
      */
     @PostMapping("/setTime")
-    public BaseResponse<Object> scheduleTask(String beginTime, String offTime, HttpServletRequest request) throws JsonProcessingException {
-        scheduledTaskService.scheduleTask(beginTime, offTime, request);
+    public BaseResponse<Object> scheduleTask(String firstBeginTime,
+                                             String firstOffTime,
+                                             Integer firstResult,
+                                             String secondBeginTime,
+                                             String secondOffTime,
+                                             Integer secondResult,
+                                             String thirdBeginTime,
+                                             String thirdOffTime,
+                                             Integer thirdResult,
+                                             HttpServletRequest request) throws JsonProcessingException {
+        scheduledTaskService.scheduleTask(firstBeginTime, firstOffTime, firstResult, secondBeginTime, secondOffTime, secondResult, thirdBeginTime, thirdOffTime, thirdResult, request);
 
         return ResultUtils.success(Code.SUCCESS, null, "设置定时任务的时间成功！");
     }

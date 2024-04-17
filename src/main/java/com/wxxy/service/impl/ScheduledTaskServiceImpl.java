@@ -13,7 +13,6 @@ import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.ScheduledTaskService;
 import com.wxxy.utils.CheckLoginUtils;
 import com.wxxy.utils.RedisCache;
-import com.wxxy.vo.task.FirstPeriod;
 import com.wxxy.vo.task.ThirdPeriod;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -78,22 +77,40 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
     }
 
     @Override
-    public void scheduleTask(String beginTime, String offTime, HttpServletRequest request) throws JsonProcessingException {
+    public void scheduleTask(String firstBeginTime,
+                             String firstOffTime,
+                             Integer firstResult,
+                             String secondBeginTime,
+                             String secondOffTime,
+                             Integer secondResult,
+                             String thirdBeginTime,
+                             String thirdOffTime,
+                             Integer thirdResult,
+                             HttpServletRequest request) throws JsonProcessingException {
         //设置各个阶段的定时任务
 //        FirstPeriod.setTimePeriod(firstBeginTime, firstEndTime, secondBeginTime, secondEndTime, thirdBeginTime, thirdEndTime);
-        ThirdPeriod.setTimePeriod(beginTime, offTime);
+        //0未开始，1进行中，-1已结束
+        if (firstResult.equals(1) || (firstResult.equals(0) && secondResult.equals(0) && thirdResult.equals(0))) {
+            ThirdPeriod.setTimePeriod(firstBeginTime, firstOffTime);
+        }else if (secondResult.equals(1)) {
+            ThirdPeriod.setTimePeriod(secondBeginTime, secondOffTime);
+        } else if (thirdResult.equals(1)) {
+            ThirdPeriod.setTimePeriod(thirdBeginTime, thirdOffTime);
+        } else {
+            ThirdPeriod.setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
+        }
         //将时间存入redis
         Map<String, String> scheduleTimePeriod = new HashMap<String, String>();
-        scheduleTimePeriod.put("beginTime", beginTime);
-        scheduleTimePeriod.put("offTime", offTime);
+        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
+        scheduleTimePeriod.put("firstOffTime", firstOffTime);
+        scheduleTimePeriod.put("firstResult", firstResult.toString());
+        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);
+        scheduleTimePeriod.put("secondOffTime", secondOffTime);
+        scheduleTimePeriod.put("secondResult", secondResult.toString());
+        scheduleTimePeriod.put("thirdBeginTime", thirdBeginTime);
+        scheduleTimePeriod.put("thirdOffTime", thirdOffTime);
+        scheduleTimePeriod.put("thirdResult", thirdResult.toString());
 
-
-//        scheduleTimePeriod.put("firstBeginTime", firstBeginTime);
-//        scheduleTimePeriod.put("firstEndTime", firstEndTime);
-//        scheduleTimePeriod.put("secondBeginTime", secondBeginTime);
-//        scheduleTimePeriod.put("secondEndTime", secondEndTime);
-//        scheduleTimePeriod.put("thirdBeginTime", thirdBeginTime);
-//        scheduleTimePeriod.put("thirdEndTime", thirdEndTime);
 
         String scheduleTaskTime = objectMapper.writeValueAsString(scheduleTimePeriod);
         String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
@@ -152,7 +169,8 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
                 Integer currentNum = teacher.getCurrentNum();
                 teacherMapper.update(new UpdateWrapper<Teacher>()
                         .eq("id", teacher.getId())
-                        .set("maxNum", maxNum-currentNum).set("MaxApply", maxNum-currentNum));
+//                        .set("maxNum", maxNum-currentNum)
+                        .set("MaxApply", maxNum-currentNum));
             }
         }
         return true;

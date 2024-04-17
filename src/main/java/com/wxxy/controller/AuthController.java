@@ -6,6 +6,7 @@ import com.wxxy.service.AuthService;
 import com.wxxy.service.UserService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.auth.LoginVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,11 @@ public class AuthController {
     @Resource
     private AuthService authService;
     @PostMapping("/login")
-    public BaseResponse<Object> login(String username, String password, HttpServletRequest request) throws JsonProcessingException {
+    public BaseResponse<LoginVo> login(String username, String password, HttpServletRequest request) throws JsonProcessingException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("参数为空");
         }
-        Object login = authService.login(username, password, request);
+        LoginVo login = authService.login(username, password, request);
         if (login == null) {
 //            throw new IllegalStateException("用户名或密码错误");
             return ResultUtils.failure(Code.LOGIN_FAILURE, null, "用户名或密码错误");
