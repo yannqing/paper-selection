@@ -176,6 +176,13 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
         return true;
     }
 
+    @Override
+    public boolean isInTime(HttpServletRequest request) {
+        checkRole(request);
+        String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
+        return userLoginIsRunning.equals("true");
+    }
+
 //
 //    @Scheduled(cron = "0 * * * * ?")
 //    public void FirstTask() {

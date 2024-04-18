@@ -25,4 +25,6 @@ public interface ScheduledTaskService {
     boolean forbidden(HttpServletRequest request);
 
     boolean updateSize(HttpServletRequest request);
+
+    boolean isInTime(HttpServletRequest request);
 }

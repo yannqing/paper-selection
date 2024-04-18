@@ -80,4 +80,10 @@ public class ScheduledTaskController {
         scheduledTaskService.updateSize(request);
         return ResultUtils.success(Code.SUCCESS, null, "等额修改数量成功");
     }
+
+    @GetMapping("/isInTime")
+    public BaseResponse<Object> isInTime(HttpServletRequest request) {
+        boolean inTime = scheduledTaskService.isInTime(request);
+        return ResultUtils.success(Code.SUCCESS, inTime, "查询是否在时间内成功");
+    }
 }
