@@ -178,7 +178,6 @@ public class ScheduledTaskServiceImpl implements ScheduledTaskService {
 
     @Override
     public boolean isInTime(HttpServletRequest request) {
-        checkRole(request);
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         return userLoginIsRunning.equals("true");
     }
