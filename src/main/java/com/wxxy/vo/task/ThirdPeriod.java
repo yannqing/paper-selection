@@ -54,9 +54,6 @@ public class ThirdPeriod {
                 execute();
         } else {
             // 不在时间段内
-
-
-
             if (userLoginIsRunning.equals("true")) {
                 redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
             }

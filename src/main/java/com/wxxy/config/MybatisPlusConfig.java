@@ -20,4 +20,6 @@ public class MybatisPlusConfig {
         //interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); 如果有多数据源可以不配具体类型 否则都建议配上具体的DbType
         return interceptor;
     }
+
+//    查询机
 }
