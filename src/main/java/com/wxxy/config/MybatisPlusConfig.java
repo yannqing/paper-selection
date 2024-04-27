@@ -21,5 +21,5 @@ public class MybatisPlusConfig {
         return interceptor;
     }
 
-//    查询机
+//    xxx
 }
