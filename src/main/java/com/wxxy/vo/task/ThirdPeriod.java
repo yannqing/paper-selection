@@ -49,16 +49,19 @@ public class ThirdPeriod {
         // 判断当前时间是否在指定的时间段内
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内
+            log.info("在任务执行的时间段内，任务持续执行。。。。。。");
             isExecuteInit = false;
             redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
                 execute();
         } else {
             // 不在时间段内
+            log.info("不在任务时间段内，循环输出。。。。。。");
             if (userLoginIsRunning.equals("true")) {
                 redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
             }
             if (currentTime.isAfter(endTime) && !isExecuteInit) {
-
+                //任务执行结束，重新给结果赋值
+                log.info("上一任务时间段结束，准备完成任务！");
                 init();
                 isExecuteInit = true;
             }
@@ -83,13 +86,22 @@ public class ThirdPeriod {
         String thirdBeginTime = (String) map.get("thirdBeginTime");
         String thirdOffTime = (String) map.get("thirdOffTime");
         int thirdResult = Integer.parseInt((String) map.get("thirdResult"));
-        if (endTime.equals(firstOffTime)) {
+        if (endTime.equals(LocalDateTime.parse(firstOffTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))) {
+            log.info("第一阶段任务结束，自动修改状态为已结束");
             firstResult = -1;
-        }else if (endTime.equals(secondOffTime)) {
+        }else if (endTime.equals(LocalDateTime.parse(secondOffTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))) {
+            log.info("第二阶段任务结束，自动修改状态为已结束");
             secondResult = -1;
-        }else if (endTime.equals(thirdOffTime)) {
+        }else if (endTime.equals(LocalDateTime.parse(thirdOffTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))) {
+            log.info("第三阶段任务结束，自动修改状态为已结束");
             thirdResult = -1;
         }
+        map.remove("firstResult");
+        map.remove("secondResult");
+        map.remove("thirdResult");
+        map.put("firstResult", firstResult);
+        map.put("secondResult", secondResult);
+        map.put("thirdResult", thirdResult);
         redisCache.setCacheObject("scheduleTaskPeriod", objectMapper.writeValueAsString(map), 60*60*24*30, TimeUnit.SECONDS);
     }
 
@@ -160,6 +172,6 @@ public class ThirdPeriod {
 
     }
     public void execute() {
-        System.out.println("任务3执行");
+        log.info("任务3执行");
     }
 }
