@@ -5,6 +5,8 @@ import com.wxxy.domain.User;
 import com.wxxy.service.UserService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 @Slf4j
 @RestController
 @RequestMapping("/student")
+@Tag(name = "学生接口")
 public class UserController {
 
     @Resource
@@ -26,6 +29,7 @@ public class UserController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "查询已选择的学生")
     @GetMapping("/getMySelectedStudent")
     public BaseResponse<List<User>> getSelectedStudent(HttpServletRequest request){
         List<User> selectedStudent = userService.getSelectedStudent(request);
@@ -38,6 +42,7 @@ public class UserController {
      * @param request 获取老师id
      * @return
      */
+    @Operation(summary = "同意学生加入队伍")
     @PostMapping("/agreeJoin")
     public BaseResponse<Object> agreeJoin(Long userId, HttpServletRequest request){
         if (userId == null) {
@@ -56,6 +61,7 @@ public class UserController {
      * @param request
      * @return
      */
+    @Operation(summary = "拒绝学生的申请")
     @PostMapping("/disagreeJoin")
     public BaseResponse<Object> disagreeJoin(Long userId, HttpServletRequest request){
         if (userId == null) {
@@ -73,6 +79,7 @@ public class UserController {
      * @param request 获取老师id
      * @return
      */
+    @Operation(summary = "查看我的队伍")
     @GetMapping("/getMyJoinedStudent")
     public BaseResponse<List<User>> joinedStudent(HttpServletRequest request) {
         if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
@@ -88,6 +95,7 @@ public class UserController {
      * @param request
      * @return
      */
+    @Operation(summary = "移出队伍")
     @PostMapping("/removeFromTeam")
     public BaseResponse<Object> removeFromTeam(Long userId, HttpServletRequest request) {
         if (userId == null) {
@@ -105,6 +113,7 @@ public class UserController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "获取个人信息（学生）")
     @GetMapping("/getMyselfInfo")
     public BaseResponse<User> getMyselfInfo(HttpServletRequest request) {
         User myselfInfo = userService.getMyselfInfo(request);
@@ -129,6 +138,7 @@ public class UserController {
      * @param request
      * @return
      */
+    @Operation(summary = "修改个人信息（学生）")
     @PostMapping("/updateMyselfInfo")
     public BaseResponse<Object> updateMyselfInfo(User updateUser, HttpServletRequest request){
         boolean result = userService.updateMyselfInfo(updateUser, request);

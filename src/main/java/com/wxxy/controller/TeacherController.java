@@ -6,6 +6,8 @@ import com.wxxy.domain.Teacher;
 import com.wxxy.service.TeacherService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/teacher")
+@Tag(name = "老师接口")
 public class TeacherController {
 
     @Resource
@@ -30,6 +33,7 @@ public class TeacherController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "查询全部老师信息")
     @GetMapping("/getAll")
     public BaseResponse<GetAllByPageVo<StudentGetTeachersVo>> getAllTeacher(Integer currentPage, Integer pageSize, HttpServletRequest request) {
         GetAllByPageVo<StudentGetTeachersVo> allTeachers = teacherService.getAllTeachers(currentPage,pageSize,request);
@@ -42,6 +46,7 @@ public class TeacherController {
      * @param userId 登录的用户id，前面无session时写的，后面可以优化掉
      * @return
      */
+    @Operation(summary = "学生加入老师队伍")
     @PostMapping("/join")
     public BaseResponse<Teacher> joinTeacher(Integer teacherIds, Long userId, HttpServletRequest request) {
         boolean result = teacherService.joinTeacher(teacherIds, userId, request);
@@ -55,6 +60,7 @@ public class TeacherController {
      * 查询当前用户已选择的老师数目
      * @return
      */
+    @Operation(summary = "查询当前用户已选择的老师数目")
     @GetMapping("/getAccount")
     public BaseResponse<Integer> getAccount(Long userId, HttpServletRequest request) {
         int count = teacherService.selectedTeacherAccount(userId, request);
@@ -66,6 +72,7 @@ public class TeacherController {
      * @param userId
      * @return
      */
+    @Operation(summary = "返回用户加入的所有队伍名称和状态")
     @GetMapping("/getJoinedTeacherStatus")
     public BaseResponse<List<JoinedTeacherStatusVo>> getJoinedTeacherStatus(Long userId, HttpServletRequest request) {
         List<JoinedTeacherStatusVo> joinedTeacherStatus = teacherService.getJoinedTeacherStatus(userId, request);
@@ -73,6 +80,14 @@ public class TeacherController {
     }
 
 
+    /**
+     * 上传头像接口
+     * @param avatar 头像文件
+     * @param request 请求会话
+     * @return
+     * @throws IOException
+     */
+    @Operation(summary = "上传头像")
     @PostMapping("/uploadAvatar")
     public BaseResponse<String> uploadAvatar(@RequestParam("avatar") MultipartFile avatar, HttpServletRequest request) throws IOException {
         String downloadUrl = teacherService.uploadAvatar(avatar, request);
@@ -86,6 +101,7 @@ public class TeacherController {
      * @param request 获取session
      * @return 返回退出结果
      */
+    @Operation(summary = "退出队伍")
     @PostMapping("/exitTeam")
     public BaseResponse<Boolean> exitTeam(Long teacherId, HttpServletRequest request) {
         //校验teacherId是否合法
@@ -108,6 +124,7 @@ public class TeacherController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "取消申请")
     @PostMapping("/cancelApplication")
     public BaseResponse<Object> cancelApplication(Long teacherId, HttpServletRequest request) {
         if (teacherId == null) {
@@ -125,6 +142,7 @@ public class TeacherController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "查询队伍人数")
     @GetMapping("/getCountOfTeam")
     public BaseResponse<CountOfTeamVo> getCountOfTeam(HttpServletRequest request) {
         CountOfTeamVo countOfTeam = teacherService.getCountOfTeam(request);
@@ -142,6 +160,7 @@ public class TeacherController {
      * @param request 获取session
      * @return
      */
+    @Operation(summary = "获取个人信息（老师）")
     @GetMapping("/getMyselfInfo")
     public BaseResponse<Teacher> getMyselfInfo(HttpServletRequest request) {
         Teacher myselfInfo = teacherService.getMyselfInfo(request);
@@ -156,6 +175,7 @@ public class TeacherController {
      * @param request
      * @return
      */
+    @Operation(summary = "修改个人密码（老师）")
     @PostMapping("/changeMyPassword")
     public BaseResponse<Object> changeMyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
@@ -174,6 +194,7 @@ public class TeacherController {
      * @param request
      * @return
      */
+    @Operation(summary = "修改个人信息（老师）")
     @PostMapping("/updateMyselfInfo")
     public BaseResponse<Object> updateMyselfInfo(Teacher updateTeacher, HttpServletRequest request){
         boolean result = teacherService.updateMyselfInfo(updateTeacher, request);

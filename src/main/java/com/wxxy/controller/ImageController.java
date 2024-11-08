@@ -1,5 +1,7 @@
 package com.wxxy.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,11 +13,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.io.File;
 import java.util.UUID;
 
+@Tag(name = "图片接口")
 @Controller
 public class ImageController {
 
 
-
+    /**
+     * 下载文件
+     * @param filename
+     * @return
+     */
+    @Operation(summary = "下载文件")
     @GetMapping("/download/{filename}")
     public ResponseEntity<FileSystemResource> downloadImage(@PathVariable("filename") String filename) {
 

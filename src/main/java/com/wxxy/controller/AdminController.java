@@ -8,6 +8,8 @@ import com.wxxy.service.AdminService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
 import com.wxxy.vo.GetAllByPageVo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 @Slf4j
 @RestController
 @RequestMapping("/admin")
+@Tag(name = "管理员接口")
 public class AdminController {
 
 //TODO 这里的所有接口要经过权限校验
@@ -34,6 +37,7 @@ public class AdminController {
      * @param user 学生的基本信息
      * @return
      */
+    @Operation(summary = "新增学生")
     @PostMapping("/addUser")
     public BaseResponse<Object> addUser(User user, HttpServletRequest request){
         if (user == null) {
@@ -51,6 +55,7 @@ public class AdminController {
      * @param teacher 教师的基本信息
      * @return
      */
+    @Operation(summary = "新增教师")
     @PostMapping("/addTeacher")
     public BaseResponse<Object> addTeacher(Teacher teacher, HttpServletRequest request){
         if (teacher == null) {
@@ -68,6 +73,7 @@ public class AdminController {
      * @param userId 学生id
      * @return
      */
+    @Operation(summary = "根据学生id删除学生")
     @DeleteMapping("/deleteUser")
     public BaseResponse<Object> deleteUser(Long userId, HttpServletRequest request) {
         if (userId == null) {
@@ -85,6 +91,7 @@ public class AdminController {
      * @param teacherId 教师id
      * @return
      */
+    @Operation(summary = "根据教师id删除教师")
     @DeleteMapping("/deleteTeacher")
     public BaseResponse<Object> deleteTeacher(Long teacherId, HttpServletRequest request) {
         if (teacherId == null) {
@@ -101,6 +108,7 @@ public class AdminController {
      * 查询未加入队伍的学生
      * @return
      */
+    @Operation(summary = "查询未加入队伍的学生")
     @GetMapping("/getUsersUnselecting")
     public BaseResponse<GetAllByPageVo<User>> getUsersUnselecting(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request){
         GetAllByPageVo<User> usersUnselecting = adminService.getUsersUnselecting(currentPage, pageSize, searchAccount, request);
@@ -111,6 +119,7 @@ public class AdminController {
      * 查询所有的学生
      * @return
      */
+    @Operation(summary = "查询所有的学生")
     @GetMapping("/getAllUsers")
     public BaseResponse<GetAllByPageVo<User>> getAllUsers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
         return ResultUtils.success(Code.SUCCESS, adminService.getAllUsers(currentPage, pageSize, searchAccount, request), "查询所有学生成功");
@@ -120,6 +129,7 @@ public class AdminController {
      * 查询所有的教师
      * @return
      */
+    @Operation(summary = "查询所有的教师")
     @GetMapping("/getAllTeachers")
     public BaseResponse<GetAllByPageVo<Teacher>> getAllTeachers(Integer currentPage, Integer pageSize, String searchAccount, HttpServletRequest request) {
         return ResultUtils.success(Code.SUCCESS, adminService.getAllTeachers(currentPage, pageSize, searchAccount, request), "查询所有教师成功");
@@ -131,6 +141,7 @@ public class AdminController {
      * @param user
      * @return
      */
+    @Operation(summary = "修改学生信息")
     @PutMapping("/updateUser")
     public BaseResponse<Object> updateUser(User user, HttpServletRequest request) {
         if (user == null) {
@@ -148,6 +159,7 @@ public class AdminController {
      * @param teacher
      * @return
      */
+    @Operation(summary = "修改老师信息")
     @PutMapping("/updateTeacher")
     public BaseResponse<Object> updateTeacher(Teacher teacher, HttpServletRequest request) {
         if (teacher == null) {
@@ -166,6 +178,7 @@ public class AdminController {
      * @return uuid有需要覆盖的数据，null无
      * @throws IOException
      */
+    @Operation(summary = "批量新增学生数据")
     @PostMapping("/uploadExcelStudent")
     public BaseResponse<Object> uploadExcelStudent(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         String result = adminService.uploadExcelStudent(file, request);
@@ -178,6 +191,7 @@ public class AdminController {
      * @return uuid有需要覆盖的数据，null无
      * @throws IOException
      */
+    @Operation(summary = "批量新增教师数据")
     @PostMapping("/uploadExcelTeacher")
     public BaseResponse<Object> uploadExcelTeacher(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         String result = adminService.uploadExcelTeacher(file, request);
@@ -189,6 +203,7 @@ public class AdminController {
      * @param request
      * @return
      */
+    @Operation(summary = "查看老师的队伍")
     @GetMapping("/getTeam")
     public BaseResponse<List<User>> joinedStudent(HttpServletRequest request, Integer teacherId) {
         if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
@@ -204,6 +219,7 @@ public class AdminController {
      * @param userId
      * @return
      */
+    @Operation(summary = "重置学生密码")
     @PostMapping("/resetStudentPassword")
     public BaseResponse<Object> resetStudentPassword(HttpServletRequest request, Long userId) {
         boolean result = adminService.resetStudentPassword(userId, request);
@@ -221,6 +237,7 @@ public class AdminController {
      * @param teacherId
      * @return
      */
+    @Operation(summary = "重置教师密码")
     @PostMapping("/resetTeacherPassword")
     public BaseResponse<Object> resetTeacherPassword(HttpServletRequest request, Long teacherId) {
         boolean result = adminService.resetTeacherPassword(teacherId, request);
@@ -239,6 +256,7 @@ public class AdminController {
      * @param request
      * @return
      */
+    @Operation(summary = "覆盖Excel数据")
     @PostMapping("/cover")
     public BaseResponse<Object> coverExcel(String isCover, int role, HttpServletRequest request) throws JsonProcessingException {
         adminService.isCover(isCover, role, request);
@@ -251,6 +269,7 @@ public class AdminController {
      * @param request
      * @return 如果是true，则全部修改成功，否则的话，队伍人数大于修改的限制，无法修改
      */
+    @Operation(summary = "修改所有老师队伍限制人数")
     @PostMapping("/changeAllTeachersTeamSize")
     public BaseResponse<Object> changeAllTeachersTeamSize(Integer teamSize, HttpServletRequest request) {
         boolean result = adminService.changeAllTeachersTeamSize(teamSize, request);
@@ -267,6 +286,7 @@ public class AdminController {
      * @param request
      * @return 如果是true，则全部修改成功，否则的话，存在修改失败的老师
      */
+    @Operation(summary = "修改全部老师的队伍申请限制")
     @PostMapping("/changeAllTeachersApplySize")
     public BaseResponse<Object> changeAllTeachersApplySize(Integer applySize, HttpServletRequest request) {
         boolean result = adminService.changeAllTeachersApplySize(applySize, request);
@@ -284,6 +304,7 @@ public class AdminController {
      * @param request 获取老师信息
      * @return
      */
+    @Operation(summary = "更改队伍容量")
     @PostMapping("/changeMaxSize")
     public BaseResponse<Object> changeMaxSize(int maxSize, int teacherId, HttpServletRequest request) {
         if (maxSize < 0) {
@@ -303,6 +324,7 @@ public class AdminController {
      * @param request 验证登录
      * @return
      */
+    @Operation(summary = "更改申请容量")
     @PostMapping("/changeApplySize")
     public BaseResponse<Object> changeApplySize(int applySize, int teacherId, HttpServletRequest request) {
         //查询参数是否合法
@@ -320,6 +342,7 @@ public class AdminController {
      * @param request
      * @return
      */
+    @Operation(summary = "移出队伍")
     @PostMapping("/removeFromTeam")
     public BaseResponse<Object> removeFromTeam(Long userId, Long teacherId, HttpServletRequest request) {
         if (userId == null || teacherId == null) {
@@ -332,6 +355,13 @@ public class AdminController {
         return ResultUtils.failure(Code.FAILURE, null, "管理员删除队伍（id：" + teacherId + "）中的成员（id：" + userId + "）失败！");
     }
 
+    /**
+     * 第三阶段：管理员随机分配所有名额
+     * @param request
+     * @return
+     * @throws InterruptedException
+     */
+    @Operation(summary = "随机分配")
     @PostMapping("/distribute")
     public BaseResponse<Object> distribute(HttpServletRequest request) throws InterruptedException {
         Integer result = adminService.distribute(request);
