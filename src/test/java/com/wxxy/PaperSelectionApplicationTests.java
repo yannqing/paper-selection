@@ -2,14 +2,8 @@ package com.wxxy;
 import java.security.SecureRandom;
 import java.util.*;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.wxxy.domain.Teacher;
-import com.wxxy.domain.User;
-import com.wxxy.domain.UserTeam;
 import com.wxxy.mapper.TeacherMapper;
 import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
@@ -19,8 +13,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @NoArgsConstructor
@@ -42,8 +34,6 @@ class PaperSelectionApplicationTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Autowired
-    RedisCache redisCache;
 
 
     private String uploadUrl;
@@ -70,13 +60,6 @@ class PaperSelectionApplicationTests {
 
     @Test
     public void test() throws JsonProcessingException {
-//        Map<String, String> map = new HashMap<>();
-//        map.put("key", "value1");
-//        map.put("key2", "value2");
-//        String s = objectMapper.writeValueAsString(map);
-//        redisCache.setCacheObject("xxx", s);
-
-        redisCache.setCacheObject("UserLoginIsRunning", true);
 
     }
     public static String replaceFilename(String filename, String newName) {

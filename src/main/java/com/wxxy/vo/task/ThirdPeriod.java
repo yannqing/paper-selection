@@ -107,69 +107,66 @@ public class ThirdPeriod {
 
     @PostConstruct
     public void initTime() {
-        //初始化时间
-        String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
-        String firstBeginTime = null;
-        String firstOffTime = null;
-        Integer firstResult = null;
-        String secondBeginTime = null;
-        String secondOffTime = null;
-        Integer secondResult = null;
-        String thirdBeginTime = null;
-        String thirdOffTime = null;
-        Integer thirdResult = null;
-        if (scheduleTaskPeriod != null) {
-            try {
+        try {
+            String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
+            if (scheduleTaskPeriod != null) {
                 Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
-                firstBeginTime = (String) map.get("firstBeginTime");
-                firstOffTime = (String) map.get("firstOffTime");
-                firstResult = Integer.parseInt((String) map.get("firstResult"));
-                secondBeginTime = (String) map.get("secondBeginTime");
-                secondOffTime = (String) map.get("secondOffTime");
-                secondResult = Integer.parseInt((String) map.get("secondResult"));
-                thirdBeginTime = (String) map.get("thirdBeginTime");
-                thirdOffTime = (String) map.get("thirdOffTime");
-                thirdResult = Integer.parseInt((String) map.get("thirdResult"));
-            }catch (JsonProcessingException e) {
-                log.error("初始化时间错误："+e.getMessage());
-            }
-        }
-        else {
-            firstBeginTime = "2124-12-12 12:00:00";
-            firstOffTime = "2124-12-12 13:00:00";
-            secondBeginTime = "2124-12-12 12:00:00";
-            secondOffTime = "2124-12-12 12:00:00";
-            thirdBeginTime = "2124-12-12 12:00:00";
-            thirdOffTime = "2124-12-12 12:00:00";
-        }
-        if (firstResult == null) {
-            setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
-        } else {
-            //0未开始，1进行中，-1已结束
-            if (firstResult.equals(1) || (firstResult.equals(0) && secondResult.equals(0) && thirdResult.equals(0))) {
-                setTimePeriod(firstBeginTime, firstOffTime);
-            }else if (secondResult.equals(1)) {
-                setTimePeriod(secondBeginTime, secondOffTime);
-            } else if (thirdResult.equals(1)) {
-                setTimePeriod(thirdBeginTime, thirdOffTime);
+                String firstBeginTime = (String) map.getOrDefault("firstBeginTime", "2124-12-12 12:00:00");
+                String firstOffTime = (String) map.getOrDefault("firstOffTime", "2124-12-12 13:00:00");
+                Integer firstResult = parseIntegerSafe((String) map.get("firstResult"));
+                String secondBeginTime = (String) map.getOrDefault("secondBeginTime", "2124-12-12 12:00:00");
+                String secondOffTime = (String) map.getOrDefault("secondOffTime", "2124-12-12 12:00:00");
+                Integer secondResult = parseIntegerSafe((String) map.get("secondResult"));
+                String thirdBeginTime = (String) map.getOrDefault("thirdBeginTime", "2124-12-12 12:00:00");
+                String thirdOffTime = (String) map.getOrDefault("thirdOffTime", "2124-12-12 12:00:00");
+                Integer thirdResult = parseIntegerSafe((String) map.get("thirdResult"));
+
+                resolveTimePeriod(firstResult, secondResult, thirdResult, firstBeginTime, firstOffTime, secondBeginTime, secondOffTime, thirdBeginTime, thirdOffTime);
             } else {
                 setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
             }
+
+            manageUserLoginStatus();
+
+        } catch (Exception e) {
+            log.error("初始化时间错误：" + e.getMessage(), e);
         }
-        //初始化登录状态
+    }
+
+    private Integer parseIntegerSafe(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private void manageUserLoginStatus() {
         String userLoginIsRunning = redisCache.getCacheObject("UserLoginIsRunning");
         if (userLoginIsRunning != null) {
             redisCache.deleteObject("UserLoginIsRunning");
         }
         LocalDateTime currentTime = LocalDateTime.now();
-//        redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
-
-        if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))){
+        if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
-        }else {
+        } else {
             redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
         }
+    }
 
+    private void resolveTimePeriod(Integer firstResult, Integer secondResult, Integer thirdResult,
+                                   String firstBeginTime, String firstOffTime,
+                                   String secondBeginTime, String secondOffTime,
+                                   String thirdBeginTime, String thirdOffTime) {
+        if (firstResult != null && (firstResult.equals(1) || (firstResult.equals(0) && secondResult.equals(0) && thirdResult.equals(0)))) {
+            setTimePeriod(firstBeginTime, firstOffTime);
+        } else if (secondResult != null && secondResult.equals(1)) {
+            setTimePeriod(secondBeginTime, secondOffTime);
+        } else if (thirdResult != null && thirdResult.equals(1)) {
+            setTimePeriod(thirdBeginTime, thirdOffTime);
+        } else {
+            setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");  // Default time period
+        }
     }
     public void execute() {
         log.info("任务3执行");
