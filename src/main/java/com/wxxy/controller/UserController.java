@@ -1,10 +1,15 @@
 package com.wxxy.controller;
 
 import com.wxxy.common.Code;
+import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
+import com.wxxy.service.TeacherService;
 import com.wxxy.service.UserService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
+import com.wxxy.vo.GetAllByPageVo;
+import com.wxxy.vo.JoinedTeacherStatusVo;
+import com.wxxy.vo.StudentGetTeachersVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -24,89 +29,9 @@ public class UserController {
 
     @Resource
     private UserService userService;
-    /**
-     * 查询已选择的学生
-     * @param request 获取session
-     * @return
-     */
-    @Operation(summary = "查询已选择的学生")
-    @GetMapping("/getMySelectedStudent")
-    public BaseResponse<List<User>> getSelectedStudent(HttpServletRequest request){
-        List<User> selectedStudent = userService.getSelectedStudent(request);
-        return ResultUtils.success(Code.SUCCESS, selectedStudent, "查询已选择的学生成功");
-    }
 
-    /**
-     * 同意学生加入队伍
-     * @param userId 学生id
-     * @param request 获取老师id
-     * @return
-     */
-    @Operation(summary = "同意学生加入队伍")
-    @PostMapping("/agreeJoin")
-    public BaseResponse<Object> agreeJoin(Long userId, HttpServletRequest request){
-        if (userId == null) {
-            throw new IllegalArgumentException("学生id为空");
-        }
-        boolean result = userService.agreeJoin(userId, request);
-        if (result) {
-            return ResultUtils.success(Code.SUCCESS, null, "用户加入队伍成功");
-        }
-        return ResultUtils.failure(Code.FAILURE, null, "用户加入队伍失败");
-    }
-
-    /**
-     * 拒绝学生的申请
-     * @param userId
-     * @param request
-     * @return
-     */
-    @Operation(summary = "拒绝学生的申请")
-    @PostMapping("/disagreeJoin")
-    public BaseResponse<Object> disagreeJoin(Long userId, HttpServletRequest request){
-        if (userId == null) {
-            throw new IllegalArgumentException("学生id为空");
-        }
-        boolean result = userService.disagreeJoin(userId, request);
-        if (result) {
-            return ResultUtils.success(Code.SUCCESS, null, "已拒绝学生加入");
-        }
-        return ResultUtils.failure(Code.FAILURE, null, "拒绝学生加入失败");
-    }
-
-    /**
-     * 查看我的队伍
-     * @param request 获取老师id
-     * @return
-     */
-    @Operation(summary = "查看我的队伍")
-    @GetMapping("/getMyJoinedStudent")
-    public BaseResponse<List<User>> joinedStudent(HttpServletRequest request) {
-        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
-            throw new IllegalArgumentException("此老师已退出，请重新登录");
-        }
-        List<User> joinedStudent = userService.joinedStudent(request);
-        return ResultUtils.success(Code.SUCCESS, joinedStudent, "查看我的队伍成功");
-    }
-
-    /**
-     * 移出队伍
-     * @param userId 要移出的用户id
-     * @param request
-     * @return
-     */
-    @Operation(summary = "移出队伍")
-    @PostMapping("/removeFromTeam")
-    public BaseResponse<Object> removeFromTeam(Long userId, HttpServletRequest request) {
-        if (userId == null) {
-            throw new IllegalArgumentException("用户id不能未空");
-        }
-        boolean result = userService.removeFromTeam(userId, request);
-        if (result) {
-            return ResultUtils.success(Code.SUCCESS, null, "移出队伍成功");
-        }
-        return ResultUtils.failure(Code.FAILURE, null, "移出队伍失败");
-    }
+    @Resource
+    private TeacherService teacherService;
 
     /**
      * 获取个人信息（学生）
@@ -120,6 +45,15 @@ public class UserController {
         return ResultUtils.success(Code.SUCCESS, myselfInfo, "获取个人信息成功");
     }
 
+    /**
+     * 修改密码（学生）
+     * @param oldPassword
+     * @param newPassword
+     * @param againPassword
+     * @param request
+     * @return
+     */
+    @Operation(summary = "修改密码（学生）")
     @PostMapping("/changeMyPassword")
     public BaseResponse<Object> changeMyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
@@ -148,5 +82,100 @@ public class UserController {
         }
         log.info("修改学生个人信息失败");
         return ResultUtils.failure(Code.FAILURE, null, "修改学生个人信息失败");
+    }
+
+    /**
+     * 查询全部老师信息
+     * @param currentPage 当前页码
+     * @param pageSize 一页的数据条数
+     * @param request 获取session
+     * @return
+     */
+    @Operation(summary = "查询全部老师信息")
+    @GetMapping("/getAll")
+    public BaseResponse<GetAllByPageVo<StudentGetTeachersVo>> getAllTeacher(Integer currentPage, Integer pageSize, HttpServletRequest request) {
+        GetAllByPageVo<StudentGetTeachersVo> allTeachers = teacherService.getAllTeachers(currentPage,pageSize,request);
+        return ResultUtils.success(Code.SUCCESS, allTeachers, "查询所有老师成功");
+    }
+
+    /**
+     * 用户加入老师队伍
+     * @param teacherIds 加入的老师id数组，最大2个
+     * @param userId 登录的用户id，前面无session时写的，后面可以优化掉
+     * @return
+     */
+    @Operation(summary = "学生加入老师队伍")
+    @PostMapping("/join")
+    public BaseResponse<Teacher> joinTeacher(Integer teacherIds, Long userId, HttpServletRequest request) {
+        boolean result = teacherService.joinTeacher(teacherIds, userId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "申请加入队伍成功，在审核");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "申请加入队伍失败");
+    }
+
+    /**
+     * 查询当前用户已选择的老师数目
+     * @return
+     */
+    @Operation(summary = "查询当前用户已选择的老师数目")
+    @GetMapping("/getAccount")
+    public BaseResponse<Integer> getAccount(Long userId, HttpServletRequest request) {
+        int count = teacherService.selectedTeacherAccount(userId, request);
+        return ResultUtils.success(Code.SUCCESS, count, "查询此用户申请的老师队伍数量");
+    }
+
+    /**
+     * 返回用户加入的所有队伍名称和状态
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "返回用户加入的所有队伍名称和状态")
+    @GetMapping("/getJoinedTeacherStatus")
+    public BaseResponse<List<JoinedTeacherStatusVo>> getJoinedTeacherStatus(Long userId, HttpServletRequest request) {
+        List<JoinedTeacherStatusVo> joinedTeacherStatus = teacherService.getJoinedTeacherStatus(userId, request);
+        return ResultUtils.success(Code.SUCCESS, joinedTeacherStatus, "查询此用户加入的所有队伍名称，状态成功");
+    }
+
+    /**
+     * 退出队伍
+     * @param teacherId 要退出的队伍id
+     * @param request 获取session
+     * @return 返回退出结果
+     */
+    @Operation(summary = "退出队伍")
+    @PostMapping("/exitTeam")
+    public BaseResponse<Boolean> exitTeam(Long teacherId, HttpServletRequest request) {
+        //校验teacherId是否合法
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师id不能为空");
+        }
+        if (teacherService.getById(teacherId) == null) {
+            throw new IllegalArgumentException("此老师不存在");
+        }
+        boolean result = teacherService.exitTeam(teacherId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "退出队伍成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "退出队伍失败");
+    }
+
+    /**
+     * 取消申请
+     * @param teacherId 要取消申请的老师队伍id
+     * @param request 获取session
+     * @return
+     */
+    @Operation(summary = "取消申请")
+    @PostMapping("/cancelApplication")
+    public BaseResponse<Object> cancelApplication(Long teacherId, HttpServletRequest request) {
+        if (teacherId == null) {
+            throw new IllegalArgumentException("老师队伍id为空，无法取消");
+        }
+        boolean result = teacherService.cancelApplication(teacherId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "取消申请成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "取消申请失败");
     }
 }
