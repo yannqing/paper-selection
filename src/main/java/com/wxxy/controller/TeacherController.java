@@ -1,6 +1,5 @@
 package com.wxxy.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wxxy.common.Code;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;

@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
-
 @Slf4j
 @RestController
 @RequestMapping("/student")

@@ -175,4 +175,16 @@ public class AdminToStudent {
             return ResultUtils.success(Code.DISTRIBUTE_STUDENT_REMAINING, null, "仍有剩余学生没有分配成功，所有老师队伍均已满");
         }
     }
+
+    @Operation(summary = "删除所有学生")
+    @PostMapping("/deleteAllStudents")
+    public BaseResponse<Boolean> deleteAllStudents(HttpServletRequest request) {
+        boolean result = adminService.deleteAllStudents(request);
+
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "删除所有学生成功");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "删除所有学生失败");
+        }
+    }
 }

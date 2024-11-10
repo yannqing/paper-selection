@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxxy.common.DateFormat;
+import com.wxxy.domain.ExportExcelData;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
@@ -781,6 +782,32 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean deleteAllStudents(HttpServletRequest request) {
+        //1. 鉴权
+        checkRole(request);
+        // 2. 删除所有学生
+        int delete = userMapper.delete(null);
+        return delete != 0;
+    }
+
+    @Override
+    public boolean exportExcel(HttpServletRequest request) {
+        //1. 鉴权
+        checkRole(request);
+        //2. 定义要导出的数据
+        List<ExportExcelData> exportData = new ArrayList<>();
+        //3. 查询出所有老师 teachers
+        List<Teacher> teachers = teacherMapper.selectList(null);
+        //4. 遍历所有老师 teacher
+        for (Teacher teacher : teachers) {
+            List<UserTeam> userTeams = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("", teacher.getUserAccount()));
+
+        }
+
+        return false;
     }
 
     public void joinTeam(long userId, long teacherId, int currentNum) throws InterruptedException {

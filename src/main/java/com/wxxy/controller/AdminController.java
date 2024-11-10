@@ -45,4 +45,11 @@ public class AdminController {
         adminService.isCover(isCover, role, request);
         return ResultUtils.success(Code.SUCCESS, null, "覆盖成功");
     }
+
+    @Operation(summary = "导出Excel数据")
+    @PostMapping("/export")
+    public BaseResponse<Object> exportExcel(HttpServletRequest request) {
+        boolean result = adminService.exportExcel(request);
+        return ResultUtils.success(Code.SUCCESS, result, "导出数据成功");
+    }
 }

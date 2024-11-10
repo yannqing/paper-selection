@@ -53,4 +53,7 @@ public interface AdminService {
 
     Integer distribute(HttpServletRequest request) throws InterruptedException;
 
+    boolean deleteAllStudents(HttpServletRequest request);
+
+    boolean exportExcel(HttpServletRequest request);
 }
