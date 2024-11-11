@@ -16,7 +16,7 @@ spring:
 #      repository-type:
   data:
     redis:
-      host: redis
+      host: mackRedis
       port: 6380
       password: wyjh030208..
       database: 0
