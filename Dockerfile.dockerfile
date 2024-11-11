@@ -19,4 +19,4 @@ COPY ./target/paperSelection-0.0.1-SNAPSHOT.jar /tmp/app.jar
 EXPOSE 8093
 
 # 启动命令
-CMD ["java", "-jar", "/tmp/app.jar"]
+CMD ["java", "-jar", "/tmp/app.jar", "--spring.profiles.active=test"]

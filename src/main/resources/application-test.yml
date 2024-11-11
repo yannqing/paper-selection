@@ -1,0 +1,46 @@
+project:
+  upload-url: ./images/
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/text
+    username: root
+    password: wyjh030208..
+  servlet:
+    multipart:
+#      上传文件大小限制：50MB
+      max-file-size: 50MB
+      max-request-size: 50MB
+  #  session:
+#    redis:
+#      repository-type:
+  data:
+    redis:
+      host: redis
+      port: 6380
+      password: wyjh030208..
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: 1
+          max-idle: 8
+          min-idle: 0
+      timeout: 0
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+server:
+  servlet:
+    session:
+      timeout: 3600
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
