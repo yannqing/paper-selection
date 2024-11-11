@@ -6,7 +6,12 @@ spring:
     url: jdbc:mysql://localhost:3306/text
     username: root
     password: 123456
-#  session:
+  servlet:
+    multipart:
+#      上传文件大小限制：50MB
+      max-file-size: 50MB
+      max-request-size: 50MB
+  #  session:
 #    redis:
 #      repository-type:
   data:
