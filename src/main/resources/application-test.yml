@@ -4,7 +4,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql:3306/text
-    username: root
+    username: yannqing
     password: wyjh030208..
   servlet:
     multipart:
