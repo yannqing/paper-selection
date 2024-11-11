@@ -29,6 +29,7 @@ spring:
       timeout: 0
 
 
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
