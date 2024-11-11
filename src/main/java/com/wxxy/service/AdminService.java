@@ -55,5 +55,5 @@ public interface AdminService {
 
     boolean deleteAllStudents(HttpServletRequest request);
 
-    boolean exportExcel(HttpServletRequest request);
+    String exportExcel(HttpServletRequest request);
 }

@@ -22,7 +22,7 @@ public class ExportExcelData {
     private String applyNumber;
     @ExcelProperty("学生姓名")
     private String studentName;
-    @ExcelProperty("学生班级")
+    @ExcelProperty("学生专业")
     private String studentClass;
     @ExcelProperty("学生学号")
     private String studentAccount;

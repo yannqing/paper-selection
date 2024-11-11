@@ -2,25 +2,15 @@ package com.wxxy.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wxxy.common.Code;
-import com.wxxy.domain.Teacher;
-import com.wxxy.domain.User;
 import com.wxxy.service.AdminService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
-import com.wxxy.vo.GetAllByPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.ResultType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 
 @Slf4j
 @RestController
@@ -49,7 +39,7 @@ public class AdminController {
     @Operation(summary = "导出Excel数据")
     @PostMapping("/export")
     public BaseResponse<Object> exportExcel(HttpServletRequest request) {
-        boolean result = adminService.exportExcel(request);
-        return ResultUtils.success(Code.SUCCESS, result, "导出数据成功");
+        String fileName = adminService.exportExcel(request);
+        return ResultUtils.success(Code.SUCCESS, fileName, "导出数据成功");
     }
 }

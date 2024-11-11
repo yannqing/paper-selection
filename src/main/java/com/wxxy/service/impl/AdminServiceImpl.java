@@ -1,5 +1,6 @@
 package com.wxxy.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -793,8 +794,13 @@ public class AdminServiceImpl implements AdminService {
         return delete != 0;
     }
 
+    /**
+     * 导出 excel 数据
+     * @param request
+     * @return
+     */
     @Override
-    public boolean exportExcel(HttpServletRequest request) {
+    public String exportExcel(HttpServletRequest request) {
         //1. 鉴权
         checkRole(request);
         //2. 定义要导出的数据
@@ -803,11 +809,51 @@ public class AdminServiceImpl implements AdminService {
         List<Teacher> teachers = teacherMapper.selectList(null);
         //4. 遍历所有老师 teacher
         for (Teacher teacher : teachers) {
-            List<UserTeam> userTeams = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("", teacher.getUserAccount()));
-
+            List<UserTeam> userTeams = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("teacherId", teacher.getId()));
+            List<UserTeam> joinedStudents = new ArrayList<>();
+            List<UserTeam> appliedStudents = new ArrayList<>();
+            for (UserTeam userTeam : userTeams) {
+                if (userTeam.getIsJoin() == 1) {
+                    joinedStudents.add(userTeam);
+                } else {
+                    appliedStudents.add(userTeam);
+                }
+            }
+            // 遍历 joinedStudents
+            for (UserTeam userTeam : joinedStudents) {
+                // 查出单个学生信息
+                User user = userMapper.selectOne(new QueryWrapper<User>().eq("id", userTeam.getUserId()));
+                // 构建 exportExcelData 数据
+                ExportExcelData data = getExportExcelData(teacher, user, "已加入");
+                // 存入导出数据 exportData
+                exportData.add(data);
+            }
+            // 遍历 appliedStudents
+            for (UserTeam userTeam : appliedStudents) {
+                // 查出单个学生信息
+                User user = userMapper.selectOne(new QueryWrapper<User>().eq("id", userTeam.getUserId()));
+                // 构建 exportExcelData 数据
+                ExportExcelData data = getExportExcelData(teacher, user, "已申请");
+                // 存入导出数据 exportData
+                exportData.add(data);
+            }
         }
+        String fileName = UUID.randomUUID() + ".xlsx";
+        EasyExcel.write("./export/" + fileName, ExportExcelData.class).sheet("模板").doWrite(exportData);
+        return fileName;
+    }
 
-        return false;
+    private ExportExcelData getExportExcelData(Teacher teacher, User user, String status) {
+        ExportExcelData data = new ExportExcelData();
+        data.setTeacherName(teacher.getName());
+        data.setTeacherAccount(teacher.getUserAccount());
+        data.setTeamNumber(teacher.getCurrentNum() + "/" + teacher.getMaxNum());
+        data.setApplyNumber(teacher.getApplyNum() + "/" + teacher.getMaxApply());
+        data.setStudentName(user.getUsername());
+        data.setStudentAccount(user.getUserAccount());
+        data.setStudentClass(user.getDegree());
+        data.setStudentStatus(status);
+        return data;
     }
 
     public void joinTeam(long userId, long teacherId, int currentNum) throws InterruptedException {
