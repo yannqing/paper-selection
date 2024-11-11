@@ -40,4 +40,7 @@ public interface TeacherService extends IService<Teacher> {
 
     boolean updateMyselfInfo(Teacher updateTeacher, HttpServletRequest request);
 
+    boolean changeApplySize(Integer applySize, HttpServletRequest request);
+
+    boolean changeTeamMaxSize(Integer teamMaxNum, HttpServletRequest request);
 }

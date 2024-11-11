@@ -201,5 +201,32 @@ public class TeacherController {
         return ResultUtils.failure(Code.FAILURE, null, "移出队伍失败");
     }
 
+    @Operation(summary = "修改队伍数量限制")
+    @PostMapping("/changeApplySize")
+    public BaseResponse<Object> changeTeamMaxSize(@RequestParam("maxSize") Integer maxSize, HttpServletRequest request) {
+        if (maxSize < 0) {
+            throw new IllegalArgumentException("最大数量不能修改为小于0的数字");
+        }
+        boolean result = teacherService.changeTeamMaxSize(maxSize, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "修改队伍容量成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "修改队伍容量失败");
+    }
+
+    @Operation(summary = "修改队伍申请数量限制")
+    @PostMapping("/changeMaxSize")
+    public BaseResponse<Object> changeApplySize(@RequestParam("applySize") Integer applySize, HttpServletRequest request) {
+        //查询参数是否合法
+        if (applySize <= 0) {
+            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
+        }
+        boolean result = teacherService.changeApplySize(applySize, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "修改队伍的申请限制成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "修改队伍的申请限制失败");
+    }
+
 
 }

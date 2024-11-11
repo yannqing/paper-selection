@@ -2,12 +2,8 @@ package com.wxxy.utils;
 
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,26 +12,23 @@ import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 public class CheckLoginUtils {
 
     public static final String[] whiteStudentURL = {
-            "/teacher/getAll",
-            "/teacher/getAccount",
-            "/teacher/getJoinedTeacherStatus",
-            "/teacher/uploadAvatar",
-            "/student/getMyselfInfo",
-            "/student/changeMyPassword",
             "/student/updateMyselfInfo",
+            "/student/changeMyPassword",
+            "/student/getMyselfInfo",
+            "/student/getJoinedTeacherStatus",
+            "/student/getAll",
+            "/student/getAccount",
     };
     public static final String[] whiteTeacherURL = {
-            "/teacher/getCountOfTeam",
-            "/teacher/getMyselfInfo",
-            "/teacher/changeMyPassword",
+            "/teacher/uploadAvatar",
             "/teacher/updateMyselfInfo",
-            "/student/getMySelectedStudent",
-            "/student/getMyJoinedStudent",
-            "/student/getMySelectedStudent",
-            "/student/getMySelectedStudent",
-            "/student/getMySelectedStudent",
-            "/student/getMySelectedStudent",
-            "/student/getMySelectedStudent"
+            "/teacher/changeMyPassword",
+            "/teacher/changeMaxSize",
+            "/teacher/changeApplySize",
+            "/teacher/getMyselfInfo",
+            "/teacher/getMySelectedStudent",
+            "/teacher/getMyJoinedStudent",
+            "/teacher/getCountOfTeam",
     };
 
     public static final List<String> whiteStudents = Arrays.asList(whiteStudentURL);

@@ -8,7 +8,6 @@ spring:
     password: wyjh030208..
   servlet:
     multipart:
-#      上传文件大小限制：50MB
       max-file-size: 50MB
       max-request-size: 50MB
   #  session:

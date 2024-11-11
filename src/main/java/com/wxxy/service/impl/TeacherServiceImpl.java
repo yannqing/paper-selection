@@ -450,6 +450,50 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         return result == 1;
     }
 
+    @Override
+    public boolean changeApplySize(Integer applySize, HttpServletRequest request) {
+        //查询参数是否合法
+        if (applySize <= 0) {
+            throw new IllegalArgumentException("参数不合法，申请容量不能<=0");
+        }
+        //校验登录态
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
+        //查询修改的容量是否小于已经申请的容量
+        if (loginTeacher.getApplyNum() >= applySize) {
+            throw new IllegalArgumentException("申请限制不能小于已申请数量！");
+        }
+        //修改申请容量
+        teacherMapper.update(new UpdateWrapper<Teacher>()
+                .eq("id", loginTeacher.getId())
+                .set("maxApply", applySize)
+                .set("updateTime", DateFormat.getCurrentTime()));
+
+        log.info("老师{name：{}} 修改申请限制{size: {}}成功！", loginTeacher.getName(), applySize);
+        return true;
+    }
+
+    @Override
+    public boolean changeTeamMaxSize(Integer teamMaxNum, HttpServletRequest request) {
+        //参数校验
+        if (teamMaxNum < 0) {
+            throw new IllegalArgumentException("队伍最大数量不能小于0");
+        }
+        //校验登录态
+        Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
+        //查寻要修改的数量是否小于队伍中已存在的用户数量
+        if (loginTeacher.getCurrentNum() > teamMaxNum) {
+            throw new IllegalArgumentException("要修改的数量不能低于队伍中已有的成员数量，若要修改，请先移出部分成员");
+        }
+        //修改最大数量
+        UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", loginTeacher.getId());
+        updateWrapper.set("maxNum", teamMaxNum);
+        updateWrapper.set("updateTime", DateFormat.getCurrentTime());
+        int result = teacherMapper.update(updateWrapper);
+        log.info("老师 name：{} 修改队伍人数限制成功！", loginTeacher.getName());
+        return result == 1;
+    }
+
     /**
      * 自定义方法，用来替换文件名
      * @param filename
