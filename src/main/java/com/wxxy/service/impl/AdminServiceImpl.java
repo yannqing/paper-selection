@@ -795,8 +795,12 @@ public class AdminServiceImpl implements AdminService {
     public boolean deleteAllStudents(HttpServletRequest request) {
         //1. 鉴权
         checkRole(request);
-        // 2. 删除所有学生
+        //2. 删除所有学生
         int delete = userMapper.delete(new QueryWrapper<User>().ne("userRole", 1));
+        //3. 清除所有学生入队情况
+        userTeamMapper.delete(null);
+        //4. 归零老师队伍人数和申请人数
+        teacherMapper.update(new UpdateWrapper<Teacher>().set("currentNum", 0).set("applyNum", 0));
         return delete != 0;
     }
 
