@@ -840,7 +840,7 @@ public class AdminServiceImpl implements AdminService {
         }
         String fileName = UUID.randomUUID() + ".xlsx";
         EasyExcel.write("./export/" + fileName, ExportExcelData.class).sheet("模板").doWrite(exportData);
-        return fileName;
+        return "/download/export/" + fileName;
     }
 
     private ExportExcelData getExportExcelData(Teacher teacher, User user, String status) {

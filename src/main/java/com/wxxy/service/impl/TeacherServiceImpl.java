@@ -252,7 +252,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         byte[] avatarBytes = avatar.getBytes();
         Files.write(path, avatarBytes);
         //下载路径
-        return "http://localhost:8080/download/"+newFilename;
+        return "/download/image/"+newFilename;
     }
 
     /**
