@@ -6,6 +6,12 @@ LABEL maintainer="yannqing <yannqing.com>"
 LABEL version="1.0"
 LABEL description="Paper Selection Backend"
 
+# 安装字体
+RUN apt-get update && apt-get install -y \
+    fonts-dejavu \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
 # 设置工作目录
 WORKDIR /yannqing/paper-selection/paper-selection-backend/java
 

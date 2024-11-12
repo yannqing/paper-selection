@@ -52,7 +52,9 @@ public class CheckLoginUtils {
         //不在登录时间
         if (userLoginIsRunning.equals("false") || user == null) {
             //普通用户
-            assert user != null;
+            if (user == null) {
+                throw new IllegalStateException("您的登录已失效，请重新登录");
+            }
             //普通用户，且访问的是黑名单的路径，则抛异常
             if (user.getUserRole() == 0 && !whiteStudents.contains(request.getRequestURI())) {
                 throw new IllegalArgumentException("您未授权，请重试");
