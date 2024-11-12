@@ -796,7 +796,7 @@ public class AdminServiceImpl implements AdminService {
         //1. 鉴权
         checkRole(request);
         // 2. 删除所有学生
-        int delete = userMapper.delete(null);
+        int delete = userMapper.delete(new QueryWrapper<User>().ne("userRole", 1));
         return delete != 0;
     }
 
