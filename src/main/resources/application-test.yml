@@ -1,5 +1,5 @@
 project:
-  upload-url: ./images/
+  upload-url: ../images/
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
