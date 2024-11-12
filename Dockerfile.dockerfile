@@ -14,6 +14,8 @@ VOLUME /yannqing/paper-selection/paper-selection-backend/logs
 
 # 复制应用程序
 COPY ./target/paperSelection-0.0.1-SNAPSHOT.jar /tmp/app.jar
+COPY ./images /tmp/images
+COPY ./export /tmp/export
 
 # 暴露端口
 EXPOSE 8093
