@@ -123,8 +123,23 @@ public class AdminServiceImpl implements AdminService {
         if (userMapper.selectById(userId) == null) {
             throw new IllegalArgumentException("学生不存在，无法删除");
         }
-        //删除
+        //删除学生
         int result = userMapper.delete(new QueryWrapper<User>().eq("id", userId));
+        // 老师的队伍/申请 - 1
+        List<UserTeam> userTeams = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("userId", userId));
+        for(UserTeam userTeam : userTeams) {
+            Long teacherId = userTeam.getTeacherId();
+            Teacher teacher = teacherMapper.selectById(teacherId);
+            if (userTeam.getIsJoin() == 0) {
+                teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacherId).set("applyNum", teacher.getApplyNum() - 1));
+            } else {
+                teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacherId).set("applyNum", teacher.getCurrentNum() - 1));
+            }
+        }
+        //删除学生的所有入队信息
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        userTeamQueryWrapper.eq("userId", userId);
+        userTeamMapper.delete(userTeamQueryWrapper);
         return result == 1;
     }
 
@@ -836,6 +851,9 @@ public class AdminServiceImpl implements AdminService {
             for (UserTeam userTeam : joinedStudents) {
                 // 查出单个学生信息
                 User user = userMapper.selectOne(new QueryWrapper<User>().eq("id", userTeam.getUserId()));
+                if (user == null) {
+                    throw new IllegalArgumentException("学生信息不存在，数据库错误，请联系管理员！");
+                }
                 // 构建 exportExcelData 数据
                 ExportExcelData data = getExportExcelData(teacher, user, "已加入");
                 // 存入导出数据 exportData
@@ -845,6 +863,9 @@ public class AdminServiceImpl implements AdminService {
             for (UserTeam userTeam : appliedStudents) {
                 // 查出单个学生信息
                 User user = userMapper.selectOne(new QueryWrapper<User>().eq("id", userTeam.getUserId()));
+                if (user == null) {
+                    throw new IllegalArgumentException("学生信息不存在，数据库错误，请联系管理员！");
+                }
                 // 构建 exportExcelData 数据
                 ExportExcelData data = getExportExcelData(teacher, user, "已申请");
                 // 存入导出数据 exportData
