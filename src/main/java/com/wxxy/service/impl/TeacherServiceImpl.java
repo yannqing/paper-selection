@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -248,6 +249,16 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
         UUID uuid = UUID.randomUUID();
         String newFilename = replaceFilename(fileName, uuid.toString());
         Path path = Paths.get(uploadUrl + newFilename);
+        // 判断 images 文件夹是否存在，不存在则创建
+        File file = new File(uploadUrl);
+        if (!file.exists()) {
+            boolean created = file.mkdir();
+            if (created) {
+                log.info("文件夹{}创建成功", uploadUrl);
+            } else {
+                log.info("文件夹{}创建失败", uploadUrl);
+            }
+        }
         //存储到服务器
         byte[] avatarBytes = avatar.getBytes();
         Files.write(path, avatarBytes);

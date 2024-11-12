@@ -25,10 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -52,6 +54,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     RedisCache redisCache;
+
+    @Value("${project.export-url}")
+    private String exportUrl;
+
 
     @Override
     public boolean addUser(User user, HttpServletRequest request) {
@@ -839,7 +845,17 @@ public class AdminServiceImpl implements AdminService {
             }
         }
         String fileName = UUID.randomUUID() + ".xlsx";
-        EasyExcel.write("./export/" + fileName, ExportExcelData.class).sheet("模板").doWrite(exportData);
+        // 判断 export 文件夹是否存在，不存在则创建
+        File file = new File(exportUrl);
+        if (!file.exists()) {
+            boolean created = file.mkdir();
+            if (created) {
+                log.info("文件夹{}创建成功", exportUrl);
+            } else {
+                log.info("文件夹{}创建失败", exportUrl);
+            }
+        }
+        EasyExcel.write(exportUrl + fileName, ExportExcelData.class).sheet("模板").doWrite(exportData);
         return "/download/export/" + fileName;
     }
 
