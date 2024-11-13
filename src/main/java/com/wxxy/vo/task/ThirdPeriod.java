@@ -110,7 +110,26 @@ public class ThirdPeriod {
 
     @PostConstruct
     public void initTime() {
+        // 如果失败，尝试重连 redis
+        int attempts = 5; // 最大重试次数
+        while (attempts > 0) {
+            try {
+                redisCache.setCacheObject("key", "value", 20, TimeUnit.SECONDS);
+                log.info("--------redis 连接成功，可以开始初始化定时任务！--------");
+                break; // 连接成功，退出重试循环
+            } catch (Exception e) {
+                attempts--;
+                log.info("连接Redis失败，重试中... ({}次尝试剩余)", attempts);
+                try {
+                    Thread.sleep(2000); // 等待2秒后重试
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
         try {
+            log.info("--------初始化定时任务开始--------");
             String scheduleTaskPeriod = redisCache.getCacheObject("scheduleTaskPeriod");
             if (scheduleTaskPeriod != null) {
                 Map map = objectMapper.readValue(scheduleTaskPeriod, Map.class);
@@ -131,9 +150,10 @@ public class ThirdPeriod {
             }
 
             manageUserLoginStatus();
+            log.info("--------初始化定时任务成功！--------");
 
         } catch (Exception e) {
-            log.error("初始化时间错误：" + e.getMessage(), e);
+            log.error("初始化定时任务错误：" + e.getMessage(), e);
         }
     }
 
