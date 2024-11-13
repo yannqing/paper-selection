@@ -46,16 +46,19 @@ public class ThirdPeriod {
 
 //        request.getSession().removeAttribute(USER_LOGIN_STATE);
 
-        // 判断当前时间是否在指定的时间段内
+        // 判断当前时间是否在指定的时间段内 TODO 判空 startTIme，endTime
+        if (startTime == null || endTime == null) {
+            setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");  // Default time period
+        }
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内
-            log.info("在任务执行的时间段内，任务持续执行。。。。。。");
+            log.info("--------在任务执行的时间段内，任务持续执行--------");
             isExecuteInit = false;
             redisCache.setCacheObject("UserLoginIsRunning", "true", 60*60*24*30, TimeUnit.SECONDS);
                 execute();
         } else {
             // 不在时间段内
-            log.info("不在任务时间段内，循环输出。。。。。。");
+            log.info("--------不在任务时间段内，持续跟踪--------");
             if (userLoginIsRunning.equals("true")) {
                 redisCache.setCacheObject("UserLoginIsRunning", "false", 60*60*24*30, TimeUnit.SECONDS);
             }
@@ -123,6 +126,7 @@ public class ThirdPeriod {
 
                 resolveTimePeriod(firstResult, secondResult, thirdResult, firstBeginTime, firstOffTime, secondBeginTime, secondOffTime, thirdBeginTime, thirdOffTime);
             } else {
+                log.info("管理员未设置时间段，默认初始化时间：{2124-12-12 12:00:00, 2124-12-12 13:00:00}");
                 setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");
             }
 
@@ -159,12 +163,16 @@ public class ThirdPeriod {
                                    String secondBeginTime, String secondOffTime,
                                    String thirdBeginTime, String thirdOffTime) {
         if (firstResult != null && (firstResult.equals(1) || (firstResult.equals(0) && secondResult.equals(0) && thirdResult.equals(0)))) {
+            log.info("当前处于第一阶段，开始时间：{}, 结束时间：{}", firstBeginTime, firstOffTime);
             setTimePeriod(firstBeginTime, firstOffTime);
         } else if (secondResult != null && secondResult.equals(1)) {
+            log.info("当前处于第二阶段，开始时间：{}, 结束时间：{}", secondBeginTime, secondOffTime);
             setTimePeriod(secondBeginTime, secondOffTime);
         } else if (thirdResult != null && thirdResult.equals(1)) {
+            log.info("当前处于第三阶段，开始时间：{}, 结束时间：{}", thirdBeginTime, thirdOffTime);
             setTimePeriod(thirdBeginTime, thirdOffTime);
         } else {
+            log.info("当前不处于任何阶段，默认开始时间：{2124-12-12 12:00:00}, 默认结束时间：{2124-12-12 13:00:00}");
             setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");  // Default time period
         }
     }
