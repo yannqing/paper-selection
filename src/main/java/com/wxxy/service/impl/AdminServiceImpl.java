@@ -172,7 +172,7 @@ public class AdminServiceImpl implements AdminService {
         Page<User> userPage;
 
         if (searchAccount == null) {
-            userPage = userMapper.selectPage(pageConfig, null);
+            userPage = userMapper.selectPage(pageConfig, new QueryWrapper<User>().ne("userRole", 0));
         } else {
             QueryWrapper<User> query = new QueryWrapper<>();
             query.like("userAccount", searchAccount);
