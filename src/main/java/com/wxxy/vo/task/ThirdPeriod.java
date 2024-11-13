@@ -48,7 +48,7 @@ public class ThirdPeriod {
 
         // 判断当前时间是否在指定的时间段内 TODO 判空 startTIme，endTime
         if (startTime == null || endTime == null) {
-            setTimePeriod("2124-12-12 12:00:00", "2124-12-12 13:00:00");  // Default time period
+            initTime();
         }
         if (currentTime.isAfter(startTime.minusSeconds(1)) && currentTime.isBefore(endTime.plusSeconds(1))) {
             // 在时间段内

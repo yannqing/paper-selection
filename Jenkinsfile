@@ -54,7 +54,10 @@ pipeline {
             steps {
                 // 基于 Dockerfile 进行构建
                 sh "docker build -f Dockerfile.dockerfile -t ${APP_IMAGE} ."
-                sh "docker run -it --name ${APP_NAME} --network mynetwork -v /yannqing/${APP_NAME}:/yannqing/${APP_NAME} -p ${APP_PORT} -d ${APP_IMAGE}"
+                sh "docker run -it --name ${APP_NAME} --network mynetwork -v ~/my_fonts:/usr/share/fonts -v /etc/fonts:/etc/fonts -v /yannqing/${APP_NAME}:/yannqing/${APP_NAME} -p ${APP_PORT} -d ${APP_IMAGE}"
+                // 等待容器启动并更新字体缓存
+                sleep(5) // 等待几秒以确保容器启动完成
+                sh "docker exec ${APP_NAME} fc-cache -f -v"
             }
         }
     }
