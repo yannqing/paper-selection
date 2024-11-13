@@ -7,9 +7,11 @@ LABEL version="1.0"
 LABEL description="Paper Selection Backend"
 
 # 安装字体
+# 安装字体和 fontconfig
 RUN apt-get update && apt-get install -y \
+    fontconfig \
     fonts-dejavu \
-    fonts-liberation \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
