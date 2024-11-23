@@ -172,10 +172,11 @@ public class AdminServiceImpl implements AdminService {
         Page<User> userPage;
 
         if (searchAccount == null) {
-            userPage = userMapper.selectPage(pageConfig, new QueryWrapper<User>().ne("userRole", 0));
+            userPage = userMapper.selectPage(pageConfig, new QueryWrapper<User>().eq("userRole", 0));
         } else {
             QueryWrapper<User> query = new QueryWrapper<>();
             query.like("userAccount", searchAccount);
+            query.eq("userRole", 0);
             userPage = userMapper.selectPage(pageConfig, query);
         }
 
@@ -238,6 +239,7 @@ public class AdminServiceImpl implements AdminService {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         for (Long id : joinedUserIds) {
             userQueryWrapper.ne("id", id);
+            userQueryWrapper.eq("userRole", 0);
         }
         //8. 如果有查询条件，则加上模糊查询
         if (searchAccount != null) {

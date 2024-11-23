@@ -200,6 +200,26 @@ public class AdminToTeacher {
     }
 
     /**
+     * 移出队伍
+     * @param userId 要移出的用户id
+     * @param teacherId 要移出的队伍
+     * @param request
+     * @return
+     */
+    @Operation(summary = "移出队伍")
+    @PostMapping("/removeFromTeam")
+    public BaseResponse<Object> removeFromTeam(Long userId, Long teacherId, HttpServletRequest request) {
+        if (userId == null || teacherId == null) {
+            throw new IllegalArgumentException("参数不能未空");
+        }
+        boolean result = adminService.removeFromTeam(userId, teacherId, request);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, null, "管理员删除队伍（id：" + teacherId + "）中的成员（id：" + userId + "）成功！");
+        }
+        return ResultUtils.failure(Code.FAILURE, null, "管理员删除队伍（id：" + teacherId + "）中的成员（id：" + userId + "）失败！");
+    }
+
+    /**
      * 更改申请容量
      * @param applySize 最新申请限制数量
      * @param teacherId 要修改的老师id
