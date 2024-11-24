@@ -153,7 +153,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
             //2. 再查询老师队伍的实际人数，和实际申请人数
             Integer currentNum = teacher.getCurrentNum();
             Integer applyNum = teacher.getApplyNum();
-            if (currentNum >= maxNum) {
+            //3. 查看学生是否已经加入队伍
+        UserTeam userJoinedTeam = userTeamService.getOne(new QueryWrapper<UserTeam>().eq("userId", userId).eq("isJoin", 1));
+        if (userJoinedTeam!= null) {
+                throw new IllegalArgumentException("您已加入队伍，请勿重复加入");
+        }
+        if (currentNum >= maxNum) {
                 throw new IllegalArgumentException("老师队伍已满，无法申请");
             } else if (applyNum >= maxApply) {
                 throw new IllegalArgumentException("该老师队伍的申请已达最大限制，无法申请");
