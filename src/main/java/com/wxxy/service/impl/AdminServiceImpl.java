@@ -836,7 +836,7 @@ public class AdminServiceImpl implements AdminService {
         List<Teacher> teachers = teacherMapper.selectList(null);
         //4. 遍历所有老师 teacher
         for (Teacher teacher : teachers) {
-            List<UserTeam> userTeams = userTeamMapper.selectList(new QueryWrapper<UserTeam>().eq("teacherId", teacher.getId()));
+            List<UserTeam> userTeams = userTeamMapper.selectList(null);
             if (userTeams.isEmpty()) {
                 throw new IllegalArgumentException("没有学生加入老师队伍，无法导出数据!");
             }
