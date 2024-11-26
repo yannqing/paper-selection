@@ -344,15 +344,15 @@ public class AdminServiceImpl implements AdminService {
                         case 1: user.setAcademy(cellValue); break;
                         case 2: user.setDegree(cellValue); break;
                         case 3: user.setUserAccount(cellValue); break;
+//                        case 4: {
+//                            if (cellValue != null) {
+//                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
+//                            }else {
+//                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
+//                            }
+//                            break;
+//                        }
                         case 4: {
-                            if (cellValue != null) {
-                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
-                            }else {
-                                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
-                            }
-                            break;
-                        }
-                        case 5: {
                             if (cellValue != null) {
                                 user.setGender(cellValue.equals("男")?1:0);
                             }else{
@@ -360,13 +360,14 @@ public class AdminServiceImpl implements AdminService {
                             }
                             break;
                         }
-                        case 6: user.setProfile(cellValue); break;
-                        case 7: user.setPhone(cellValue); break;
-                        case 8: user.setEmail(cellValue);
+                        case 5: user.setProfile(cellValue); break;
+                        case 6: user.setPhone(cellValue); break;
+                        case 7: user.setEmail(cellValue);
                     }
 //                    rowData.add(cellValue);
                     cellIndex++;
                 }
+                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
                 users.add(user);
 //                data.add(rowData);
                 rowIndex ++;
@@ -427,21 +428,22 @@ public class AdminServiceImpl implements AdminService {
                 switch (cellIndex) {
                     case 0: teacher.setName(cellValue); break;
                     case 1: teacher.setUserAccount(cellValue); break;
-                    case 2: {
-                        if (cellValue != null) {
-                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
-                        }else {
-                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
-                        }
-                        break;
-                    }
-                    case 3: teacher.setDescription(cellValue); break;
-                    case 4: teacher.setPhone(cellValue); break;
-                    case 5: teacher.setEmail(cellValue);
+//                    case 2: {
+//                        if (cellValue != null) {
+//                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + cellValue).getBytes()));
+//                        }else {
+//                            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
+//                        }
+//                        break;
+//                    }
+                    case 2: teacher.setDescription(cellValue); break;
+                    case 3: teacher.setPhone(cellValue); break;
+                    case 4: teacher.setEmail(cellValue);
                 }
 //                    rowData.add(cellValue);
                 cellIndex++;
             }
+            teacher.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456").getBytes()));
             teachers.add(teacher);
 //                data.add(rowData);
             rowIndex ++;
