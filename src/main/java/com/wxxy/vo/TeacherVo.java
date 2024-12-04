@@ -1,6 +1,8 @@
 package com.wxxy.vo;
 
+import com.wxxy.domain.Teacher;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
 
@@ -44,4 +46,9 @@ public class TeacherVo {
      */
     private Integer maxNum;
 
+    public static TeacherVo teacherToVo(Teacher teacher) {
+        TeacherVo teacherVo = new TeacherVo();
+        BeanUtils.copyProperties(teacher, teacherVo);
+        return teacherVo;
+    }
 }

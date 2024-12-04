@@ -1,6 +1,8 @@
 package com.wxxy.vo;
 
+import com.wxxy.domain.User;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 @Data
 public class UserVo {
@@ -48,5 +50,11 @@ public class UserVo {
      * 邮箱
      */
     private String email;
+
+    public static UserVo userToVo(User user) {
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+        return userVo;
+    }
 
 }
