@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 留言板
  */
-@TableName(value = "paperSelection.message_board")
+@TableName(value = "message_board")
 public class MessageBoard implements Serializable {
     /**
      * 留言板唯一 id
