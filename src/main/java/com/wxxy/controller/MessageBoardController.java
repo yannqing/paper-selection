@@ -30,14 +30,14 @@ public class MessageBoardController {
     @PostMapping("/student/send")
     public BaseResponse<Object> studentSendMessage (String message, HttpServletRequest request) {
         messageBoardService.studentSendMessage(message, request);
-        return null;
+        return ResultUtils.success();
     }
 
     @Operation(summary = "老师发送消息到留言板")
     @PostMapping("/teacher/send")
     public BaseResponse<Object> teacherSendMessage (String message, HttpServletRequest request) {
         messageBoardService.teacherSendMessage(message, request);
-        return null;
+        return ResultUtils.success();
     }
 
     @Operation(summary = "获取留言板内容")
