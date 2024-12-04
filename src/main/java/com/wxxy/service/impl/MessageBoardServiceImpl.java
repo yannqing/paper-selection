@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.message.Message;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +66,7 @@ public class MessageBoardServiceImpl implements MessageBoardService {
         UserVo userVo = UserVo.userToVo(loginUser);
         messageBoardContentMessage.setUser(userVo);
         messageBoardContentMessage.setContent(message);
+        messageBoardContentMessage.setSendTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         messageBoardContentMessages.add(messageBoardContentMessage);
         String messageContent = JSON.toJSONString(messageBoardContentMessages);
 
@@ -102,6 +104,7 @@ public class MessageBoardServiceImpl implements MessageBoardService {
         TeacherVo teacherVo = TeacherVo.teacherToVo(loginTeacher);
         messageBoardContentMessage.setUser(teacherVo);
         messageBoardContentMessage.setContent(message);
+        messageBoardContentMessage.setSendTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         messageBoardContentMessages.add(messageBoardContentMessage);
         String messageContent = JSON.toJSONString(messageBoardContentMessages);
 
