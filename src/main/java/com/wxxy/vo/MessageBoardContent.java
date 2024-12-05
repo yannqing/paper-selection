@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageBoardContent {
+    // 消息唯一 id
+    private String id;
     // 学生 id，默认 null
     private Long userId;
     // 教师 id，默认 null
