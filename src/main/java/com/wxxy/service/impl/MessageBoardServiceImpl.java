@@ -3,29 +3,29 @@ package com.wxxy.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.wxxy.common.UserLoginState;
 import com.wxxy.domain.MessageBoard;
 import com.wxxy.domain.Teacher;
 import com.wxxy.domain.User;
 import com.wxxy.domain.UserTeam;
 import com.wxxy.mapper.MessageBoardMapper;
+import com.wxxy.mapper.TeacherMapper;
+import com.wxxy.mapper.UserMapper;
 import com.wxxy.mapper.UserTeamMapper;
 import com.wxxy.service.MessageBoardService;
 import com.wxxy.utils.RedisCache;
-import com.wxxy.vo.MessageBoardContentMessage;
-import com.wxxy.vo.TeacherVo;
-import com.wxxy.vo.UserVo;
+import com.wxxy.vo.MessageBoardContent;
+import com.wxxy.vo.MessageBoardContentMessageVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.logging.log4j.message.Message;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
-import static com.wxxy.common.UserLoginState.USER_LOGIN_STATE;
 import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
 import static com.wxxy.utils.CheckLoginUtils.checkUserLoginStatus;
 
@@ -40,45 +40,36 @@ public class MessageBoardServiceImpl implements MessageBoardService {
 
     @Resource
     private UserTeamMapper userTeamMapper;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private TeacherMapper teacherMapper;
 
     @Override
     public void studentSendMessage(String message, HttpServletRequest request) {
-        // 鉴权
+        // 1. 鉴权
         User loginUser = checkUserLoginStatus(request, redisCache);
 
-        // 判断学生是否入队
+        // 2. 判断学生是否入队
         UserTeam userTeam = userTeamMapper.selectOne(new QueryWrapper<UserTeam>().eq("userId", loginUser.getId()).eq("isJoin", 1));
         if (userTeam == null) {
             throw new IllegalArgumentException("您还未加入队伍，无法进行留言");
         }
 
-        // 取出原来的消息内容
+        // 3. 获取所有留言
         MessageBoard messageBoardBefore = messageBoardMapper.selectOne(new QueryWrapper<MessageBoard>().eq("teacherId", userTeam.getTeacherId()));
-        List<MessageBoardContentMessage> messageBoardContentMessages = null;
-        if (messageBoardBefore == null) {
-            messageBoardContentMessages = new ArrayList<>();
-        } else {
-            messageBoardContentMessages = JSON.parseArray(messageBoardBefore.getContent(), MessageBoardContentMessage.class);
-        }
 
-        // 构建消息
-        MessageBoardContentMessage<UserVo> messageBoardContentMessage = new MessageBoardContentMessage<>();
-        UserVo userVo = UserVo.userToVo(loginUser);
-        messageBoardContentMessage.setUser(userVo);
-        messageBoardContentMessage.setContent(message);
-        messageBoardContentMessage.setSendTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        messageBoardContentMessages.add(messageBoardContentMessage);
-        String messageContent = JSON.toJSONString(messageBoardContentMessages);
+        // 4. 新增并序列化
+        String messageContent = getMessageBoardContent(message, 0, loginUser.getId(), userTeam.getTeacherId(), messageBoardBefore);
 
-        // 构建数据
+        // 5. 构建数据
         MessageBoard messageBoard = new MessageBoard();
         messageBoard.setContent(messageContent);
         messageBoard.setTeacherid(userTeam.getTeacherId());
-        messageBoard.setCreatetime(new Date());
-        messageBoard.setUpdatetime(new Date());
 
-        // 存储数据
+        // 6. 存储数据
         if (messageBoardBefore == null) {
+            messageBoard.setCreatetime(new Date());
             messageBoardMapper.insert(messageBoard);
         } else {
             messageBoardMapper.update(new UpdateWrapper<MessageBoard>().eq("teacherId", userTeam.getTeacherId()).set("content", messageContent));
@@ -90,33 +81,20 @@ public class MessageBoardServiceImpl implements MessageBoardService {
         // 1. 鉴权
         Teacher loginTeacher = checkTeacherLoginStatus(request, redisCache);
 
-        // 取出原来的消息内容
-        List<MessageBoardContentMessage> messageBoardContentMessages = null;
+        // 2. 获取所有留言
         MessageBoard messageBoardBefore = messageBoardMapper.selectOne(new QueryWrapper<MessageBoard>().eq("teacherId", loginTeacher.getId()));
-        if (messageBoardBefore == null) {
-            messageBoardContentMessages = new ArrayList<>();
-        } else {
-            messageBoardContentMessages = JSON.parseArray(messageBoardBefore.getContent(), MessageBoardContentMessage.class);
-        }
 
-        // 构建消息
-        MessageBoardContentMessage<TeacherVo> messageBoardContentMessage = new MessageBoardContentMessage<>();
-        TeacherVo teacherVo = TeacherVo.teacherToVo(loginTeacher);
-        messageBoardContentMessage.setUser(teacherVo);
-        messageBoardContentMessage.setContent(message);
-        messageBoardContentMessage.setSendTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        messageBoardContentMessages.add(messageBoardContentMessage);
-        String messageContent = JSON.toJSONString(messageBoardContentMessages);
+        // 3. 新增并序列化
+        String messageContent = getMessageBoardContent(message, 1, null, loginTeacher.getId(), messageBoardBefore);
 
-        // 构建数据
+        // 4. 构建数据
         MessageBoard messageBoard = new MessageBoard();
         messageBoard.setContent(messageContent);
         messageBoard.setTeacherid(loginTeacher.getId());
-        messageBoard.setCreatetime(new Date());
-        messageBoard.setUpdatetime(new Date());
 
-        // 存储数据
+        // 5. 存储数据
         if (messageBoardBefore == null) {
+            messageBoard.setCreatetime(new Date());
             messageBoardMapper.insert(messageBoard);
         } else {
             messageBoardMapper.update(new UpdateWrapper<MessageBoard>().eq("teacherId", loginTeacher.getId()).set("content", messageContent));
@@ -124,7 +102,7 @@ public class MessageBoardServiceImpl implements MessageBoardService {
     }
 
     @Override
-    public List<MessageBoardContentMessage> getMessageBoard(HttpServletRequest request, String symbol) {
+    public List<MessageBoardContentMessageVo> getMessageBoard(HttpServletRequest request, String symbol) {
         // 登录鉴权
         Long teacherId = null;
 
@@ -134,6 +112,9 @@ public class MessageBoardServiceImpl implements MessageBoardService {
         } else {
             User user = checkUserLoginStatus(request, redisCache);
             UserTeam userTeam = userTeamMapper.selectOne(new QueryWrapper<UserTeam>().eq("userId", user.getId()).eq("isJoin", 1));
+            if (userTeam == null) {
+                throw new IllegalArgumentException("您还未入队，请加入队伍后使用此功能");
+            }
             teacherId = userTeam.getTeacherId();
         }
 
@@ -142,9 +123,59 @@ public class MessageBoardServiceImpl implements MessageBoardService {
         if (messageBoard == null) {
             return null;
         }
-        List<MessageBoardContentMessage> messageBoardContentMessages = JSON.parseArray(messageBoard.getContent(), MessageBoardContentMessage.class);
+        List<MessageBoardContent> messageBoardContentMessages = JSON.parseArray(messageBoard.getContent(), MessageBoardContent.class);
 
-        return messageBoardContentMessages;
+        // 构建结果
+        List<MessageBoardContentMessageVo> messageBoardContentMessageVos = new ArrayList<>();
+        for (MessageBoardContent messageBoardContent : messageBoardContentMessages) {
+            MessageBoardContentMessageVo messageBoardContentMessageVo = new MessageBoardContentMessageVo();
+            if (messageBoardContent.getUserId() != null) {
+                User sendUser = userMapper.selectById(messageBoardContent.getUserId());
+                messageBoardContentMessageVo.setUser(sendUser);
+            } else {
+                Teacher sendTeacher = teacherMapper.selectById(messageBoardContent.getTeacherId());
+                messageBoardContentMessageVo.setUser(sendTeacher);
+            }
+            messageBoardContentMessageVo.setContent(messageBoardContent.getContent());
+            messageBoardContentMessageVo.setSendTime(messageBoardContent.getSendTime());
+            messageBoardContentMessageVos.add(messageBoardContentMessageVo);
+        }
 
+        return messageBoardContentMessageVos;
+
+    }
+
+    /**
+     * 获取原留言板消息内容，新增新的一条留言，返回 json 序列化后的结果
+     * @param message 新的留言
+     * @param type 学生为0，教师为1
+     * @param userId 学生 id，如果是教师则为 null
+     * @param teacherId 教师 id，必传
+     * @return json 序列化后的结果
+     */
+    private String getMessageBoardContent(String message, int type, Long userId, Long teacherId, MessageBoard messageBoardBefore) {
+        // 取出原来的消息内容
+        List<MessageBoardContent> messageBoardContentMessages = null;
+        if (messageBoardBefore == null) {
+            messageBoardContentMessages = new ArrayList<>();
+        } else {
+            messageBoardContentMessages = JSON.parseArray(messageBoardBefore.getContent(), MessageBoardContent.class);
+        }
+
+        // 构建消息
+        MessageBoardContent messageBoardContentMessage = new MessageBoardContent();
+        if (type == 1) {
+            messageBoardContentMessage.setUserId(null);
+            messageBoardContentMessage.setTeacherId(teacherId);
+        } else {
+            messageBoardContentMessage.setTeacherId(null);
+            messageBoardContentMessage.setUserId(userId);
+        }
+        messageBoardContentMessage.setContent(message);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        messageBoardContentMessage.setSendTime(sdf.format(new Date()));
+        messageBoardContentMessages.add(messageBoardContentMessage);
+        return JSON.toJSONString(messageBoardContentMessages);
     }
 }

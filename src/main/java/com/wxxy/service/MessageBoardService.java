@@ -1,6 +1,6 @@
 package com.wxxy.service;
 
-import com.wxxy.vo.MessageBoardContentMessage;
+import com.wxxy.vo.MessageBoardContentMessageVo;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -10,5 +10,5 @@ public interface MessageBoardService {
 
     void teacherSendMessage(String message, HttpServletRequest request);
 
-    List<MessageBoardContentMessage> getMessageBoard(HttpServletRequest request, String symbol);
+    List<MessageBoardContentMessageVo> getMessageBoard(HttpServletRequest request, String symbol);
 }

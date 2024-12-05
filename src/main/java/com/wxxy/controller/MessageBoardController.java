@@ -4,7 +4,7 @@ import com.wxxy.common.Code;
 import com.wxxy.service.MessageBoardService;
 import com.wxxy.utils.ResultUtils;
 import com.wxxy.vo.BaseResponse;
-import com.wxxy.vo.MessageBoardContentMessage;
+import com.wxxy.vo.MessageBoardContentMessageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -43,8 +43,8 @@ public class MessageBoardController {
     @Operation(summary = "获取留言板内容")
     @Parameters({@Parameter(name = "symbol", description = "传入标识：1 是老师，0 是学生")})
     @GetMapping("/get/messageBoard")
-    public BaseResponse<List<MessageBoardContentMessage>> getMessageBoard (HttpServletRequest request, String symbol) {
-        List<MessageBoardContentMessage> messageContent = messageBoardService.getMessageBoard(request, symbol);
+    public BaseResponse<List<MessageBoardContentMessageVo>> getMessageBoard (HttpServletRequest request, String symbol) {
+        List<MessageBoardContentMessageVo> messageContent = messageBoardService.getMessageBoard(request, symbol);
         return ResultUtils.failure(Code.SUCCESS, messageContent, "查询留言板消息成功！");
     }
 }

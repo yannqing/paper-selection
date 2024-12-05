@@ -4,15 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
+/**
+ * 数据库留言板内容存储（json 格式）
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageBoardContentMessage<T> implements Serializable {
-    // 消息发送者
-    private T user;
-    // 消息内容
+public class MessageBoardContent {
+    // 学生 id，默认 null
+    private Long userId;
+    // 教师 id，默认 null
+    private Long teacherId;
+    // 消息具体内容
     private String content;
     // 消息发送时间
     private String sendTime;

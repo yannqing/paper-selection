@@ -18,6 +18,8 @@ public class CheckLoginUtils {
             "/student/getJoinedTeacherStatus",
             "/student/getAll",
             "/student/getAccount",
+            "/message-board/student/send",
+            "/message-board/get/messageBoard",
     };
     public static final String[] whiteTeacherURL = {
             "/teacher/uploadAvatar",
@@ -29,6 +31,8 @@ public class CheckLoginUtils {
             "/teacher/getMySelectedStudent",
             "/teacher/getMyJoinedStudent",
             "/teacher/getCountOfTeam",
+            "/message-board/teacher/send",
+            "/message-board/get/messageBoard",
     };
 
     public static final List<String> whiteStudents = Arrays.asList(whiteStudentURL);
