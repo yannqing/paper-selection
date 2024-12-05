@@ -13,6 +13,8 @@ import java.io.Serializable;
  * 返回前端的留言板信息封装
  */
 public class MessageBoardContentMessageVo<T> implements Serializable {
+    // 消息唯一 id
+    private String id;
     // 消息发送者
     private T user;
     // 消息内容

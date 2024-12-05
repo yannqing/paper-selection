@@ -133,6 +133,7 @@ public class MessageBoardServiceImpl implements MessageBoardService {
                 Teacher sendTeacher = teacherMapper.selectById(messageBoardContent.getTeacherId());
                 messageBoardContentMessageVo.setUser(sendTeacher);
             }
+            messageBoardContentMessageVo.setId(messageBoardContent.getId());
             messageBoardContentMessageVo.setContent(messageBoardContent.getContent());
             messageBoardContentMessageVo.setSendTime(messageBoardContent.getSendTime());
             messageBoardContentMessageVos.add(messageBoardContentMessageVo);
