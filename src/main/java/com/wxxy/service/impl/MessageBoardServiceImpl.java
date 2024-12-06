@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.wxxy.utils.CheckLoginUtils.checkTeacherLoginStatus;
@@ -171,9 +173,10 @@ public class MessageBoardServiceImpl implements MessageBoardService {
             messageBoardContentMessage.setUserId(userId);
         }
         messageBoardContentMessage.setContent(message);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        messageBoardContentMessage.setSendTime(sdf.format(new Date()));
+        ZonedDateTime shanghaiTime = ZonedDateTime.now(TimeZone.getTimeZone("Asia/Shanghai").toZoneId());
+        // 格式化时间
+        String formattedTime = shanghaiTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        messageBoardContentMessage.setSendTime(formattedTime);
         messageBoardContentMessages.add(messageBoardContentMessage);
         return JSON.toJSONString(messageBoardContentMessages);
     }
