@@ -722,6 +722,13 @@ public class AdminServiceImpl implements AdminService {
         return true;
     }
 
+    /**
+     * 从队伍中删除某个学生
+     * @param userId
+     * @param teacherId
+     * @param request
+     * @return
+     */
     @Override
     public boolean removeFromTeam(Long userId, Long teacherId, HttpServletRequest request) {
         //鉴权
@@ -744,6 +751,12 @@ public class AdminServiceImpl implements AdminService {
         return true;
     }
 
+    /**
+     * 随机分配
+     * @param request
+     * @return
+     * @throws InterruptedException
+     */
     @Override
     public Integer distribute(HttpServletRequest request) throws InterruptedException {
         log.info("管理员第三轮筛选：随机分配！");
@@ -810,6 +823,11 @@ public class AdminServiceImpl implements AdminService {
         return result;
     }
 
+    /**
+     * 删除所有学生
+     * @param request
+     * @return
+     */
     @Override
     public boolean deleteAllStudents(HttpServletRequest request) {
         //1. 鉴权
@@ -889,6 +907,64 @@ public class AdminServiceImpl implements AdminService {
         }
         EasyExcel.write(exportUrl + fileName, ExportExcelData.class).sheet("模板").doWrite(exportData);
         return "/download/export/" + fileName;
+    }
+
+    /**
+     * 添加部分学生到队伍中
+     * @param userIds
+     * @param teacherId
+     * @param request
+     */
+    @Override
+    public void addStudentsToTeam(Long[] userIds, Long teacherId, HttpServletRequest request) {
+        //1. 鉴权
+        checkRole(request);
+        //2. 参数校验
+        if (userIds == null || userIds.length == 0 || teacherId == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        List<Long> userIdList = Arrays.asList(userIds);
+        List<User> users = userMapper.selectBatchIds(userIdList);
+        if (users.size() != userIds.length) {
+            throw new IllegalArgumentException("有学生不存在，请重试");
+        }
+        Teacher teacher = teacherMapper.selectById(teacherId);
+        if (teacher == null) {
+            throw new IllegalArgumentException("教师队伍不存在，请重试");
+        }
+
+        //3. 判断学生是否入队
+        users.forEach(user -> {
+            UserTeam userTeam = userTeamMapper.selectOne(new QueryWrapper<UserTeam>().eq("userId", user.getId()));
+            if (userTeam != null && userTeam.getIsJoin() == 1) {
+                throw new IllegalArgumentException("存在学生已经入队，操作失败，请重试");
+            }
+        });
+
+        //4. 判断教师队伍剩余名额，是否足够
+        if (teacher.getMaxNum() - teacher.getCurrentNum() < users.size()) {
+            throw new IllegalArgumentException("队伍剩余名额不足，无法加入，请重试");
+        }
+
+        //5. 入队
+        users.forEach(user -> {
+            UserTeam userTeam = new UserTeam();
+            userTeam.setUserId(user.getId());
+            userTeam.setTeacherId(teacherId);
+            userTeam.setIsJoin(1);
+            userTeamMapper.insert(userTeam);
+        });
+
+        //6. 减去老师队伍队伍名额
+        teacherMapper.update(new UpdateWrapper<Teacher>().eq("id", teacherId).set("currentNum", teacher.getCurrentNum() + users.size()));
+
+        //7. 删去所有学生在其他队伍的申请情况
+        users.forEach(user -> {
+            UserTeam userTeam = userTeamMapper.selectOne(new QueryWrapper<UserTeam>().eq("userId", user.getId()).eq("isJoin", 0));
+            if (userTeam != null) {
+                userTeamMapper.deleteById(userTeam.getId());
+            }
+        });
     }
 
     private ExportExcelData getExportExcelData(Teacher teacher, User user, String status) {

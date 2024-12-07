@@ -56,4 +56,6 @@ public interface AdminService {
     boolean deleteAllStudents(HttpServletRequest request);
 
     String exportExcel(HttpServletRequest request);
+
+    void addStudentsToTeam(Long[] userIds, Long teacherId, HttpServletRequest request);
 }
